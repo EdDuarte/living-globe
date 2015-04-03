@@ -1,0 +1,115 @@
+<html> 
+<head> 
+	<title>My first Three.js app</title> 
+	<style> 
+		body { margin: 0; } 
+		canvas { width: 100%; height: 100% } 
+	</style> 
+</head> 
+<body> 
+	<script type="text/javascript" src="three.js"></script>
+	<script type="text/javascript" src="OrbitControls.js"></script>
+	<script type="text/javascript" src="TrackballControls.js"></script>
+	<script> 
+		var width = window.innerWidth;
+		var height = window.innerHeight;
+		var aspectRatio = width / height;
+
+		var scene = new THREE.Scene(); 
+		var camera = new THREE.OrthographicCamera( -3, 3, -3 / aspectRatio, 3 / aspectRatio, 1, 1000); 
+		var controls = new THREE.TrackballControls(camera);
+		var renderer = new THREE.WebGLRenderer();
+
+		var light1 = new THREE.DirectionalLight(0xffffff, 1.5);
+		light1.position.set(0, -5, 0);
+	  	scene.add(light1);
+
+		var light2 = new THREE.AmbientLight(0xffffff);
+		light2.position.set(0, -5, 0);
+	  	scene.add(light2);
+
+		var light3 = new THREE.DirectionalLight(0xff0000, 3.5);
+		light3.position.set(-5, 0, 0);
+	  	scene.add(light3);
+
+		var light4 = new THREE.DirectionalLight(0x0066FF, 3.5);
+		light4.position.set(5, 0, 0);
+	  	scene.add(light4);
+
+		var light4 = new THREE.SpotLight(0x33CC33, 3.5);
+		light4.position.set(0, 0, -5);
+	  	scene.add(light4);
+
+		var light5 = new THREE.PointLight(0xFFFF00, 3.5);
+		light5.position.set(0, 0, 5);
+	  	scene.add(light5);
+
+		renderer.setSize(window.innerWidth, window.innerHeight); 
+		document.body.appendChild(renderer.domElement);
+
+		var geometry1 = new THREE.SphereGeometry(1,10,10);
+		var material1 = new THREE.MeshPhongMaterial({
+			wireframe: false,
+			ambient: '#006063',
+	        color: '#ffabb1',
+	        specular: '#a9fcff',
+	        shininess: 100,
+	        shading: THREE.SmoothShading
+		});
+
+		var geometry2 = new THREE.SphereGeometry(1,10,10);
+		var material2 = new THREE.MeshLambertMaterial({
+			wireframe: false,
+			ambient: '#006063',
+	        color: '#ffabb1',
+	        specular: '#a9fcff',
+	        shininess: 100,
+	        shading: THREE.FlatShading
+		});
+
+		var geometry3 = new THREE.SphereGeometry(1,10,10);
+		var glassMaterial = new THREE.MeshPhongMaterial({
+			color: 0x0,
+         	specular: 0xFFFFFF,
+         	shininess: 100,
+         	opacity: 0.5,
+         	transparent: true
+		});
+
+		camera.position.z = 5;
+
+		var sphere1 = new THREE.Mesh( geometry1, material1 );
+		scene.add( sphere1 );
+		sphere1.translateX(-1.5);
+
+		var sphere2 = new THREE.Mesh( geometry2, material2 );
+		scene.add( sphere2 );
+		sphere2.translateX(1.5);
+
+		var sphere3 = new THREE.Mesh( geometry2, glassMaterial );
+		scene.add( sphere3 );
+		sphere3.translateY(1.5);
+
+
+		function render() {
+			requestAnimationFrame(render);
+			renderer.render(scene, camera);
+			controls.update();
+			//cube.rotation.x += 0.1;
+			//cube.rotation.y += 0.1;
+			
+		}
+
+		window.addEventListener('resize', function () {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+	    });
+
+		render();
+
+
+	</script> 
+</body> 
+</html>
