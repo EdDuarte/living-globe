@@ -1,0 +1,61 @@
+<html> 
+<head> 
+	<title>Dados Demograficos Mudiais </title> 
+	<style> 
+		body { margin: 0; } 
+		canvas { width: 100%; height: 100% } 
+	</style> 
+</head> 
+<body> 
+	<script type="text/javascript" src="three.js"></script>
+	<script type="text/javascript" src="OrbitControls.js"></script>
+	<script type="text/javascript" src="TrackballControls.js"></script>
+	<script> 
+		var width = window.innerWidth;
+		var height = window.innerHeight;
+		var aspectRatio = width / height;
+		
+		var scene = new THREE.Scene(); 
+		var camera = new THREE.PerspectiveCamera( 75, width / height, 0.1, 1000 );
+		var controls = new THREE.TrackballControls(camera);
+		var renderer = new THREE.WebGLRenderer();
+		
+
+		//function add3dWorld() {
+        var world = new THREE.SphereGeometry(1,10,10);
+        var texture = THREE.ImageUtils.loadTexture("imgs/earth_specularmap_high.jpg");
+
+        var material =  new THREE.MeshPhongMaterial( {
+            map: texture,
+            shininess: 1 } );
+        
+        var sp = new THREE.Mesh(world,material);
+        scene.add(sp);
+
+        camera.position.z = 5
+
+    	//}
+		
+		function render() {
+			requestAnimationFrame(render);
+			renderer.render(scene, camera);
+			controls.update();
+			//cube.rotation.x += 0.1;
+			//cube.rotation.y += 0.1;
+			
+		}
+
+		//window.addEventListener('resize', function () {
+		//	camera.aspect = window.innerWidth / window.innerHeight;
+		//	camera.updateProjectionMatrix();
+
+		//	renderer.setSize(window.innerWidth, window.innerHeight);
+	    //});
+
+
+		//add3dWorld ();
+		render();
+
+	</script> 
+</body> 
+</html>
