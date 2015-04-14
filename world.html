@@ -17,25 +17,59 @@
 		
 		var scene = new THREE.Scene(); 
 		var camera = new THREE.PerspectiveCamera( 75, width / height, 0.1, 1000 );
+//		var camera = new THREE.OrthographicCamera( -3, 3, -3 / aspectRatio, 3 / aspectRatio, 1, 1000); 
 		var controls = new THREE.TrackballControls(camera);
 		var renderer = new THREE.WebGLRenderer();
 		
+		renderer.setSize( window.innerWidth, window.innerHeight ); 
+		document.body.appendChild( renderer.domElement );
 
 		//function add3dWorld() {
-        var world = new THREE.SphereGeometry(1,10,10);
-        var texture = THREE.ImageUtils.loadTexture("imgs/earth_specularmap_high.jpg");
-
-        var material =  new THREE.MeshPhongMaterial( {
-            map: texture,
-            shininess: 1 } );
+        var world = new THREE.SphereGeometry(60,25,25);
+        //var texture = THREE.ImageUtils.loadTexture("imgs/earth_specularmap_high.jpg");
+		var m1 = new THREE.MeshPhongMaterial({
+				ambient: '#040404',
+				specular: '#040404',
+				shininess: 1,
+		});
+		m1.map = new THREE.ImageUtils.loadTexture("imgs/earth_specularmap_low.jpg");
+		
+		
+		var sol = new THREE.DirectionalLight( 0xfffff, 1.5 ); 
+		sol.position.set( 0, 0, 1 ); 
+		scene.add( sol );
         
-        var sp = new THREE.Mesh(world,material);
+        var sol1 = new THREE.DirectionalLight( 0xfffff, 1.5 ); 
+		sol1.position.set( 1, 0, 0 );
+		scene.add( sol1 );
+
+		var sol2 = new THREE.DirectionalLight( 0xfffff, 1.5 ); 
+		sol2.position.set( 0, 1, 0 );
+		scene.add( sol2 );
+
+		/*var light2 = new THREE.AmbientLight(0xffffff);
+		light2.position.set(0, -5, 0);
+	  	scene.add(light2);*/
+
+        var sp = new THREE.Mesh(world,m1);
         scene.add(sp);
 
-        camera.position.z = 5
-
+        camera.position.z = 120;
+		
     	//}
 		
+		function latLongToVector3(lat, lon, radius, heigth) {
+        	
+        	var phi = (lat)*Math.PI/180;
+        	var theta = (lon-180)*Math.PI/180;
+ 
+        	var x = -(radius+heigth) * Math.cos(phi) * Math.cos(theta);
+        	var y = (radius+heigth) * Math.sin(phi);
+        	var z = (radius+heigth) * Math.cos(phi) * Math.sin(theta);
+ 
+        	return new THREE.Vector3(x,y,z);
+    }
+
 		function render() {
 			requestAnimationFrame(render);
 			renderer.render(scene, camera);
@@ -54,8 +88,26 @@
 
 
 		//add3dWorld ();
+		//var position = latLongToVector3(-15,78, -47,93, 2, 1);
+		var position = latLongToVector3(38.73, -9.13, 59, 1);
+		alert(position.x);
+		alert(position.y);
+		alert(position.z);
+		var g = new THREE.BoxGeometry( 1, 1, 1 );
+		var m2 = new THREE.MeshBasicMaterial( {color: 0xfffffff} );
+		var cube = new THREE.Mesh( g, m2 );
+		cube.position.x = position.x;
+		cube.position.y = position.y;
+		cube.position.z = position.z;
+		alert(cube.position.x);
+		cube.lookAt( new THREE.Vector3(0,0,0) );
+		scene.add( cube ); 
+
 		render();
 
+
+            // position the cube correctly
+            
 	</script> 
 </body> 
 </html>
