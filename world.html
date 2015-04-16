@@ -10,7 +10,31 @@
 	<script type="text/javascript" src="three.js"></script>
 	<script type="text/javascript" src="OrbitControls.js"></script>
 	<script type="text/javascript" src="TrackballControls.js"></script>
+	<script type="text/javascript" src="Utils.js"></script>
+	<script type="text/javascript" src="jquery.csv-0.71.min.js"></script>
+	<script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+
 	<script> 
+		var countryData;
+		var countryBox = [];
+		$(document).ready(function() {
+		    $.ajax({
+		        type: "GET",
+		        url: "Dados/dados.csv",
+		        dataType: "text",
+		        success: function(data) {
+		        	processData(data);}
+		     });
+		});
+
+		function processData (data)
+		{ 
+			 countryData = CSVToArray(data);
+			 addPopulation (countryData);
+			 //alert (countryData.length);
+
+		}
+
 		var width = window.innerWidth;
 		var height = window.innerHeight;
 		var aspectRatio = width / height;
@@ -85,34 +109,6 @@
 
 		//	renderer.setSize(window.innerWidth, window.innerHeight);
 	    //});
-
-
-		//add3dWorld ();
-		//var position = latLongToVector3(-15,78, -47,93, 2, 1);
-		var position = latLongToVector3(38.73, -9.13, 59, 1);
-//		alert(position.x);
-//		alert(position.y);
-//		alert(position.z);
-		var g = new THREE.BoxGeometry( 1, 1, 1 );
-		var m2 = new THREE.MeshBasicMaterial( {color: 0xfffffff} );
-		var cube = new THREE.Mesh( g, m2 );
-		cube.position.x = position.x;
-		cube.position.y = position.y;
-		cube.position.z = position.z;
-		cube.lookAt( new THREE.Vector3(0,0,0) );
-		scene.add( cube ); 
-
-		position = latLongToVector3(-15.78, -47.93, 59, 1);
-		var g1 = new THREE.BoxGeometry( 0.5, 0.5, 10 );
-		var m3 = new THREE.MeshBasicMaterial( {color: 0xfffffff} );
-		var cube1 = new THREE.Mesh( g1, m3 );
-		cube1.position.x = position.x;
-		cube1.position.y = position.y;
-		cube1.position.z = position.z;
-		cube1.lookAt( new THREE.Vector3(0,0,0) );
-		scene.add( cube1 ); 
-
-
 		var projector = new THREE.Projector(), 
 				mouse_vector = new THREE.Vector3(), 
 				mouse = { x: 0, y: 0, z: 1 },
@@ -138,34 +134,67 @@
 			ray.set(camera.position, direction);
 
 			//Verifica se o raio intersetou algum objeto na cena
-			cube.material.color.setHex( 0xffffff );
-			cube1.material.color.setHex( 0xffffff );
-			intersects = ray.intersectObject(cube);
-			if (intersects.length) {
-				//cube.material.color.setHex( 0xff0000 );
-				cube.material.color.setHex( 0xff0000 );
+			for (var i = 0 ; i < countryBox.length-1 ; i++) {
+				countryBox[i].material.color.setHex( 0xffffff );
+//			cube.material.color.setHex( 0xffffff );
+//			cube1.material.color.setHex( 0xffffff );
+			}
+			for (var i = 0 ; i < countryBox.length-1 ; i++) {
+				intersects = ray.intersectObject(countryBox[i]);
+				if (intersects.length) {
+					//cube.material.color.setHex( 0xff0000 );
+					alert (countryBox[i].material.color);
+					countryBox[i].material.color.setHex( 0xff0000 );
 
 				//alert("hit");
+				}
 			}
-			intersects = ray.intersectObject(cube1);
-			if (intersects.length) {
-				cube1.material.color.setHex( 0xff0000 );
-				//cube.material.color.setHex( 0x00abb1 );
-				//alert("hit");
-				alert (mouse.x);
-				alert (mouse.y);
-			}
-
-
 		}
 			renderer.domElement.addEventListener('mousedown', onMouseDown);
 			
+ 		function addPopulation(countryData){
+        // the geometry that will contain all our cubes
+	        var geom = new THREE.Geometry();
+	        // material to use for each of our elements. Could use a set of materials to
+	        // add colors relative to the density. Not done here.
+	        var cubeMat = new THREE.MeshLambertMaterial({color: 0xffffff,opacity:0.6, emissive:0xffffff});
+	        for (var i = 1 ; i < countryData.length-1 ; i++) {
+	 
+	            //get the data, and set the offset, we need to do this since the x,y coordinates
+	            //from the data aren't in the correct format
+	            var lat = parseInt(countryData[i][2]);
+	            var lon = parseInt((countryData[i][3]));
+	            var population = parseInt((countryData[i][5]));
+	           // var value = parseFloat(data[i][2]);
+	 
+	            // calculate the position where we need to start the cube
+	            var position = latLongToVector3(lat, lon, 59, 1);
+	 
+	            // create the cube
+	            var box = new THREE.BoxGeometry( 0.5, 0.5, population/ 5000000 );
+				var cube = new THREE.Mesh( box, cubeMat );
+	 
+	            // position the cube correctly
+				cube.position.x = position.x;
+				cube.position.y = position.y;
+				cube.position.z = position.z;
+	            cube.lookAt( new THREE.Vector3(0,0,0) );
+	 
+	            // merge with main model
+				scene.add( cube ); 
+				countryBox.push (cube);
 
-
+	        }
+ 
+        // create a new mesh, containing all the other meshes.
+        //var total = new THREE.Mesh(geom,new THREE.MeshFaceMaterial());
+ 
+        // and add the total mesh to the scene
+       	}
 
 		render();
-
-
+		
+		
             // position the cube correctly
             
 	</script> 
