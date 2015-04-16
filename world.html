@@ -3,7 +3,7 @@
 	<title>Dados Demograficos Mudiais </title> 
 	<style> 
 		body { margin: 0; } 
-		canvas { width: 100%; height: 100% } 
+		canvas { width: 100%; height: 100%; horizontal-align:right; } 
 	</style> 
 </head> 
 <body> 
@@ -13,6 +13,35 @@
 	<script type="text/javascript" src="Utils.js"></script>
 	<script type="text/javascript" src="jquery.csv-0.71.min.js"></script>
 	<script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="numeral.min.js"></script>
+
+<div id="parametros" style="z-index: 100; position: absolute; background-color:red;  top: 5px;
+    left: 5px; 
+height :100%;
+width: 250px;">
+
+<spam id="DadosPais" style="color: white;"></spam>
+
+<select>
+  <option value="1">População</option>
+  <option value="2">Nascimentos/ano</option>
+  <option value="3">Mortes/ano</option>
+</select>
+
+<BR><BR>
+
+<select>
+  <option value="1">População</option>
+  <option value="2">Nascimentos/ano</option>
+  <option value="3">Mortes/ano</option>
+</select>
+<select>
+  <option value="1">Maior</option>
+  <option value="2">Menor</option>
+  <option value="2">Igual</option>
+</select>
+<input></input>
+</div>
 
 	<script> 
 		var countryData;
@@ -35,7 +64,7 @@
 
 		}
 
-		var width = window.innerWidth;
+		var width = window.innerWidth;// * 0.8;
 		var height = window.innerHeight;
 		var aspectRatio = width / height;
 		
@@ -45,7 +74,7 @@
 		var controls = new THREE.TrackballControls(camera);
 		var renderer = new THREE.WebGLRenderer();
 		
-		renderer.setSize( window.innerWidth, window.innerHeight ); 
+		renderer.setSize( width, height ); 
 		document.body.appendChild( renderer.domElement );
 
 		//function add3dWorld() {
@@ -123,6 +152,7 @@
 			mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
 			mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 			
+
 			//Vector 3D que indica a direção do vetor a partir do pixel
 			mouse_vector.set(mouse.x, mouse.y, mouse.z);
 
@@ -134,16 +164,18 @@
 			ray.set(camera.position, direction);
 
 			//Verifica se o raio intersetou algum objeto na cena
-			for (var i = 0 ; i < countryBox.length-1 ; i++) {
+			/*for (var i = 0 ; i < countryBox.length-1 ; i++) {
 				countryBox[i].material.color.setHex( 0xffffff );
 //			cube.material.color.setHex( 0xffffff );
 //			cube1.material.color.setHex( 0xffffff );
-			}
+			}*/
 			for (var i = 0 ; i < countryBox.length-1 ; i++) {
 				intersects = ray.intersectObject(countryBox[i]);
 				if (intersects.length) {
+					DadosPais.innerHTML = MostraDados (countryData[i+1])
 					//cube.material.color.setHex( 0xff0000 );
-					alert (countryBox[i].material.color);
+					//scene.remove(countryBox[i])
+					//alert (countryBox[i].material.color);
 					countryBox[i].material.color.setHex( 0xff0000 );
 
 				//alert("hit");
@@ -151,7 +183,16 @@
 			}
 		}
 			renderer.domElement.addEventListener('mousedown', onMouseDown);
-			
+		function MostraDados (linha)	
+		{
+			texto = "<b>Pais</b>:" + linha[0] + 
+					"<br><b>Capital</b>:" +linha[1] + 
+					"<br><b>Área:" + numeral(linha[4]).format('0,0') + " KM^2"+
+					"<br><b>População</b>:" + numeral(linha[5]).format('0,0') + " Pessoas";
+
+
+			return texto;
+		}
  		function addPopulation(countryData){
         // the geometry that will contain all our cubes
 	        var geom = new THREE.Geometry();
@@ -193,10 +234,14 @@
        	}
 
 		render();
-		
+		//document.getElementbyID ("parametros").left=width;
+		parametros.style.left  = 0;
 		
             // position the cube correctly
             
 	</script> 
+
+
+
 </body> 
 </html>
