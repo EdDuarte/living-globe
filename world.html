@@ -45,7 +45,9 @@ width: 250px;">
 
 	<script> 
 		var countryData;
+		var countryRepresented = [];
 		var countryBox = [];
+		var maxPopulation=0, maxDensity=0, maxBirths=0, maxDeads=0;
 		$(document).ready(function() {
 		    $.ajax({
 		        type: "GET",
@@ -59,11 +61,31 @@ width: 250px;">
 		function processData (data)
 		{ 
 			 countryData = CSVToArray(data);
-			 addPopulation (countryData);
+			 analyseMaxValues ();
+			 addData (countryData);
 			 //alert (countryData.length);
 
 		}
 
+		function analyseMaxValues ()
+		{
+			//a ideia é gravar os valores maximos para fazer uma escala
+			for (var i = 1 ; i < countryData.length-1 ; i++) {
+	 
+	            if (maxPopulation < parseInt((countryData[i][5])))
+	            	maxPopulation = parseInt((countryData[i][5]))
+	            if (maxDensity < parseInt((countryData[i][6])))
+	            	maxDensity = parseInt((countryData[i][6]))
+	            if (maxBirths < parseInt((countryData[i][8])))
+	            	maxBirths = parseInt((countryData[i][8]))
+	            if (maxDeads < parseInt((countryData[i][12])))
+	            	maxDeads = parseInt((countryData[i][12]))
+	        }
+	        alert (maxPopulation);
+	        alert (maxDensity);
+	        alert (maxBirths);
+	        alert (maxDeads);
+		}
 		var width = window.innerWidth;// * 0.8;
 		var height = window.innerHeight;
 		var aspectRatio = width / height;
@@ -172,7 +194,7 @@ width: 250px;">
 			for (var i = 0 ; i < countryBox.length-1 ; i++) {
 				intersects = ray.intersectObject(countryBox[i]);
 				if (intersects.length) {
-					DadosPais.innerHTML = MostraDados (countryData[i+1])
+					DadosPais.innerHTML = MostraDados (countryRepresented[i])
 					//cube.material.color.setHex( 0xff0000 );
 					//scene.remove(countryBox[i])
 					//alert (countryBox[i].material.color);
@@ -193,12 +215,15 @@ width: 250px;">
 
 			return texto;
 		}
- 		function addPopulation(countryData){
-        // the geometry that will contain all our cubes
-	        var geom = new THREE.Geometry();
-	        // material to use for each of our elements. Could use a set of materials to
-	        // add colors relative to the density. Not done here.
-	        var cubeMat = new THREE.MeshLambertMaterial({color: 0xffffff,opacity:0.6, emissive:0xffffff});
+ 		function addData(countryData){
+        	
+        	//remover as barras anteriores
+        	for (var i = 0 ; i < countryBox.length-1 ; i++) {
+				scene.remove (countryBox[i]) 
+			}
+        	//the geometry that will contain all our cubes
+	        countryRepresented = []
+
 	        for (var i = 1 ; i < countryData.length-1 ; i++) {
 	 
 	            //get the data, and set the offset, we need to do this since the x,y coordinates
@@ -206,25 +231,17 @@ width: 250px;">
 	            var lat = parseInt(countryData[i][2]);
 	            var lon = parseInt((countryData[i][3]));
 	            var population = parseInt((countryData[i][5]));
-	           // var value = parseFloat(data[i][2]);
-	 
-	            // calculate the position where we need to start the cube
-	            var position = latLongToVector3(lat, lon, 59, 1);
-	 
-	            // create the cube
-	            var box = new THREE.BoxGeometry( 0.5, 0.5, population/ 5000000 );
-				var cube = new THREE.Mesh( box, cubeMat );
-	 
-	            // position the cube correctly
-				cube.position.x = position.x;
-				cube.position.y = position.y;
-				cube.position.z = position.z;
-	            cube.lookAt( new THREE.Vector3(0,0,0) );
-	 
-	            // merge with main model
-				scene.add( cube ); 
-				countryBox.push (cube);
+	            var density = parseInt((countryData[i][6]));
+	            var births = parseInt((countryData[i][8]));
+	            var deads = parseInt((countryData[i][12]));
 
+	           
+	 			if ( population >100000000)
+	 			{
+	            	//adicionar dados
+	            	addCountryData (lat,lon,population/ 5000000)
+	            	countryRepresented.push (countryData[i])
+				}
 	        }
  
         // create a new mesh, containing all the other meshes.
@@ -232,7 +249,25 @@ width: 250px;">
  
         // and add the total mesh to the scene
        	}
+       	function addCountryData (lat,lon,value)
+       	{
+			var position = latLongToVector3(lat, lon, 59, 1);
 
+	        // create the cube
+			var cubeMat = new THREE.MeshLambertMaterial({color: 0xffffff,opacity:0.6, emissive:0xffffff});
+	        var box = new THREE.BoxGeometry( 0.5, 0.5,  value );
+			var cube = new THREE.Mesh( box, cubeMat );
+
+	        // position the cube correctly
+			cube.position.x = position.x;
+			cube.position.y = position.y;
+			cube.position.z = position.z;
+	        cube.lookAt( new THREE.Vector3(0,0,0) );
+
+	        // merge with main model
+			scene.add( cube ); 
+			countryBox.push (cube);
+       	}
 		render();
 		//document.getElementbyID ("parametros").left=width;
 		parametros.style.left  = 0;
