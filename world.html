@@ -10,19 +10,17 @@
 }
 	</style> 
 <meta charset="UTF-8">
-  <link rel="stylesheet" href="css/bootstrap-slider.css">
   <link rel="stylesheet" href="css/bootstrap-slider.min.css">
 
 </head> 
 <body> 
-	<script type="text/javascript" src="three.js"></script>
-	<script type="text/javascript" src="OrbitControls.js"></script>
-	<script type="text/javascript" src="TrackballControls.js"></script>
-	<script type="text/javascript" src="Utils.js"></script>
-	<script type="text/javascript" src="jquery.csv-0.71.min.js"></script>
-	<script type="text/javascript" src="jquery-1.11.2.min.js"></script>
-	<script type="text/javascript" src="numeral.min.js"></script>
-	<script type="text/javascript" src="bootstrap-slider.min.js"></script>
+	<script type="text/javascript" src="js/three.js"></script>
+	<script type="text/javascript" src="js/TrackballControls.js"></script>
+	<script type="text/javascript" src="js/utils.js"></script>
+	<script type="text/javascript" src="js/jquery.csv-0.71.min.js"></script>
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/numeral.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-slider.min.js"></script>
 
 <div id="parametros" style="z-index: 100; position: absolute; background-color:red;  top: 5px;
     left: 5px; 
@@ -74,7 +72,7 @@ Mortes:</input><BR> <b>0</b> <input id="sliderMor" type="text" class="span2" val
 		$(document).ready(function() {
 		    $.ajax({
 		        type: "GET",
-		        url: "Dados/dados.csv",
+		        url: "data/data.csv",
 		        dataType: "text",
 		        success: function(data) {
 		        	processData(data);}
@@ -136,13 +134,13 @@ Mortes:</input><BR> <b>0</b> <input id="sliderMor" type="text" class="span2" val
 
 		//function add3dWorld() {
         var world = new THREE.SphereGeometry(60,25,25);
-        //var texture = THREE.ImageUtils.loadTexture("imgs/earth_specularmap_high.jpg");
+        //var texture = THREE.ImageUtils.loadTexture("img/earth_specularmap_high.jpg");
 		var m1 = new THREE.MeshPhongMaterial({
 				ambient: '#040404',
 				specular: '#040404',
 				shininess: 1,
 		});
-		m1.map = new THREE.ImageUtils.loadTexture("imgs/earth_specularmap_low.jpg");
+		m1.map = new THREE.ImageUtils.loadTexture("img/earth_specularmap_low.jpg");
 		
 		
 		var sol = new THREE.DirectionalLight( 0xfffff, 1.5 ); 
