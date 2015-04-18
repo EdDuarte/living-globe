@@ -13,7 +13,6 @@
 
 	<script src="js/three.js"></script>
 	<script src="js/detector.js"></script>
-	<script src="js/OrbitControls.js"></script>
 	<script src="js/TrackballControls.js"></script>
 	<script src="js/THREEx.FullScreen.js"></script>
 	<script src="js/THREEx.WindowResize.js"></script>
@@ -127,7 +126,7 @@
 
 			// RENDERER
 			if (Detector.webgl) {
-				renderer = new THREE.WebGLRenderer( {antialias:false} );
+				renderer = new THREE.WebGLRenderer({ antialias:false });
 			} else {
 				renderer = new THREE.CanvasRenderer(); 
 			}
@@ -151,13 +150,16 @@
 			// CONTROLS
 			controls = new THREE.TrackballControls( camera, renderer.domElement );
 
-			// LIGHT
-			var light = new THREE.PointLight(0xffffff);
-			light.position.set(100,250,100);
-			scene.add(light);
+			// LIGHTS
+			var light1 = new THREE.PointLight(0xffffff);
+			light1.position.set(100,250,100);
+			scene.add(light1);
+
+			var light2 = new THREE.AmbientLight(0xffffff);
+			light2.position.set(100,250,100);
+			scene.add(light2);
 
 			// SKYBOX
-			/*
 			var imagePrefix = "img/nebula-",
 			directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"],
 			imageSuffix = ".png",
@@ -168,8 +170,7 @@
 					side: THREE.BackSide
 				}));
 			var skyBox = new THREE.Mesh( new THREE.CubeGeometry( 5000, 5000, 5000 ), new THREE.MeshFaceMaterial( materialArray ) );
-			scene.add( skyBox );
-			*/
+			scene.add(skyBox);
 
 
 			// Create the "lookup texture", which contains a colored pixel for each country
@@ -198,9 +199,10 @@
 					width:      { type: "f", value: window.innerWidth },
 					height:     { type: "f", value: window.innerHeight },
 					mapIndex:   { type: "t", value: mapTexture },
-					// outline:    { type: "t", value: outlineTexture },
+					outline:    { type: "t", value: outlineTexture },
+					// outlineLevel: {type: 'f', value: 1 },
 					lookup:     { type: "t", value: lookupTexture },
-					blendImage: { type: "t", value: blendImage }
+					// blendImage: { type: "t", value: blendImage }
 				},
 				vertexShader:   document.getElementById( 'globeVertexShader'   ).textContent,
 				fragmentShader: document.getElementById( 'globeFragmentShader' ).textContent
@@ -364,6 +366,16 @@
 			renderer.clear();
 			renderer.render( scene, camera );
 			// composer.render(); // anti-aliasing
+		}
+
+		function createStars(radius, segments) {
+			return new THREE.Mesh(
+				new THREE.SphereGeometry(radius, segments, segments),
+					new THREE.MeshBasicMaterial({
+						map: THREE.ImageUtils.loadTexture('img/galaxy_starfield.png'),
+						side: THREE.BackSide
+					})
+				);
 		}
 
 	</script>
