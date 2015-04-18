@@ -120,6 +120,7 @@ Mortes:</input><BR> <b>0</b> <input id="sliderMor" type="text" class="span2" val
 	        //alert (maxBirths);
 	        //alert (maxDeads);
 		}
+		
 		var width = window.innerWidth;// * 0.8;
 		var height = window.innerHeight;
 		var aspectRatio = width / height;
@@ -250,7 +251,6 @@ Mortes:</input><BR> <b>0</b> <input id="sliderMor" type="text" class="span2" val
         	//remover as barras anteriores
         	for (var i = 0 ; i < countryBox.length-1 ; i++) {
 				scene.remove (countryBox[i]) 
-				countryBox[i] = null;
 			}
         	//the geometry that will contain all our cubes
 	        countryRepresented = [];
@@ -308,19 +308,22 @@ Mortes:</input><BR> <b>0</b> <input id="sliderMor" type="text" class="span2" val
        	{
 			var position = latLongToVector3(lat, lon, 59, 1);
 
-	        // create the cube
+	        // criar o cubo
 			var cubeMat = new THREE.MeshLambertMaterial({color: 0xffffff,opacity:0.6, emissive:0xffffff});
-	        var box = new THREE.BoxGeometry( 1, 1,  value );
+	        
+	        var box = new THREE.BoxGeometry( 0.5, 0.5,  value );
 			var cube = new THREE.Mesh( box, cubeMat );
 
-	        // position the cube correctly
+	        // posiciona-lo
 			cube.position.x = position.x;
 			cube.position.y = position.y;
 			cube.position.z = position.z;
 	        cube.lookAt( new THREE.Vector3(0,0,0) );
 
-	        // merge with main model
+	        //adicionar à cena
 			scene.add( cube ); 
+			
+			//adicionar ao array dos cubos
 			countryBox.push (cube);
        	}
 		render();
