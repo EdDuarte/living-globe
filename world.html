@@ -9,7 +9,7 @@
 	background: #BABABA;
 }
 	</style> 
-
+<meta charset="UTF-8">
   <link rel="stylesheet" href="css/bootstrap-slider.css">
   <link rel="stylesheet" href="css/bootstrap-slider.min.css">
 
@@ -29,17 +29,17 @@
 height :100%;
 width: 250px;">
 
-<input type="radio" name="rPop" value="male" checked/>
-População:<BR> <b>0</b> <input id="sliderPop" type="text" class="span2" value="" data-slider-min="1" data-slider-max="1400000000" data-slider-step="5000000" data-slider-value="[1,1400000000]"/> <b>1400 M</b>
+<input type="radio" id="rPop" checked name="data" onClick="addData (countryData);">População:</input>
+<BR> <b>0</b> <input id="sliderPop" type="text" class="span2" value="" data-slider-min="1" data-slider-max="1400000000" data-slider-step="5000000" data-slider-value="[1,1400000000]"/> <b>1400 M</b>
 <BR>
-<input type="radio" name="rPop" value="male" />
-Densidade:<BR> <b>0</b> <input id="sliderDen" type="text" class="span2" value="" data-slider-min="1" data-slider-max="1100000" data-slider-step="50000" data-slider-value="[1,1100000]"/> <b>1.1 M</b>
+<input type="radio" id="rDen" name="data" onClick="addData (countryData);">
+Densidade:</input><BR> <b>0</b> <input id="sliderDen" type="text" class="span2" value="" data-slider-min="1" data-slider-max="1100000" data-slider-step="50000" data-slider-value="[1,1100000]"/> <b>1.1 M</b>
 <BR>
-<input type="radio" name="rPop" value="male" />
-Nascimentos:<BR> <b>0</b> <input id="sliderNasc" type="text" class="span2" value="" data-slider-min="1" data-slider-max="25000000" data-slider-step="100000" data-slider-value="[1,25000000]"/><b>25 M</b>
+<input type="radio" id="rNasc" name="data" onClick="addData (countryData);">
+Nascimentos:</input><BR> <b>0</b> <input id="sliderNasc" type="text" class="span2" value="" data-slider-min="1" data-slider-max="25000000" data-slider-step="100000" data-slider-value="[1,25000000]"/><b>25 M</b>
 <BR>
-<input type="radio" name="rPop" value="male" />
-Mortes:<BR> <b>0</b> <input id="sliderMor" type="text" class="span2" value="" data-slider-min="1" data-slider-max="9600000" data-slider-step="100000" data-slider-value="[1,9600000]"/> <b>96 M</b>	
+<input type="radio" id="rMor" name="data" onClick="addData (countryData);">
+Mortes:</input><BR> <b>0</b> <input id="sliderMor" type="text" class="span2" value="" data-slider-min="1" data-slider-max="9600000" data-slider-step="100000" data-slider-value="[1,9600000]"/> <b>96 M</b>	
 <BR>
 
 <spam id="DadosPais" style="color: white;"></spam>
@@ -104,6 +104,17 @@ Mortes:<BR> <b>0</b> <input id="sliderMor" type="text" class="span2" value="" da
 	            if (maxDeads < parseInt((countryData[i][12])))
 	            	maxDeads = parseInt((countryData[i][12]))
 	        }
+
+	        //definir range das sliders:
+	        sPopulation.option.max = maxPopulation;
+	        sPopulation.option.step = maxPopulation/1000;
+	        sDensity.option.max = maxDensity;
+	        sPopulation.option.step = maxDensity/1000;
+	        sBirths.option.max = maxBirths;
+	        sPopulation.option.step = maxBirths/1000;
+	        sDeads.option.max = maxDeads;
+	        sPopulation.option.step = maxDeads/1000;
+
 	        //alert (maxPopulation);
 	        //alert (maxDensity);
 	        //alert (maxBirths);
@@ -272,8 +283,18 @@ Mortes:<BR> <b>0</b> <input id="sliderMor" type="text" class="span2" value="" da
 
 	 			if ( addThisCountry )
 	 			{
+	            	var value = 0;
 	            	//adicionar dados
-	            	addCountryData (lat,lon,population/ 5000000)
+	            	if ( rPop.checked )
+	            		value = (population * 100 ) / maxPopulation;
+	            	else if ( rDen.checked )
+	            		value = (density * 100 ) / maxDensity;
+	            	else if ( rNasc.checked )
+	            		value = (births * 100 ) / maxBirths;
+	            	else if ( rMor.checked )
+	            		value = (sDeads * 100 ) / maxDeads;
+		            
+		            addCountryData (lat,lon,value)
 	            	countryRepresented.push (countryData[i])
 				}
 	        }
@@ -289,7 +310,7 @@ Mortes:<BR> <b>0</b> <input id="sliderMor" type="text" class="span2" value="" da
 
 	        // create the cube
 			var cubeMat = new THREE.MeshLambertMaterial({color: 0xffffff,opacity:0.6, emissive:0xffffff});
-	        var box = new THREE.BoxGeometry( 0.5, 0.5,  value );
+	        var box = new THREE.BoxGeometry( 1, 1,  value );
 			var cube = new THREE.Mesh( box, cubeMat );
 
 	        // position the cube correctly
