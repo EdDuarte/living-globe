@@ -4,7 +4,15 @@
 	<style> 
 		body { margin: 0; } 
 		canvas { width: 100%; height: 100%; horizontal-align:right; } 
+
+#ex1Slider .slider-selection {
+	background: #BABABA;
+}
 	</style> 
+
+  <link rel="stylesheet" href="css/bootstrap-slider.css">
+  <link rel="stylesheet" href="css/bootstrap-slider.min.css">
+
 </head> 
 <body> 
 	<script type="text/javascript" src="three.js"></script>
@@ -14,40 +22,55 @@
 	<script type="text/javascript" src="jquery.csv-0.71.min.js"></script>
 	<script type="text/javascript" src="jquery-1.11.2.min.js"></script>
 	<script type="text/javascript" src="numeral.min.js"></script>
+	<script type="text/javascript" src="bootstrap-slider.min.js"></script>
 
 <div id="parametros" style="z-index: 100; position: absolute; background-color:red;  top: 5px;
     left: 5px; 
 height :100%;
 width: 250px;">
 
+<input type="radio" name="rPop" value="male" checked/>
+População:<BR> <b>0</b> <input id="sliderPop" type="text" class="span2" value="" data-slider-min="1" data-slider-max="1400000000" data-slider-step="5000000" data-slider-value="[1,1400000000]"/> <b>1400 M</b>
+<BR>
+<input type="radio" name="rPop" value="male" />
+Densidade:<BR> <b>0</b> <input id="sliderDen" type="text" class="span2" value="" data-slider-min="1" data-slider-max="1100000" data-slider-step="50000" data-slider-value="[1,1100000]"/> <b>1.1 M</b>
+<BR>
+<input type="radio" name="rPop" value="male" />
+Nascimentos:<BR> <b>0</b> <input id="sliderNasc" type="text" class="span2" value="" data-slider-min="1" data-slider-max="25000000" data-slider-step="100000" data-slider-value="[1,25000000]"/><b>25 M</b>
+<BR>
+<input type="radio" name="rPop" value="male" />
+Mortes:<BR> <b>0</b> <input id="sliderMor" type="text" class="span2" value="" data-slider-min="1" data-slider-max="9600000" data-slider-step="100000" data-slider-value="[1,9600000]"/> <b>96 M</b>	
+<BR>
+
 <spam id="DadosPais" style="color: white;"></spam>
 
-<select>
-  <option value="1">População</option>
-  <option value="2">Nascimentos/ano</option>
-  <option value="3">Mortes/ano</option>
-</select>
-
-<BR><BR>
-
-<select>
-  <option value="1">População</option>
-  <option value="2">Nascimentos/ano</option>
-  <option value="3">Mortes/ano</option>
-</select>
-<select>
-  <option value="1">Maior</option>
-  <option value="2">Menor</option>
-  <option value="2">Igual</option>
-</select>
-<input></input>
 </div>
 
 	<script> 
-		var countryData;
+		//Sliders
+		var sPopulation = new Slider('#sliderPop', {});
+		var sDensity = new Slider('#sliderDen', {});
+		var sBirths = new Slider('#sliderNasc', {});
+		var sDeads = new Slider('#sliderMor', {});
+
+		var countryData=[];
 		var countryRepresented = [];
 		var countryBox = [];
 		var maxPopulation=0, maxDensity=0, maxBirths=0, maxDeads=0;
+		
+		sPopulation.on("change",  function(slideEvt) {
+			addData (countryData);
+		});
+		sDensity.on("change",  function(slideEvt) {
+			addData (countryData);
+		});
+		sBirths.on("change",  function(slideEvt) {
+			addData (countryData);
+		});
+		sDeads.on("change",  function(slideEvt) {
+			addData (countryData);
+		});
+		
 		$(document).ready(function() {
 		    $.ajax({
 		        type: "GET",
@@ -81,10 +104,10 @@ width: 250px;">
 	            if (maxDeads < parseInt((countryData[i][12])))
 	            	maxDeads = parseInt((countryData[i][12]))
 	        }
-	        alert (maxPopulation);
-	        alert (maxDensity);
-	        alert (maxBirths);
-	        alert (maxDeads);
+	        //alert (maxPopulation);
+	        //alert (maxDensity);
+	        //alert (maxBirths);
+	        //alert (maxDeads);
 		}
 		var width = window.innerWidth;// * 0.8;
 		var height = window.innerHeight;
@@ -191,15 +214,11 @@ width: 250px;">
 //			cube.material.color.setHex( 0xffffff );
 //			cube1.material.color.setHex( 0xffffff );
 			}*/
+
 			for (var i = 0 ; i < countryBox.length-1 ; i++) {
 				intersects = ray.intersectObject(countryBox[i]);
 				if (intersects.length) {
 					DadosPais.innerHTML = MostraDados (countryRepresented[i])
-					//cube.material.color.setHex( 0xff0000 );
-					//scene.remove(countryBox[i])
-					//alert (countryBox[i].material.color);
-					countryBox[i].material.color.setHex( 0xff0000 );
-
 				//alert("hit");
 				}
 			}
@@ -220,9 +239,11 @@ width: 250px;">
         	//remover as barras anteriores
         	for (var i = 0 ; i < countryBox.length-1 ; i++) {
 				scene.remove (countryBox[i]) 
+				countryBox[i] = null;
 			}
         	//the geometry that will contain all our cubes
-	        countryRepresented = []
+	        countryRepresented = [];
+	        countryBox=[];
 
 	        for (var i = 1 ; i < countryData.length-1 ; i++) {
 	 
@@ -236,14 +257,27 @@ width: 250px;">
 	            var deads = parseInt((countryData[i][12]));
 
 	           
-	 			if ( population >100000000)
+	 			var addThisCountry = ( population >sPopulation.getValue()[0] && population < sPopulation.getValue()[1]);
+	 			
+
+	 			addThisCountry =  ( addThisCountry && density > sDensity.getValue()[0] && density < sDensity.getValue()[1]);
+	 			
+
+	 			addThisCountry = ( addThisCountry &&  births >sBirths.getValue()[0] && births < sBirths.getValue()[1]);
+	 			
+
+	 			addThisCountry = ( addThisCountry &&  deads >sDeads.getValue()[0] && deads < sDeads.getValue()[1]);
+	 			
+
+
+	 			if ( addThisCountry )
 	 			{
 	            	//adicionar dados
 	            	addCountryData (lat,lon,population/ 5000000)
 	            	countryRepresented.push (countryData[i])
 				}
 	        }
- 
+
         // create a new mesh, containing all the other meshes.
         //var total = new THREE.Mesh(geom,new THREE.MeshFaceMaterial());
  
@@ -275,7 +309,6 @@ width: 250px;">
             // position the cube correctly
             
 	</script> 
-
 
 
 </body> 
