@@ -17,8 +17,19 @@
 			width: 219px;
 			bottom: 0;
 			margin: 6px;
-			height: 400px;
 			width: 400px;
+			height: 400px;
+			/*background-color: red;*/
+		}
+		#credits {
+			position: fixed;
+			height: 26px;
+			width: 219px;
+			bottom: 0;
+			right: 0;
+			margin: 6px;
+			width: 400px;
+			height: 400px;
 			/*background-color: red;*/
 		}
 		h1, h2, h3, h4, h5, h6 {
@@ -43,22 +54,19 @@
 </head>
 
 <body>
-
-	<script type="text/javascript" src="js/three.js"></script>
-	<script type="text/javascript" src="js/OrbitControls.js"></script>
-	<script type="text/javascript" src="js/TrackballControls.js"></script>
-	<script type="text/javascript" src="js/utils.js"></script>
 	<script type="text/javascript" src="js/jquery.csv-0.71.min.js"></script>
 	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/jquery.nouislider.all.min.js"></script>
 	<script type="text/javascript" src="js/numeral.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap-slider.min.js"></script>
-	<script type="text/javascript" src="js/jquery.nouislider.all.min.js"></script>
-	
+
 	<script type="text/javascript" src="js/chroma.js"></script>
 	<script type="text/javascript" src="js/three.js"></script>
+	<script type="text/javascript" src="js/utils.js"></script>
 	<script type="text/javascript" src="js/detector.js"></script>
 	<script type="text/javascript" src="js/OrbitControls-Touch.js"></script>
+	<script type="text/javascript" src="js/TrackballControls.js"></script>
 	<script type="text/javascript" src="js/THREEx.FullScreen.js"></script>
 	<script type="text/javascript" src="js/THREEx.WindowResize.js"></script>
 
@@ -195,13 +203,12 @@
 			// EVENTS
 			THREEx.WindowResize(renderer, camera);
 			THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
-			document.addEventListener('mousemove', onMouseMove);
-			document.addEventListener('mousedown', onMouseDown);
+			renderer.domElement.addEventListener('mousemove', onMouseMove);
 			renderer.domElement.addEventListener('mousedown', onMouseDown);
-			document.addEventListener('mouseup', onMouseUp);
+			renderer.domElement.addEventListener('mouseup', onMouseUp);
 
 			// CONTROLS
-			controls = new THREE.OrbitControls( camera, renderer.domElement );
+			controls = new THREE.TrackballControls(camera, renderer.domElement);
 			controls.dynamicDampingFactor = 0.5;
 
 			// LIGHTS
