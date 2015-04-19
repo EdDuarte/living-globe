@@ -5,28 +5,73 @@
 	<title>3D Earth</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<link rel=stylesheet href="css/base.css"/>
-	<link rel=stylesheet href="css/jquery-ui.min.css" />
+	<link rel="stylesheet" href="css/base.css"/>
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/jquery.nouislider.min.css">
+	<link rel="stylesheet" href="css/jquery.nouislider.pips.css">
+	<link rel="stylesheet" href="css/jquery-ui.min.css" />
+	<style type="text/css">
+		#parameters {
+			position: fixed;
+			height: 26px;
+			width: 219px;
+			bottom: 0;
+			margin: 6px;
+			height: 400px;
+			width: 400px;
+			/*background-color: red;*/
+		}
+		h1, h2, h3, h4, h5, h6 {
+			font-family: 'Raleway', sans-serif;
+		}
+		p, div, button {
+			font-family: 'Raleway', sans-serif;
+		}
+		#sliderPopulation .noUi-connect {
+			background: #AA4439;
+		}
+		#sliderDensity .noUi-connect {
+			background: #AA7039;
+		}
+		#sliderBirth .noUi-connect {
+			background: #255E69;
+		}
+		#sliderDeath .noUi-connect {
+			background: #2B803E;
+		}
+	</style>
 </head>
 
 <body>
 
-	<script src="js/three.js"></script>
-	<script src="js/detector.js"></script>
-	<script src="js/TrackballControls.js"></script>
-	<script src="js/THREEx.FullScreen.js"></script>
-	<script src="js/THREEx.WindowResize.js"></script>
+	<script type="text/javascript" src="js/three.js"></script>
+	<script type="text/javascript" src="js/OrbitControls.js"></script>
+	<script type="text/javascript" src="js/TrackballControls.js"></script>
+	<script type="text/javascript" src="js/utils.js"></script>
+	<script type="text/javascript" src="js/jquery.csv-0.71.min.js"></script>
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/numeral.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-slider.min.js"></script>
+	<script type="text/javascript" src="js/jquery.nouislider.all.min.js"></script>
+	
+	<script type="text/javascript" src="js/chroma.js"></script>
+	<script type="text/javascript" src="js/three.js"></script>
+	<script type="text/javascript" src="js/detector.js"></script>
+	<script type="text/javascript" src="js/OrbitControls-Touch.js"></script>
+	<script type="text/javascript" src="js/THREEx.FullScreen.js"></script>
+	<script type="text/javascript" src="js/THREEx.WindowResize.js"></script>
 
-	<script src="js/postprocessing/EffectComposer.js"></script>
-	<script src="js/postprocessing/RenderPass.js"></script>
-	<script src="js/postprocessing/ShaderPass.js"></script>
-	<script src="js/postprocessing/MaskPass.js"></script>
+	<script type="text/javascript" src="js/postprocessing/EffectComposer.js"></script>
+	<script type="text/javascript" src="js/postprocessing/RenderPass.js"></script>
+	<script type="text/javascript" src="js/postprocessing/ShaderPass.js"></script>
+	<script type="text/javascript" src="js/postprocessing/MaskPass.js"></script>
 
-	<script src="js/shaders/CopyShader.js"></script>
-	<script src="js/shaders/FXAAShader.js"></script>
+	<script type="text/javascript" src="js/shaders/CopyShader.js"></script>
+	<script type="text/javascript" src="js/shaders/FXAAShader.js"></script>
 
-	<script src="js/jquery-1.11.2.min.js"></script>
-	<script src="js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui.min.js"></script>
 
 	<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
 
@@ -44,22 +89,26 @@
 	<script id="globeFragmentShader" type="x-shader/x-fragment">   
 		uniform sampler2D mapIndex;
 		uniform sampler2D lookup;
+		uniform sampler2D select;
 		uniform sampler2D outline;
 		uniform sampler2D blendImage;
 		varying vec3 vNormal;
 		varying vec2 vUv;
-		void main() 
-		{
-			vec4 mapColor = texture2D( mapIndex, vUv );    
-			float indexedColor = mapColor.y;       
+		void main() {
+			vec4 mapColor = texture2D( mapIndex, vUv );
+			float indexedColor = mapColor.y;
+
 			vec2 lookupUV = vec2( indexedColor, 0.0 );
-			vec4 lookupColor = texture2D( lookup, lookupUV );                              
+			vec4 lookupColor = texture2D( lookup, lookupUV );
+
+			vec2 selectUV = vec2( indexedColor, 0.0 );
+			vec4 selectColor = texture2D( select, selectUV );
+
 			vec4 outlineColor = texture2D( outline, vUv );
 			vec4 blendColor = texture2D( blendImage, vUv );
 			// if (outlineColor.x > 0.1) outlineColor = vec4(1.0,1.0,1.0,1.0);
 
-
-			gl_FragColor = 0.5 * outlineColor + 1.0 * lookupColor + 0.5 * blendColor;
+			gl_FragColor = 0.5 * outlineColor + 1.0 * lookupColor + 1.0 * selectColor + 0.5 * blendColor;
 		}
 	</script>
 
@@ -67,12 +116,16 @@
 
 		var lastMouseX = 0;
 		var lastMouseY = 0;
+		var selectCountry = false;
 
 		// standard global variables
 		var container, scene, camera, renderer, controls, stats;
 		var projector  = new THREE.Projector(),
 		mouse2D    = new THREE.Vector3( 0, 0, 0.5 ),
-		mapCanvas, mapContext, lookupCanvas, lookupContext, lookupTexture, composer;
+		mapCanvas, mapContext,
+		lookupCanvas, lookupContext, lookupTexture,
+		selectCanvas, selectContext, selectTexture,
+		composer;
 
 		// custom global variables
 		var mesh;
@@ -148,7 +201,8 @@
 			document.addEventListener('mouseup', onMouseUp);
 
 			// CONTROLS
-			controls = new THREE.TrackballControls( camera, renderer.domElement );
+			controls = new THREE.OrbitControls( camera, renderer.domElement );
+			controls.dynamicDampingFactor = 0.5;
 
 			// LIGHTS
 			var light1 = new THREE.PointLight(0xffffff);
@@ -184,6 +238,15 @@
 			lookupTexture.minFilter = THREE.NearestFilter;
 			lookupTexture.needsUpdate = true;
 
+			selectCanvas = document.createElement('canvas');	
+			selectCanvas.width = 256;
+			selectCanvas.height = 1;
+			selectContext = selectCanvas.getContext('2d');
+			selectTexture = new THREE.Texture( selectCanvas );
+			selectTexture.magFilter = THREE.NearestFilter;
+			selectTexture.minFilter = THREE.NearestFilter;
+			selectTexture.needsUpdate = true;
+
 			var mapTexture = THREE.ImageUtils.loadTexture("img/earth-index-shifted-gray.png");
 			mapTexture.magFilter = THREE.NearestFilter;
 			mapTexture.minFilter = THREE.NearestFilter;
@@ -199,10 +262,11 @@
 					width:      { type: "f", value: window.innerWidth },
 					height:     { type: "f", value: window.innerHeight },
 					mapIndex:   { type: "t", value: mapTexture },
-					outline:    { type: "t", value: outlineTexture },
+					outline:    { type: "t", value: 2 },
 					// outlineLevel: {type: 'f', value: 1 },
 					lookup:     { type: "t", value: lookupTexture },
-					// blendImage: { type: "t", value: blendImage }
+					select:     { type: "t", value: selectTexture },
+					blendImage: { type: "t", value: blendImage }
 				},
 				vertexShader:   document.getElementById( 'globeVertexShader'   ).textContent,
 				fragmentShader: document.getElementById( 'globeFragmentShader' ).textContent
@@ -249,20 +313,6 @@
 
 			mouse2D.x =   ( event.clientX / window.innerWidth  ) * 2 - 1;
 			mouse2D.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-		}
-
-		function onMouseDown(event) {
-			event.preventDefault();
-
-			lastMouseX =   ( event.clientX / window.innerWidth  ) * 2 - 1;
-			lastMouseY = - ( event.clientY / window.innerHeight ) * 2 + 1;
-		}
-
-		function onMouseUp(event) {
-			event.preventDefault();
-
-			mouse2D.x =   ( event.clientX / window.innerWidth  ) * 2 - 1;
-			mouse2D.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
 			var xdiff = lastMouseX - mouse2D.x;
 			if(xdiff < 0) {
@@ -276,6 +326,28 @@
 
 			if(xdiff > 0.05 || ydiff > 0.05) {
 				// it was a mouse drag, ignore and skip click event
+				selectCountry = false;
+			} else {
+				selectCountry = true;
+			}
+		}
+
+		function onMouseDown(event) {
+			event.preventDefault();
+
+			lastMouseX =   ( event.clientX / window.innerWidth  ) * 2 - 1;
+			lastMouseY = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			selectCountry = true;
+		}
+
+		function onMouseUp(event) {
+			event.preventDefault();
+
+			mouse2D.x =   ( event.clientX / window.innerWidth  ) * 2 - 1;
+			mouse2D.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			if(!selectCountry){
 				return;
 			}
 
@@ -298,21 +370,31 @@
 					}
 				}
 
-				lookupContext.clearRect(0,0,256,1);
+				// lookupContext.clearRect(0,0,256,1);
 
-				for (var i = 0; i < 228; i++)
-				{
-					if (i == 0) 
-						lookupContext.fillStyle = "rgba(0,0,0,1)"
-					else if (i == countryCode)
-						lookupContext.fillStyle = "rgba(50,50,0,0.5)"
-					else
-						lookupContext.fillStyle = "rgba(0,0,0,1)"
+				// for (var i = 0; i < 228; i++)
+				// {
+				// 	if (i == 0) {
+				// 		lookupContext.fillStyle = "rgba(0,0,0,1)"
 
-					lookupContext.fillRect( i, 0, 1, 1 );
+				// 	} else if (i == countryCode) {
+						// lookupContext.fillStyle = "rgba(50,50,0,0.5)"
+						// var hex = chroma(lookupContext.fillStyle).darken().hex();
+						// lookupContext.fillStyle = hex;
+
+					// } else {
+						// lookupContext.fillStyle = "rgba(0,0,0,1)"
+					// }
+
+					// lookupContext.fillRect( i, 0, 1, 1 );
+				// }
+				selectContext.clearRect(0,0,256,1);
+				if(countryCode!=0) {
+					selectContext.fillStyle = "#333333";
+					selectContext.fillRect( countryCode, 0, 1, 1 );
 				}
 
-				lookupTexture.needsUpdate = true;
+				selectTexture.needsUpdate = true;
 			}
 
 		}
@@ -346,13 +428,53 @@
 		}
 
 
-		colorCountry(150, "blue");
+
+		function addCountryData(lat,lon,value) {
+			var position = latLongToVector3(lat, lon, 59, 1);
+
+		    // criar o cubo
+		    var cubeMat = new THREE.MeshLambertMaterial({color: 0xffffff,opacity:0.6, emissive:0xffffff});
+
+		    var box = new THREE.CubeGeometry( 0.5, 0.5,  value );
+		    var cube = new THREE.Mesh( box, cubeMat );
+
+		    // posiciona-lo
+		    cube.position.x = position.x;
+		    cube.position.y = position.y;
+		    cube.position.z = position.z;
+		    cube.lookAt( new THREE.Vector3(0,0,0) );
+
+		    //adicionar à cena
+		    scene.add( cube ); 
+
+			//adicionar ao array dos cubos
+			countryBox.push (cube);
+		}
+
+		function findCountryCode(countryName){
+			countryName = countryName.toUpperCase();
+			for( var i in countryLookup ){
+				if( countryLookup[i] === countryName )
+					return i;
+			}
+			return 'not found';
+		}
+		// var maxRatio = Math.max.apply(Math, array);
+		// var minRatio = Math.min.apply(Math, array);
+
+		var scaleValue = scaleDown(9.73, 40.58, 0, 1, 40.3);
+		scale = chroma.scale(['red', 'green']);
+		var color = scale(scaleValue).hex();
+		
+		colorCountry(150, color);
 		colorCountry(44, "red");
+		colorCountry(3, "yellow");
+		colorCountry(118, "green");
 
 
 		function animate() {
 			requestAnimationFrame( animate );
-			render();		
+			render();
 			update();
 		}
 
@@ -365,17 +487,12 @@
 		function render() {
 			renderer.clear();
 			renderer.render( scene, camera );
-			// composer.render(); // anti-aliasing
+			composer.render(); // anti-aliasing
 		}
 
-		function createStars(radius, segments) {
-			return new THREE.Mesh(
-				new THREE.SphereGeometry(radius, segments, segments),
-					new THREE.MeshBasicMaterial({
-						map: THREE.ImageUtils.loadTexture('img/galaxy_starfield.png'),
-						side: THREE.BackSide
-					})
-				);
+		function scaleDown(oldRangeMax, oldRangeMin, newRangeMax, newRangeMin, input) {
+			var percent = (input - oldRangeMin) / (oldRangeMax - oldRangeMin);
+			return percent * (newRangeMax - newRangeMin) + newRangeMin;
 		}
 
 	</script>

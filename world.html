@@ -5,201 +5,440 @@
 		body { margin: 0; } 
 		canvas { width: 100%; height: 100%; horizontal-align:right; } 
 
-#ex1Slider .slider-selection {
-	background: #BABABA;
-}
+		#ex1Slider .slider-selection {
+			background: #BABABA;
+		}
 	</style> 
-<meta charset="UTF-8">
-  <link rel="stylesheet" href="css/bootstrap-slider.min.css">
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Raleway:300' type='text/css'>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/bootstrap-slider.min.css">
+	<link rel="stylesheet" href="css/jquery.nouislider.min.css">
+	<link rel="stylesheet" href="css/jquery.nouislider.pips.css">
+	<style type="text/css">
+		#parameters {
+			position: fixed;
+			height: 26px;
+			width: 219px;
+			bottom: 0;
+			margin: 6px;
+			height: 400px;
+			width: 400px;
+			/*background-color: red;*/
+		}
+		h1, h2, h3, h4, h5, h6 {
+			font-family: 'Raleway', sans-serif;
+		}
+		p, div, button {
+			font-family: 'Raleway', sans-serif;
+		}
+		#sliderPopulation .noUi-connect {
+			background: #AA4439;
+		}
+		#sliderDensity .noUi-connect {
+			background: #AA7039;
+		}
+		#sliderBirth .noUi-connect {
+			background: #255E69;
+		}
+		#sliderDeath .noUi-connect {
+			background: #2B803E;
+		}
+	</style>
 
 </head> 
 <body> 
 	<script type="text/javascript" src="js/three.js"></script>
+	<script type="text/javascript" src="js/OrbitControls.js"></script>
 	<script type="text/javascript" src="js/TrackballControls.js"></script>
 	<script type="text/javascript" src="js/utils.js"></script>
 	<script type="text/javascript" src="js/jquery.csv-0.71.min.js"></script>
 	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
 	<script type="text/javascript" src="js/numeral.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap-slider.min.js"></script>
+	<script type="text/javascript" src="js/jquery.nouislider.all.min.js"></script>
 
-<div id="parametros" style="z-index: 100; position: absolute; background-color:red;  top: 5px;
-    left: 5px; 
-height :100%;
-width: 250px;">
+	<div id="parameters" >
+		<br/><br/>
 
-<input type="radio" id="rPop" checked name="data" onClick="addData (countryData);">População:</input>
-<BR> <b>0</b> <input id="sliderPop" type="text" class="span2" value="" data-slider-min="1" data-slider-max="1400000000" data-slider-step="5000000" data-slider-value="[1,1400000000]"/> <b>1400 M</b>
-<BR>
-<input type="radio" id="rDen" name="data" onClick="addData (countryData);">
-Densidade:</input><BR> <b>0</b> <input id="sliderDen" type="text" class="span2" value="" data-slider-min="1" data-slider-max="1100000" data-slider-step="50000" data-slider-value="[1,1100000]"/> <b>1.1 M</b>
-<BR>
-<input type="radio" id="rNasc" name="data" onClick="addData (countryData);">
-Nascimentos:</input><BR> <b>0</b> <input id="sliderNasc" type="text" class="span2" value="" data-slider-min="1" data-slider-max="25000000" data-slider-step="100000" data-slider-value="[1,25000000]"/><b>25 M</b>
-<BR>
-<input type="radio" id="rMor" name="data" onClick="addData (countryData);">
-Mortes:</input><BR> <b>0</b> <input id="sliderMor" type="text" class="span2" value="" data-slider-min="1" data-slider-max="9600000" data-slider-step="100000" data-slider-value="[1,9600000]"/> <b>96 M</b>	
-<BR>
+		<table>
+			<tr>
+				<td width="80px">
+					<div id="sliderPopulation" style="height: 300px;"></div>
+					<div id="sliderDensity" hidden="true" style="height: 300px;"></div>
+					<div id="sliderBirth" hidden="true" style="height: 300px;"></div>
+					<div id="sliderDeath" hidden="true" style="height: 300px;"></div>
+				</td>
+				<td>
+					<spam id="detailsContainer" style="color: white;">
+						a
+					</spam>
+				</td>
+			</tr>
+		</table>
+		<br/>
+		<div class="btn-group" data-toggle="buttons-radio">
+			<button id="buttonPopulation" type="button" class="btn btn-large btn-inverse btn active">Population</button>
+			<button id="buttonDensity" type="button" class="btn btn-large btn-inverse">Density</button>
+			<button id="buttonBirth" type="button" class="btn btn-large btn-inverse">Birth Rate</button>
+			<button id="buttonDeath" type="button" class="btn btn-large btn-inverse">Death Rate</button>
+		</div>
 
-<spam id="DadosPais" style="color: white;"></spam>
+	</div>
 
-</div>
+	<div id="worldContainer" style="width: 100%; height: 100%; background-color:black; " />
 
-	<script> 
-		//Sliders
-		var sPopulation = new Slider('#sliderPop', {});
-		var sDensity = new Slider('#sliderDen', {});
-		var sBirths = new Slider('#sliderNasc', {});
-		var sDeads = new Slider('#sliderMor', {});
-
-		var countryData=[];
+	<script>
+		var countryData = [];
 		var countryRepresented = [];
 		var countryBox = [];
-		var maxPopulation=0, maxDensity=0, maxBirths=0, maxDeads=0;
-		
-		sPopulation.on("change",  function(slideEvt) {
-			addData (countryData);
+
+		var maxPopulation = 14 * 1000000;
+		var maxDensity = 1.1 * 1000000;
+		var maxBirths = 25 * 1000000;
+		var maxDeaths = 9.6 * 1000000;
+
+		var selectedMinPopulation = 0;
+		var selectedMaxPopulation = maxPopulation;
+		var selectedMinDensity = 0;
+		var selectedMaxDensity = maxDensity;
+		var selectedMinBirths = 0;
+		var selectedMaxBirths = maxBirths;
+		var selectedMinDeaths = 0;
+		var selectedMaxDeaths = maxDeaths;
+
+		// data type can be 0 (population), 1 (density), 2 (birth rate) and 3 (death rate)
+		var selectedDataType = 0;
+
+		// setup sliders
+		var sPopulation = $('#sliderPopulation').noUiSlider({
+			start: [selectedMinPopulation, selectedMaxPopulation],
+			orientation: 'vertical',
+			direction: 'rtl',
+			steps: 10,
+			connect: true,
+			range: {
+				'min': 0,
+				'max': maxPopulation
+			}
 		});
-		sDensity.on("change",  function(slideEvt) {
-			addData (countryData);
+		sPopulation.noUiSlider_pips({
+			mode: 'steps',
+			density: 5
 		});
-		sBirths.on("change",  function(slideEvt) {
-			addData (countryData);
+		sPopulation.on({
+			slide: function(){
+				newRange = sPopulation.val();
+				selectedMinPopulation = newRange[0];
+				selectedMaxPopulation = newRange[1];
+				addDataToWorld(countryData);
+			}
 		});
-		sDeads.on("change",  function(slideEvt) {
-			addData (countryData);
+		var sDensity = $('#sliderDensity').noUiSlider({
+			start: [selectedMinDensity, selectedMaxDensity],
+			orientation: 'vertical',
+			direction: 'rtl',
+			steps: 10,
+			connect: true,
+			range: {
+				'min': 0,
+				'max': maxDensity
+			}
 		});
-		
+		sDensity.noUiSlider_pips({
+			mode: 'steps',
+			density: 5
+		});
+		sDensity.on({
+			slide: function(){
+				newRange = sDensity.val();
+				selectedMinDensity = newRange[0];
+				selectedMaxDensity = newRange[1];
+				addDataToWorld(countryData);
+			}
+		});
+		var sBirth = $('#sliderBirth').noUiSlider({
+			start: [selectedMinBirths, selectedMaxBirths],
+			orientation: 'vertical',
+			direction: 'rtl',
+			steps: 10,
+			connect: true,
+			range: {
+				'min': 0,
+				'max': maxBirths
+			}
+		});
+		sBirth.noUiSlider_pips({
+			mode: 'steps',
+			density: 5
+		});
+		sBirth.on({
+			slide: function(){
+				newRange = sBirth.val();
+				selectedMinBirths = newRange[0];
+				selectedMaxBirths = newRange[1];
+				addDataToWorld(countryData);
+			}
+		});
+		var sDeath = $('#sliderDeath').noUiSlider({
+			start: [selectedMinDeaths, selectedMaxDeaths],
+			orientation: 'vertical',
+			direction: 'rtl',
+			steps: 10,
+			connect: true,
+			range: {
+				'min': 0,
+				'max': maxDeaths
+			}
+		});
+		sDeath.noUiSlider_pips({
+			mode: 'steps',
+			density: 5
+		});
+		sDeath.on({
+			slide: function(){
+				newRange = sDeath.val();
+				selectedMinDeaths = newRange[0];
+				selectedMaxDeaths = newRange[1];
+				addDataToWorld(countryData);
+			}
+		});
+
+		$('#buttonPopulation').click(function(){
+			sPopulation.show();
+			sDensity.hide();
+			sBirth.hide();
+			sDeath.hide();
+		});
+		$('#buttonDensity').click(function(){
+			sPopulation.hide();
+			sDensity.show();
+			sBirth.hide();
+			sDeath.hide();
+		});
+		$('#buttonBirth').click(function(){
+			sPopulation.hide();
+			sDensity.hide();
+			sBirth.show();
+			sDeath.hide();
+		});
+		$('#buttonDeath').click(function(){
+			sPopulation.hide();
+			sDensity.hide();
+			sBirth.hide();
+			sDeath.show();
+		});
+
+		// Initialize data
+
 		$(document).ready(function() {
-		    $.ajax({
-		        type: "GET",
-		        url: "data/data.csv",
-		        dataType: "text",
-		        success: function(data) {
-		        	processData(data);}
-		     });
+			$.ajax({
+				type: "GET",
+				url: "data.csv",
+				dataType: "text",
+				success: function(data) {
+					processData(data);}
+				});
 		});
 
-		function processData (data)
-		{ 
-			 countryData = CSVToArray(data);
-			 analyseMaxValues ();
-			 addData (countryData);
-			 //alert (countryData.length);
-
+		function processData (data) {
+			countryData = CSVToArray(data);
+			analyseMaxValues();
+			addDataToWorld(countryData);
+			//alert (countryData.length);
 		}
 
-		function analyseMaxValues ()
-		{
-			//a ideia é gravar os valores maximos para fazer uma escala
+		function analyseMaxValues() {
+			// get all max values and create a scale
 			for (var i = 1 ; i < countryData.length-1 ; i++) {
-	 
-	            if (maxPopulation < parseInt((countryData[i][5])))
-	            	maxPopulation = parseInt((countryData[i][5]))
-	            if (maxDensity < parseInt((countryData[i][6])))
-	            	maxDensity = parseInt((countryData[i][6]))
-	            if (maxBirths < parseInt((countryData[i][8])))
-	            	maxBirths = parseInt((countryData[i][8]))
-	            if (maxDeads < parseInt((countryData[i][12])))
-	            	maxDeads = parseInt((countryData[i][12]))
-	        }
+				if (maxPopulation < parseInt((countryData[i][5]))) {
+					maxPopulation = parseInt((countryData[i][5]))
+				}
 
-	        //definir range das sliders:
-	        sPopulation.option.max = maxPopulation;
-	        sPopulation.option.step = maxPopulation/1000;
-	        sDensity.option.max = maxDensity;
-	        sPopulation.option.step = maxDensity/1000;
-	        sBirths.option.max = maxBirths;
-	        sPopulation.option.step = maxBirths/1000;
-	        sDeads.option.max = maxDeads;
-	        sPopulation.option.step = maxDeads/1000;
+				if (maxDensity < parseInt((countryData[i][6]))) {
+					maxDensity = parseInt((countryData[i][6]))
+				}
 
-	        //alert (maxPopulation);
-	        //alert (maxDensity);
-	        //alert (maxBirths);
-	        //alert (maxDeads);
-		}
-		
-		var width = window.innerWidth;// * 0.8;
-		var height = window.innerHeight;
-		var aspectRatio = width / height;
-		
-		var scene = new THREE.Scene(); 
-		var camera = new THREE.PerspectiveCamera( 75, width / height, 0.1, 1000 );
-//		var camera = new THREE.OrthographicCamera( -3, 3, -3 / aspectRatio, 3 / aspectRatio, 1, 1000); 
-		var controls = new THREE.TrackballControls(camera);
-		var renderer = new THREE.WebGLRenderer();
-		
-		renderer.setSize( width, height ); 
-		document.body.appendChild( renderer.domElement );
+				if (maxBirths < parseInt((countryData[i][8]))) {
+					maxBirths = parseInt((countryData[i][8]))
+				}
 
-		//function add3dWorld() {
-        var world = new THREE.SphereGeometry(60,25,25);
-        //var texture = THREE.ImageUtils.loadTexture("img/earth_specularmap_high.jpg");
-		var m1 = new THREE.MeshPhongMaterial({
-				ambient: '#040404',
-				specular: '#040404',
-				shininess: 1,
-		});
-		m1.map = new THREE.ImageUtils.loadTexture("img/earth_specularmap_low.jpg");
-		
-		
-		var sol = new THREE.DirectionalLight( 0xfffff, 1.5 ); 
-		sol.position.set( 0, 0, 1 ); 
-		scene.add( sol );
-        
-        var sol1 = new THREE.DirectionalLight( 0xfffff, 1.5 ); 
-		sol1.position.set( 1, 0, 0 );
-		scene.add( sol1 );
+				if (maxDeaths < parseInt((countryData[i][12]))){
+					maxDeaths = parseInt((countryData[i][12]))
+				}
+			}
 
-		var sol2 = new THREE.DirectionalLight( 0xfffff, 1.5 ); 
-		sol2.position.set( 0, 1, 0 );
-		scene.add( sol2 );
+	        // get the range for the sliders based on the max values
+	        sPopulation.noUiSlider({
+			start: [0, maxPopulation],
+	        	range: {
+					'min': 0,
+	        		'max': maxPopulation
+	        	}
+	        }, true);
+	        sDensity.noUiSlider({
+			start: [0, maxDensity],
+	        	range: {
+					'min': 0,
+	        		'max': maxDensity
+	        	}
+	        }, true);
+	        sBirth.noUiSlider({
+			start: [0, maxBirths],
+	        	range: {
+					'min': 0,
+	        		'max': maxBirths
+	        	}
+	        }, true);
+	        sDeath.noUiSlider({
+			start: [0, maxDeaths],
+	        	range: {
+					'min': 0,
+	        		'max': maxDeaths
+	        	}
+	        }, true);
+	    }
 
-		/*var light2 = new THREE.AmbientLight(0xffffff);
-		light2.position.set(0, -5, 0);
-	  	scene.add(light2);*/
+	    var width = window.innerWidth;
+	    var height = window.innerHeight;
+	    var aspectRatio = width / height;
 
-        var sp = new THREE.Mesh(world,m1);
-        scene.add(sp);
+	    var scene = new THREE.Scene(); 
+	    var camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+	    var controls = new THREE.TrackballControls(camera);
+	    var renderer = new THREE.WebGLRenderer();
 
-        camera.position.z = 120;
-		
-    	//}
-		
-		function latLongToVector3(lat, lon, radius, heigth) {
-        	
-        	var phi = (lat)*Math.PI/180;
-        	var theta = (lon-180)*Math.PI/180;
- 
-        	var x = -(radius+heigth) * Math.cos(phi) * Math.cos(theta);
-        	var y = (radius+heigth) * Math.sin(phi);
-        	var z = (radius+heigth) * Math.cos(phi) * Math.sin(theta);
- 
-        	return new THREE.Vector3(x,y,z);
-    }
+	    renderer.setSize(width, height);
+	    worldContainer.appendChild(renderer.domElement);
 
-		function render() {
-			requestAnimationFrame(render);
-			renderer.render(scene, camera);
-			controls.update();
-			//cube.rotation.x += 0.1;
-			//cube.rotation.y += 0.1;
-			
-		}
+	    var world = new THREE.SphereGeometry(60,25,25);
+	    var m1 = new THREE.MeshPhongMaterial({
+	    	ambient: '#040404',
+	    	specular: '#040404',
+	    	shininess: 1,
+	    });
+	    m1.map = new THREE.ImageUtils.loadTexture("img/earth_specularmap_low.jpg");
 
-		//window.addEventListener('resize', function () {
-		//	camera.aspect = window.innerWidth / window.innerHeight;
-		//	camera.updateProjectionMatrix();
+	    var sol = new THREE.DirectionalLight( 0xfffff, 1.5 ); 
+	    sol.position.set( 0, 0, 1 ); 
+	    scene.add( sol );
 
-		//	renderer.setSize(window.innerWidth, window.innerHeight);
-	    //});
-		var projector = new THREE.Projector(), 
-				mouse_vector = new THREE.Vector3(), 
-				mouse = { x: 0, y: 0, z: 1 },
-				ray = new THREE.Raycaster(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0)),
-				intersects = [];
+	    var sol1 = new THREE.DirectionalLight( 0xfffff, 1.5 ); 
+	    sol1.position.set( 1, 0, 0 );
+	    scene.add( sol1 );
 
-		function onMouseDown(e) {
+	    var sol2 = new THREE.DirectionalLight( 0xfffff, 1.5 ); 
+	    sol2.position.set( 0, 1, 0 );
+	    scene.add( sol2 );
+
+	    var sp = new THREE.Mesh(world,m1);
+	    scene.add(sp);
+
+	    camera.position.z = 120;
+
+
+	    function latLongToVector3(lat, lon, radius, heigth) {
+
+	    	var phi = (lat)*Math.PI/180;
+	    	var theta = (lon-180)*Math.PI/180;
+
+	    	var x = -(radius+heigth) * Math.cos(phi) * Math.cos(theta);
+	    	var y = (radius+heigth) * Math.sin(phi);
+	    	var z = (radius+heigth) * Math.cos(phi) * Math.sin(theta);
+
+	    	return new THREE.Vector3(x,y,z);
+	    }
+
+	    var projector = new THREE.Projector(), 
+	    mouse_vector = new THREE.Vector3(), 
+	    mouse = { x: 0, y: 0, z: 1 },
+	    ray = new THREE.Raycaster(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0)),
+	    intersects = [];
+
+	    renderer.domElement.addEventListener('mousedown', onMouseDown);
+
+	    function getDetails(countryLine) {
+	    	text = "<h1>" + countryLine[0] + "</h1>"+
+	    	"<h3>" +countryLine[1] + "</h3>" +
+	    	"<h5>Area <span class='label'>" + numeral(countryLine[4]).format('0,0') + " KM^2</span></h5>" + 
+	    	"<h5>Population <span class='label label-info'>" + numeral(countryLine[5]).format('0,0') + "</span></h5>" + 
+	    	"<h5>Births <span class='label label-success'>" + numeral(countryLine[8]).format('0,0') + "</span></h5>" + 
+	    	"<h5>Deaths <span class='label label-warning'>" + numeral(countryLine[12]).format('0,0') + "</span></h5>";
+	    	return text;
+	    }
+
+	    function addDataToWorld(countryData) {
+
+	    	// remove previous cubes
+	    	for (var i = 0 ; i < countryBox.length-1 ; i++) {
+	    		scene.remove (countryBox[i]) 
+	    	}
+
+	       	// arrays that will contain all our cubes
+	       	countryRepresented = [];
+	       	countryBox = [];
+
+	       	for (var i = 1 ; i < countryData.length-1 ; i++) {
+
+		        // get the data, and set the offset, we need to do this since the x,y coordinates
+		        var lat = parseInt(countryData[i][2]);
+		        var lon = parseInt((countryData[i][3]));
+		        var population = parseInt((countryData[i][5]));
+		        var density = parseInt((countryData[i][6]));
+		        var births = parseInt((countryData[i][8]));
+		        var deaths = parseInt((countryData[i][12]));
+
+
+		        // see if the line contains all details, and if true, create a cube and add it to the world view
+		        var addThisCountry = (population > selectedMinPopulation && population < selectedMaxPopulation);
+		        addThisCountry =  (addThisCountry && density > selectedMinDensity && density < selectedMaxDensity);
+		        addThisCountry = (addThisCountry &&  births > selectedMinBirths && births < selectedMaxBirths);
+		        addThisCountry = (addThisCountry &&  deaths > selectedMinDeaths && deaths < selectedMaxDeaths);
+
+		        if (addThisCountry) {
+		        	var value = 0;
+
+		        	if (selectedDataType == 0) {
+		        		value = (population * 100) / maxPopulation;
+
+		        	} else if (selectedDataType == 1) {
+		        		value = (density * 100) / maxDensity;
+
+		        	} else if (selectedDataType == 2) {
+		        		value = (births * 100) / maxBirths;
+
+		        	} else if (selectedDataType == 3) {
+		        		value = (deaths * 100) / maxDeaths;
+		        	}
+
+		        	var position = latLongToVector3(lat, lon, 59, 1);
+		        	var cubeMat = new THREE.MeshLambertMaterial({color: 0xffffff, opacity:0.6, emissive:0xffffff});
+
+					// a CubeGeometry is used instead of a BoxGeometry
+					var box = new THREE.CubeGeometry( 0.5, 0.5,  value );
+					var cube = new THREE.Mesh( box, cubeMat );
+
+					cube.position.x = position.x;
+					cube.position.y = position.y;
+					cube.position.z = position.z;
+					cube.lookAt(new THREE.Vector3(0,0,0));
+
+					scene.add(cube); 
+
+					// add the cube to an array, so it can be easily looked up
+					countryBox.push(cube);
+					countryRepresented.push(countryData[i]);
+				}
+			}
+
+	        // create a new mesh, containing all the other meshes.
+	        //var total = new THREE.Mesh(geom,new THREE.MeshFaceMaterial());
+
+	        // and add the total mesh to the scene
+	    }
+
+	    function onMouseDown(e) {
 			//Evita que o evento chame outra função
 			e.preventDefault();
 			
@@ -208,130 +447,49 @@ Mortes:</input><BR> <b>0</b> <input id="sliderMor" type="text" class="span2" val
 			mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 			
 
-			//Vector 3D que indica a direção do vetor a partir do pixel
+			// Vector 3D que indica a direção do vetor a partir do pixel
 			mouse_vector.set(mouse.x, mouse.y, mouse.z);
 
-			//Define um ponto no espaço 3D de acordo com o clique do rato
+			// Define um ponto no espaço 3D de acordo com o clique do rato
 			projector.unprojectVector(mouse_vector, camera);
 
 			var direction = mouse_vector.sub(camera.position).normalize();
-			//Chama o raycaster com a posição da câmara e a direção
+
+			// Chama o raycaster com a posição da câmara e a direção
 			ray.set(camera.position, direction);
 
-			//Verifica se o raio intersetou algum objeto na cena
-			/*for (var i = 0 ; i < countryBox.length-1 ; i++) {
+			// Verifica se o raio intersetou algum objeto na cena
+			/*
+			for (var i = 0 ; i < countryBox.length-1 ; i++) {
 				countryBox[i].material.color.setHex( 0xffffff );
-//			cube.material.color.setHex( 0xffffff );
-//			cube1.material.color.setHex( 0xffffff );
-			}*/
+				cube.material.color.setHex( 0xffffff );
+				cube1.material.color.setHex( 0xffffff );
+			}
+			*/
 
 			for (var i = 0 ; i < countryBox.length-1 ; i++) {
 				intersects = ray.intersectObject(countryBox[i]);
 				if (intersects.length) {
-					DadosPais.innerHTML = MostraDados (countryRepresented[i])
-				//alert("hit");
+					detailsContainer.innerHTML = getDetails(countryRepresented[i])
 				}
 			}
 		}
-		renderer.domElement.addEventListener('mousedown', onMouseDown);
-		function MostraDados (linha)	
-		{
-			texto = "<b>Pais</b>:" + linha[0] + 
-					"<br><b>Capital</b>:" +linha[1] + 
-					"<br><b>Área:" + numeral(linha[4]).format('0,0') + " KM^2"+
-					"<br><b>População</b>:" + numeral(linha[5]).format('0,0') + " Pessoas";
 
-
-			return texto;
+		function render() {
+			requestAnimationFrame(render);
+			renderer.render(scene, camera);
+			controls.update();
+			//cube.rotation.x += 0.1;
+			//cube.rotation.y += 0.1;
 		}
- 		function addData(countryData){
-        	
-        	//remover as barras anteriores
-        	for (var i = 0 ; i < countryBox.length-1 ; i++) {
-				scene.remove (countryBox[i]) 
-			}
-        	//the geometry that will contain all our cubes
-	        countryRepresented = [];
-	        countryBox=[];
 
-	        for (var i = 1 ; i < countryData.length-1 ; i++) {
-	 
-	            //get the data, and set the offset, we need to do this since the x,y coordinates
-	            //from the data aren't in the correct format
-	            var lat = parseInt(countryData[i][2]);
-	            var lon = parseInt((countryData[i][3]));
-	            var population = parseInt((countryData[i][5]));
-	            var density = parseInt((countryData[i][6]));
-	            var births = parseInt((countryData[i][8]));
-	            var deads = parseInt((countryData[i][12]));
-
-	           
-	 			var addThisCountry = ( population >sPopulation.getValue()[0] && population < sPopulation.getValue()[1]);
-	 			
-
-	 			addThisCountry =  ( addThisCountry && density > sDensity.getValue()[0] && density < sDensity.getValue()[1]);
-	 			
-
-	 			addThisCountry = ( addThisCountry &&  births >sBirths.getValue()[0] && births < sBirths.getValue()[1]);
-	 			
-
-	 			addThisCountry = ( addThisCountry &&  deads >sDeads.getValue()[0] && deads < sDeads.getValue()[1]);
-	 			
-
-
-	 			if ( addThisCountry )
-	 			{
-	            	var value = 0;
-	            	//adicionar dados
-	            	if ( rPop.checked )
-	            		value = (population * 100 ) / maxPopulation;
-	            	else if ( rDen.checked )
-	            		value = (density * 100 ) / maxDensity;
-	            	else if ( rNasc.checked )
-	            		value = (births * 100 ) / maxBirths;
-	            	else if ( rMor.checked )
-	            		value = (sDeads * 100 ) / maxDeads;
-		            
-		            addCountryData (lat,lon,value)
-	            	countryRepresented.push (countryData[i])
-				}
-	        }
-
-        // create a new mesh, containing all the other meshes.
-        //var total = new THREE.Mesh(geom,new THREE.MeshFaceMaterial());
- 
-        // and add the total mesh to the scene
-       	}
-       	function addCountryData (lat,lon,value)
-       	{
-			var position = latLongToVector3(lat, lon, 59, 1);
-
-	        // criar o cubo
-			var cubeMat = new THREE.MeshLambertMaterial({color: 0xffffff,opacity:0.6, emissive:0xffffff});
-	        
-	        var box = new THREE.BoxGeometry( 0.5, 0.5,  value );
-			var cube = new THREE.Mesh( box, cubeMat );
-
-	        // posiciona-lo
-			cube.position.x = position.x;
-			cube.position.y = position.y;
-			cube.position.z = position.z;
-	        cube.lookAt( new THREE.Vector3(0,0,0) );
-
-	        //adicionar à cena
-			scene.add( cube ); 
-			
-			//adicionar ao array dos cubos
-			countryBox.push (cube);
-       	}
 		render();
-		//document.getElementbyID ("parametros").left=width;
-		parametros.style.left  = 0;
-		
-            // position the cube correctly
-            
-	</script> 
+		//document.getElementbyID ("parameters").left=width;
+		parameters.style.left  = 0;
 
+    	// position the cube correctly
 
-</body> 
+    </script> 
+
+</body>
 </html>
