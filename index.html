@@ -6,27 +6,31 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Raleway:300' type='text/css'>
-	<link rel="stylesheet" href="css/base.css"/>
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<link rel="stylesheet" href="css/bootstrap-slider.min.css">
 	<link rel="stylesheet" href="css/jquery-ui.min.css" />
 	<link rel="stylesheet" href="css/jquery.nouislider.min.css">
 	<link rel="stylesheet" href="css/jquery.nouislider.pips.css">
 	<style type="text/css">
+		body {
+			font-family: Monospace;
+			font-weight: bold;
+			background-color: #ccccff;
+			margin: 0px;
+			overflow: hidden;
+		}
 		#parameters {
 			position: fixed;
-			height: 26px;
-			width: 219px;
 			left: 0;
 			bottom: 0;
 			margin: 6px;
-			height: 400px;
 			width: 400px;
+			height: 415px;
 		}
 		#credits {
 			position: fixed;
 			height: 26px;
-			width: 219px;
+			width: 270px;
 			bottom: 0;
 			right: 0;
 			margin: 6px;
@@ -46,16 +50,15 @@
 			font-family: 'Raleway', sans-serif;
 		}
 		#sliderPopulation .noUi-connect {
-			background: #AA4439;
 		}
 		#sliderDensity .noUi-connect {
 			background: #AA7039;
 		}
 		#sliderBirth .noUi-connect {
-			background: #255E69;
+			background: #2B803E;
 		}
 		#sliderDeath .noUi-connect {
-			background: #2B803E;
+			background: #AA4439;
 		}
 		.autocomplete-suggestions {
 			border: 1px solid #999; background: #FFF; overflow: auto;
@@ -80,7 +83,7 @@
 
 <body>
 	<script type="text/javascript" src="js/three.js"></script>
-	<script type="text/javascript" src="js/OrbitControls-Touch.js"></script>
+	<script type="text/javascript" src="js/OrbitControls.js"></script>
 	<script type="text/javascript" src="js/TrackballControls.js"></script>
 	<script type="text/javascript" src="js/THREEx.FullScreen.js"></script>
 	<script type="text/javascript" src="js/THREEx.WindowResize.js"></script>
@@ -95,7 +98,7 @@
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap-slider.min.js"></script>
 
-	<script type="text/javascript" src="js/chroma.js"></script>
+	<script type="text/javascript" src="js/chroma.min.js"></script>
 	<script type="text/javascript" src="js/utils.js"></script>
 
 	<script type="text/javascript" src="js/postprocessing/EffectComposer.js"></script>
@@ -129,7 +132,7 @@
 					</td>
 				</tr>
 			</table>
-			<br/>
+			<br/><br/>
 			<div class="btn-group" data-toggle="buttons-radio">
 				<button id="buttonPopulation" type="button" class="btn btn-large btn-inverse btn active">Population</button>
 				<button id="buttonDensity" type="button" class="btn btn-large btn-inverse">Density</button>
@@ -816,10 +819,10 @@
 		var position = latLongToVector3(lat, lon, 100, 1);
 
 		// cube / bar
-		var cubeMat = new THREE.MeshLambertMaterial({color: 0xffffff,opacity:0.6, emissive:0xffffff});
+		var cubeMat = new THREE.MeshLambertMaterial({color: 0xffffff, opacity: 0.6, emissive: 0xffffff});
 
 		var box = new THREE.CubeGeometry( 0.5, 0.5,  value );
-		var cube = new THREE.Mesh( box, cubeMat );
+		var cube = new THREE.Mesh(box, cubeMat);
 
 		// position it according to the vector made from the latitude and longitude
 		cube.position.x = position.x;
