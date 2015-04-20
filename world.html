@@ -21,6 +21,7 @@
 			position: fixed;
 			height: 26px;
 			width: 219px;
+			left: 0;
 			bottom: 0;
 			margin: 6px;
 			height: 400px;
@@ -505,7 +506,7 @@
 			for (var i = 0 ; i < countryBox.length-1 ; i++) {
 				intersects = ray.intersectObject(countryBox[i]);
 				if (intersects.length) {
-					detailsContainer.innerHTML = getDetails(countryRepresented[i])
+					detailsContainer.innerHTML = getDetails(countryRepresented[i]);
 				}
 			}
 		}
@@ -519,17 +520,11 @@
 			requestAnimationFrame(render);
 			renderer.render(scene, camera);
 			controls.update();
-			//cube.rotation.x += 0.1;
-			//cube.rotation.y += 0.1;
 		}
 
 		render();
-		//document.getElementbyID ("parameters").left=width;
-		parameters.style.left  = 0;
 
-    	// position the cube correctly
-
-    </script> 
+	</script> 
 
 </body>
 </html>
