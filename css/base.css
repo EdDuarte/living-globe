@@ -1,0 +1,66 @@
+body {
+	font-family: Monospace;
+	font-weight: bold;
+	background-color: #ccccff;
+	margin: 0px;
+	overflow: hidden;
+}
+#parameters {
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	margin: 6px;
+	width: 400px;
+	height: 415px;
+}
+#credits {
+	position: fixed;
+	height: 26px;
+	width: 270px;
+	bottom: 0;
+	right: 0;
+	margin: 6px;
+	width: 400px;
+	height: 20px;
+}
+#search {
+	position: fixed;
+	top: 0;
+	right: 0;
+	margin: 6px;
+}
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Raleway', sans-serif;
+}
+p, div, button {
+	font-family: 'Raleway', sans-serif;
+}
+#sliderPopulation .noUi-connect {
+}
+#sliderDensity .noUi-connect {
+	background: #AA7039;
+}
+#sliderBirth .noUi-connect {
+	background: #2B803E;
+}
+#sliderDeath .noUi-connect {
+	background: #AA4439;
+}
+.autocomplete-suggestions {
+	border: 1px solid #999; background: #FFF; overflow: auto;
+}
+.autocomplete-suggestion {
+	padding: 2px 5px; white-space: nowrap; overflow: hidden;
+}
+.autocomplete-selected {
+	background: #F0F0F0;
+}
+.autocomplete-suggestions strong {
+	font-weight: normal; color: #3399FF;
+}
+.autocomplete-group {
+	padding: 2px 5px;
+}
+.autocomplete-group strong {
+	display: block; border-bottom: 1px solid #000;
+}
