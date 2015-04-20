@@ -57,76 +57,95 @@
 		#sliderDeath .noUi-connect {
 			background: #2B803E;
 		}
+		.autocomplete-suggestions {
+			border: 1px solid #999; background: #FFF; overflow: auto;
+		}
+		.autocomplete-suggestion {
+			padding: 2px 5px; white-space: nowrap; overflow: hidden;
+		}
+		.autocomplete-selected {
+			background: #F0F0F0;
+		}
+		.autocomplete-suggestions strong {
+			font-weight: normal; color: #3399FF;
+		}
+		.autocomplete-group {
+			padding: 2px 5px;
+		}
+		.autocomplete-group strong {
+			display: block; border-bottom: 1px solid #000;
+		}
 	</style>
 </head>
 
 <body>
-<script type="text/javascript" src="js/three.js"></script>
-<script type="text/javascript" src="js/OrbitControls-Touch.js"></script>
-<script type="text/javascript" src="js/TrackballControls.js"></script>
-<script type="text/javascript" src="js/THREEx.FullScreen.js"></script>
-<script type="text/javascript" src="js/THREEx.WindowResize.js"></script>
-<script type="text/javascript" src="js/detector.js"></script>
+	<script type="text/javascript" src="js/three.js"></script>
+	<script type="text/javascript" src="js/OrbitControls-Touch.js"></script>
+	<script type="text/javascript" src="js/TrackballControls.js"></script>
+	<script type="text/javascript" src="js/THREEx.FullScreen.js"></script>
+	<script type="text/javascript" src="js/THREEx.WindowResize.js"></script>
+	<script type="text/javascript" src="js/detector.js"></script>
 
-<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
-<script type="text/javascript" src="js/jquery-ui.min.js"></script>
-<script type="text/javascript" src="js/jquery.csv-0.71.min.js"></script>
-<script type="text/javascript" src="js/jquery.nouislider.all.min.js"></script>
-<script type="text/javascript" src="js/numeral.min.js"></script>
-<script type="text/javascript" src="js/bootstrap.min.js"></script>
-<script type="text/javascript" src="js/bootstrap-slider.min.js"></script>
+	<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="js/jquery.autocomplete.js"></script>
+	<script type="text/javascript" src="js/jquery.csv-0.71.min.js"></script>
+	<script type="text/javascript" src="js/jquery.nouislider.all.min.js"></script>
+	<script type="text/javascript" src="js/numeral.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-slider.min.js"></script>
 
-<script type="text/javascript" src="js/chroma.js"></script>
-<script type="text/javascript" src="js/utils.js"></script>
+	<script type="text/javascript" src="js/chroma.js"></script>
+	<script type="text/javascript" src="js/utils.js"></script>
 
-<script type="text/javascript" src="js/postprocessing/EffectComposer.js"></script>
-<script type="text/javascript" src="js/postprocessing/RenderPass.js"></script>
-<script type="text/javascript" src="js/postprocessing/ShaderPass.js"></script>
-<script type="text/javascript" src="js/postprocessing/MaskPass.js"></script>
+	<script type="text/javascript" src="js/postprocessing/EffectComposer.js"></script>
+	<script type="text/javascript" src="js/postprocessing/RenderPass.js"></script>
+	<script type="text/javascript" src="js/postprocessing/ShaderPass.js"></script>
+	<script type="text/javascript" src="js/postprocessing/MaskPass.js"></script>
 
-<script type="text/javascript" src="js/shaders/CopyShader.js"></script>
-<script type="text/javascript" src="js/shaders/FXAAShader.js"></script>
+	<script type="text/javascript" src="js/shaders/CopyShader.js"></script>
+	<script type="text/javascript" src="js/shaders/FXAAShader.js"></script>
 
-<div id="search" >
-	<form class="navbar-search pull-left">
-		<input type="text" class="search-query" placeholder="Search">
-	</form>
-</div>
+	<div id="search" >
+		<form class="navbar-search pull-left">
+			<input id="searchfield" type="text" class="search-query" autofocus="true" placeholder="Search">
+		</form>
+	</div>
 
-<div id="worldIntercept">
-	<div id="parameters" >
-		<br/><br/>
+	<div id="worldIntercept">
+		<div id="parameters" >
+			<br/><br/>
 
-		<table>
-			<tr>
-				<td width="80px">
-					<div id="sliderPopulation" style="height: 300px;"></div>
-					<div id="sliderDensity" hidden="true" style="height: 300px;"></div>
-					<div id="sliderBirth" hidden="true" style="height: 300px;"></div>
-					<div id="sliderDeath" hidden="true" style="height: 300px;"></div>
-				</td>
-				<td>
-					<spam id="detailsContainer" style="color: white;"></spam>
-				</td>
-			</tr>
-		</table>
-		<br/>
-		<div class="btn-group" data-toggle="buttons-radio">
-			<button id="buttonPopulation" type="button" class="btn btn-large btn-inverse btn active">Population</button>
-			<button id="buttonDensity" type="button" class="btn btn-large btn-inverse">Density</button>
-			<button id="buttonBirth" type="button" class="btn btn-large btn-inverse">Birth Rate</button>
-			<button id="buttonDeath" type="button" class="btn btn-large btn-inverse">Death Rate</button>
+			<table>
+				<tr>
+					<td width="80px">
+						<div id="sliderPopulation" style="height: 300px;"></div>
+						<div id="sliderDensity" hidden="true" style="height: 300px;"></div>
+						<div id="sliderBirth" hidden="true" style="height: 300px;"></div>
+						<div id="sliderDeath" hidden="true" style="height: 300px;"></div>
+					</td>
+					<td>
+						<spam id="detailsContainer" style="color: white;"></spam>
+					</td>
+				</tr>
+			</table>
+			<br/>
+			<div class="btn-group" data-toggle="buttons-radio">
+				<button id="buttonPopulation" type="button" class="btn btn-large btn-inverse btn active">Population</button>
+				<button id="buttonDensity" type="button" class="btn btn-large btn-inverse">Density</button>
+				<button id="buttonBirth" type="button" class="btn btn-large btn-inverse">Birth Rate</button>
+				<button id="buttonDeath" type="button" class="btn btn-large btn-inverse">Death Rate</button>
+			</div>
+
+		</div>
+		<div id="credits" style="color: white;">
+			Ed Duarte & Pedro Bordonhos - All rights reserved 2015
 		</div>
 
-	</div>
-	<div id="credits" style="color: white;">
-		Ed Duarte & Pedro Bordonhos - All rights reserved 2015
+		<div id="worldContainer" style="width: 100%; height: 100%; background-color:black; " />
 	</div>
 
-	<div id="worldContainer" style="width: 100%; height: 100%; background-color:black; " />
-</div>
-
-<script id="globeVertexShader" type="x-shader/x-vertex">
+	<script id="globeVertexShader" type="x-shader/x-vertex">
 		varying vec3 vNormal;
 		varying vec2 vUv;
 		void main()
@@ -137,7 +156,7 @@
 		}
 	</script>
 
-<script id="globeFragmentShader" type="x-shader/x-fragment">
+	<script id="globeFragmentShader" type="x-shader/x-fragment">
 		uniform sampler2D mapIndex;
 		uniform sampler2D ratio;
 		uniform sampler2D select;
@@ -163,7 +182,7 @@
 		}
 	</script>
 
-<script type="text/javascript">
+	<script type="text/javascript">
 
 	// external data that maps gray luminosity value of ratio texture with
 	var countryColorMap = {
@@ -217,6 +236,9 @@
 	var selectedMaxBirths = 0;
 	var selectedMinDeaths = 0;
 	var selectedMaxDeaths = 0;
+
+	// list of country names and capitals used for auto complete
+	var autoCompleteLookup;
 
 	// data type can be 0 (population), 1 (density), 2 (birth rate) and 3 (death rate)
 	var selectedDataType = 0;
@@ -320,7 +342,7 @@
 
 	// mouse events
 	THREEx.WindowResize(renderer, camera);
-	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+	// THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
 	renderer.domElement.addEventListener('mousemove', onMouseMove);
 	renderer.domElement.addEventListener('mousedown', onMouseDown);
 	renderer.domElement.addEventListener('mouseup', onMouseUp);
@@ -340,9 +362,9 @@
 
 	// skybox
 	var imagePrefix = "img/nebula-",
-			directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"],
-			imageSuffix = ".png",
-			materialArray = [];
+	directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"],
+	imageSuffix = ".png",
+	materialArray = [];
 	for (var i = 0; i < 6; i++)
 		materialArray.push( new THREE.MeshBasicMaterial({
 			map: THREE.ImageUtils.loadTexture( imagePrefix + directions[i] + imageSuffix ),
@@ -443,7 +465,14 @@
 			dataType: "text",
 			success: function(data) {
 				countryData = CSVToArray(data);
-				analyseMaxValues();
+				analyseData();
+				$('#searchfield').val("").devbridgeAutocomplete({
+					minChars: 1,
+					width: 300,
+					triggerSelectOnValidInput: false,
+					preventBadQueries: false,
+					lookup: autoCompleteLookup
+				});
 				filterData(countryData);
 			}
 		});
@@ -451,21 +480,26 @@
 
 	animate();
 
-	function analyseMaxValues() {
-		// get all max values and create a scale
-		var maxi;
+	function analyseData() {
+		// get all max values to have normalized scales
 		var birthsArray = [];
 		var deathsArray = [];
 		var ratioArray = [];
+		autoCompleteLookup = [];
 		for (var i = 1; i < countryData.length-1; i++) {
-			var population = parseInt(countryData[i][5]);
-			var density = parseInt(countryData[i][6]);
-			var births = parseInt(countryData[i][8]);
-			var deaths = parseInt(countryData[i][12]);
+			var c = countryData[i];
+
+			// add country names and capitals to auto complete 
+			autoCompleteLookup.push({ value: c[0], data: c[15] });
+			autoCompleteLookup.push({ value: c[1], data: c[15] });
+
+			var population = parseInt(c[5]);
+			var density = parseInt(c[6]);
+			var births = parseInt(c[8]);
+			var deaths = parseInt(c[12]);
 
 			if (maxPopulation < population) {
 				maxPopulation = population;
-				maxi = i;
 			}
 
 			if (maxDensity < density) {
