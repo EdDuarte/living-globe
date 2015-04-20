@@ -612,7 +612,7 @@
 				var countryColor = countryColorMap[countryCode];
 				if(countryColor != 0) {
 					selectContext.clearRect(0,0,256,1);
-					selectContext.fillStyle = "#333333";
+					selectContext.fillStyle = "#666666";
 					selectContext.fillRect(countryColor, 0, 1, 1);
 					selectTexture.needsUpdate = true;
 					selectedABar = true;
@@ -631,19 +631,24 @@
 				var p = mapContext.getImageData(u,v,1,1).data;
 				countryColor = p[0];
 				if(countryColor != 0) {
+					var hasDetails = false;
+
 					for (var i = 0; i < countryRepresented.length; i++) {
 						var c = countryRepresented[i];
 						var countryCode = c[15];
 						if(countryColorMap[countryCode] == countryColor) {
 							detailsContainer.innerHTML = getDetails(c);
+							hasDetails = true;
 							break;
 						}
 					}
 
-					selectContext.clearRect(0,0,256,1);
-					selectContext.fillStyle = "#333333";
-					selectContext.fillRect( countryColor, 0, 1, 1 );
-					selectTexture.needsUpdate = true;
+					if(hasDetails) {
+						selectContext.clearRect(0,0,256,1);
+						selectContext.fillStyle = "#666666";
+						selectContext.fillRect( countryColor, 0, 1, 1 );
+						selectTexture.needsUpdate = true;
+					}
 				}
 
 
@@ -695,6 +700,8 @@
 			scene.remove(countryBox[i])
 		}
 
+		ratioContext.clearRect(0,0,256,1);
+
 		// arrays that will contain all our cubes
 		countryRepresented = [];
 		countryBox = [];
@@ -736,12 +743,9 @@
 			}
 
 			var scaleValue = scaleDown(maxRatio, minRatio, 1, 0, births - deaths);
-			var scale = chroma.scale(['red', 'green']);
+			var scale = chroma.scale(['#AA4439', '#2B803E']);
 			var color = scale(scaleValue).hex();
 			colorCountry(countryColorMap[countryCode], color);
-			if(countryCode == "IN") {
-				alert(scaleValue);
-			}
 
 			var position = latLongToVector3(lat, lon, 100, 1);
 			var cubeMat = new THREE.MeshLambertMaterial({color: 0xffffff, opacity:0.6, emissive: 0xffffff});
