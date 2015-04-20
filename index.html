@@ -133,7 +133,7 @@
 		mapCanvas, mapContext,
 		lookupCanvas, lookupContext, lookupTexture,
 		selectCanvas, selectContext, selectTexture,
-		composer;
+		composer, skyBox;
 
 		// custom global variables
 		var mesh;
@@ -230,7 +230,7 @@
 					map: THREE.ImageUtils.loadTexture( imagePrefix + directions[i] + imageSuffix ),
 					side: THREE.BackSide
 				}));
-			var skyBox = new THREE.Mesh( new THREE.CubeGeometry( 5000, 5000, 5000 ), new THREE.MeshFaceMaterial( materialArray ) );
+			skyBox = new THREE.Mesh( new THREE.CubeGeometry( 5000, 5000, 5000 ), new THREE.MeshFaceMaterial( materialArray ) );
 			scene.add(skyBox);
 
 
@@ -395,13 +395,13 @@
 
 					// lookupContext.fillRect( i, 0, 1, 1 );
 				// }
-				selectContext.clearRect(0,0,256,1);
-				if(countryCode!=0) {
+				if(countryCode != 0) {
+					selectContext.clearRect(0,0,256,1);
 					selectContext.fillStyle = "#333333";
 					selectContext.fillRect( countryCode, 0, 1, 1 );
+					selectTexture.needsUpdate = true;
 				}
 
-				selectTexture.needsUpdate = true;
 			}
 
 		}
@@ -492,6 +492,7 @@
 		}
 
 		function render() {
+			skyBox.rotation.y += 0.0003;
 			renderer.clear();
 			renderer.render( scene, camera );
 			composer.render(); // anti-aliasing

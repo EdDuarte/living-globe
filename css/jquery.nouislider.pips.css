@@ -10,7 +10,7 @@
 .noUi-pips {
 	position: absolute;
 	font: 400 12px Arial;
-	color: #AAA;
+	color: #EEE;
 }
 
 /* Values;
@@ -22,7 +22,7 @@
 	text-align: center;
 }
 .noUi-value-sub {
-	color: #EEE;
+	color: #CCC;
 	font-size: 10px;
 }
 
@@ -31,7 +31,7 @@
  */
 .noUi-marker {
 	position: absolute;
-	background: #EEE;
+	background: #CCC;
 }
 .noUi-marker-sub {
 	background: #DDD;
