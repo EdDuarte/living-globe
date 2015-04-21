@@ -566,19 +566,15 @@ function filterData(countryData) {
 		var value = 0;
 
 		if (selectedDataType == 0 && population >= selectedMinPopulation && population <= selectedMaxPopulation) {
-			value = scaleDown(maxPopulation, 1, selectedMaxPopulation, selectedMinPopulation, population);
 			value = scaleDown(selectedMaxPopulation, selectedMinPopulation, 95, 0, population);
 
 		} else if (selectedDataType == 1 && density >= selectedMinDensity && density <= selectedMaxDensity) {
-			value = scaleDown(maxDensity, 1, selectedMaxDensity, selectedMinDensity, density);
 			value = scaleDown(selectedMaxDensity, selectedMinDensity, 95, 0, density);
 
 		} else if (selectedDataType == 2 && births >= selectedMinBirths && births <= selectedMaxBirths) {
-			value = scaleDown(maxBirths, 1, selectedMaxBirths, selectedMinBirths, births);
 			value = scaleDown(selectedMaxBirths, selectedMinBirths, 95, 0, births);
 
 		} else if (selectedDataType == 3 && deaths >= selectedMinDeaths && deaths <= selectedMaxDeaths) {
-			value = scaleDown(maxDeaths, 1, selectedMaxDeaths, selectedMinDeaths, deaths);
 			value = scaleDown(selectedMaxDeaths, selectedMinDeaths, 95, 0, deaths);
 		}
 
@@ -586,12 +582,22 @@ function filterData(countryData) {
 			continue;
 		}
 
+
 		ratioArray.push(births - deaths);
 		countryCodeArray.push(countryCode);
 
 		var position = latLongToVector3(lat, lon, 100, 1);
-		var cubeMat = new THREE.MeshLambertMaterial({color: 0xffffff, opacity:0.6, emissive: 0xffffff});
+		var cubeMat = new THREE.MeshBasicMaterial({color: 0xff0000, opacity:0.6, emissive: 0xffffff});
 
+		//provisório PB
+		densityRatio = scaleDown(selectedMaxDensity, selectedMinDensity, 95, 0, density);
+		//var scale = chroma.scale(['#64ff74', '#fa3232']);var scale = chroma.scale(['#AA4439', '#2B803E']);
+		var scale = chroma.scale(['#AA4439', '#2B803E']); 
+		var barColor = scale(densityRatio).hex();
+
+
+		cubeMat.color = barColor;
+		
 		// a CubeGeometry is used instead of a BoxGeometry
 		var box = new THREE.CubeGeometry(0.5, 0.5, value);
 		var cube = new THREE.Mesh( box, cubeMat );
@@ -635,7 +641,9 @@ function addCountryData(lat,lon,value) {
 	var position = latLongToVector3(lat, lon, 100, 1);
 
 	// cube / bar
-	var cubeMat = new THREE.MeshLambertMaterial({color: 0xffffff, opacity: 0.6, emissive: 0xffffff});
+	var cubeMat = new THREE.MeshBasicMaterial({color: 0xff0000, opacity: 0.6, emissive: 0xffffff});
+	var cubeMat = new THREE.MeshBasicMaterial({color: 'red'} );
+
 
 	var box = new THREE.CubeGeometry( 0.5, 0.5,  value );
 	var cube = new THREE.Mesh(box, cubeMat);
