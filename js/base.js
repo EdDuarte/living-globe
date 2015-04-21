@@ -1,3 +1,8 @@
+// 
+// All rights reserved 2015
+// by:
+// Ed Duarte - eduardo.miguel.duarte@gmail.com
+// Pedro Bordonhos - 
 
 // external data that maps gray luminosity value of ratio texture with
 var countryColorMap = {
@@ -41,8 +46,6 @@ var maxPopulation = 0;
 var maxDensity = 0;
 var maxBirths = 0;
 var maxDeaths = 0;
-var maxRatio = 0;
-var minRatio = 0;
 var selectedMinPopulation = 0;
 var selectedMaxPopulation = 0;
 var selectedMinDensity = 0;
@@ -140,7 +143,7 @@ var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
 var camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 camera.position.set(0,250,250);
-camera.lookAt(scene.position);
+// camera.lookAt(scene.position);
 scene.add(camera);
 
 // renderer
@@ -215,9 +218,6 @@ mapTexture.magFilter = THREE.NearestFilter;
 mapTexture.minFilter = THREE.NearestFilter;
 mapTexture.needsUpdate = true;
 
-var outlineTexture = THREE.ImageUtils.loadTexture("img/earth-outline-shifted-gray.png");
-outlineTexture.needsUpdate = true;
-
 var blendImage = THREE.ImageUtils.loadTexture("img/earth-day.jpg");
 
 var planeMaterial = new THREE.ShaderMaterial({
@@ -226,7 +226,6 @@ var planeMaterial = new THREE.ShaderMaterial({
 		height:     { type: "f", value: window.innerHeight },
 		mapIndex:   { type: "t", value: mapTexture },
 		outline:    { type: "t", value: 2 },
-		// outlineLevel: {type: 'f', value: 1 },
 		ratio:     { type: "t", value: ratioTexture },
 		select:     { type: "t", value: selectTexture },
 		blendImage: { type: "t", value: blendImage }
@@ -283,10 +282,12 @@ $(document).ready(function() {
 			analyseData();
 			$('#searchfield').val("").devbridgeAutocomplete({
 				minChars: 1,
-				width: 300,
 				triggerSelectOnValidInput: false,
 				preventBadQueries: false,
-				lookup: autoCompleteLookup
+				lookup: autoCompleteLookup,
+				onSelect: function (suggestion) {
+					select(suggestion.data);
+				}
 			});
 			filterData(countryData);
 		}
@@ -299,14 +300,12 @@ function analyseData() {
 	// get all max values to have normalized scales
 	var birthsArray = [];
 	var deathsArray = [];
-	var ratioArray = [];
 	autoCompleteLookup = [];
 	for (var i = 1; i < countryData.length-1; i++) {
 		var c = countryData[i];
 
-		// add country names and capitals to auto complete 
-		autoCompleteLookup.push({ value: c[0], data: c[15] });
-		autoCompleteLookup.push({ value: c[1], data: c[15] });
+		// add country names and capitals to be used on auto complete search field
+		autoCompleteLookup.push({ value: c[1] + " (" + c[0] + ")", data: c[15] });
 
 		var population = parseInt(c[5]);
 		var density = parseInt(c[6]);
@@ -323,14 +322,10 @@ function analyseData() {
 
 		birthsArray.push(births);
 		deathsArray.push(deaths);
-		ratioArray.push(births - deaths);
 	}
 
 	maxBirths = Math.max.apply(Math, birthsArray);
 	maxDeaths = Math.max.apply(Math, deathsArray);
-
-	maxRatio = Math.max.apply(Math, ratioArray);
-	minRatio = Math.min.apply(Math, ratioArray);
 
 	selectedMinPopulation = 0;
 	selectedMaxPopulation = maxPopulation;
@@ -440,6 +435,32 @@ function onMouseDown(event) {
 	selectCountry = true;
 }
 
+function select(countryCode) {
+	var countryColor = countryColorMap[countryCode];
+	if(countryColor != 0) {
+		for (var i = 0; i < countryRepresented.length; i++) {
+			var c = countryRepresented[i];
+			var countryCode = c[15];
+			if(countryColorMap[countryCode] == countryColor) {
+				var box = countryBox[i];
+				camera.position.x = box.position.x;
+				camera.position.y = box.position.y;
+				camera.position.z = box.position.z;
+				detailsContainer.innerHTML = getDetails(c);
+				hasDetails = true;
+				break;
+			}
+		}
+
+		if(hasDetails) {
+			selectContext.clearRect(0,0,256,1);
+			selectContext.fillStyle = "#666666";
+			selectContext.fillRect( countryColor, 0, 1, 1 );
+			selectTexture.needsUpdate = true;
+		}
+	}
+}
+
 function onMouseUp(event) {
 	event.preventDefault();
 
@@ -500,40 +521,12 @@ function onMouseUp(event) {
 				}
 			}
 
-
-			// for( var prop in countryColorMap ) {
-			// 	if( countryColorMap.hasOwnProperty( prop ) ) {
-			// 		if( countryColorMap[ prop ] === countryCode )
-			// 			console.log(prop, countryCode);
-			// 	}
-			// }
-
-
-			// ratioContext.clearRect(0,0,256,1);
-			// for (var i = 0; i < 228; i++)
-			// {
-			// 	if (i == 0) {
-			// 		ratioContext.fillStyle = "rgba(0,0,0,1)"
-
-			// 	} else if (i == countryCode) {
-			// ratioContext.fillStyle = "rgba(50,50,0,0.5)"
-			// var hex = chroma(ratioContext.fillStyle).darken().hex();
-			// ratioContext.fillStyle = hex;
-
-			// } else {
-			// ratioContext.fillStyle = "rgba(0,0,0,1)"
-			// }
-
-			// ratioContext.fillRect( i, 0, 1, 1 );
-			// }
-
 		}
 	}
 }
 
 function getDetails(countryLine) {
-	// text = "<h1>" + countryLine[0] + " (" + countryLine[15] + ")</h1><h3>" +countryLine[1] + "</h3>" +
-	text = "<h1>" + countryLine[1] + "</h1><h3>(" +countryLine[0] + ")</h3>" +
+	text = "<h1>" + countryLine[1] + "</h1><h4>(" +countryLine[0] + ")</h4>" +
 	"<h5><span>" + numeral(countryLine[4]).format('0,0') + " km²</span></h5>" +
 	"<h5>Population <span class='label label-info'>" + numeral(countryLine[5]).format('0,0') + "</span></h5>" +
 	"<h5>Density <span class='label label-primary'>" + numeral(countryLine[6]).format('0,0') + "</span></h5>" +
@@ -554,6 +547,8 @@ function filterData(countryData) {
 	// arrays that will contain all our cubes
 	countryRepresented = [];
 	countryBox = [];
+	var ratioArray = [];
+	var countryCodeArray = [];
 
 	for (var i = 1; i < countryData.length-1; i++) {
 
@@ -591,10 +586,8 @@ function filterData(countryData) {
 			continue;
 		}
 
-		var scaleValue = scaleDown(maxRatio, minRatio, 1, 0, births - deaths);
-		var scale = chroma.scale(['#AA4439', '#2B803E']);
-		var color = scale(scaleValue).hex();
-		colorCountry(countryColorMap[countryCode], color);
+		ratioArray.push(births - deaths);
+		countryCodeArray.push(countryCode);
 
 		var position = latLongToVector3(lat, lon, 100, 1);
 		var cubeMat = new THREE.MeshLambertMaterial({color: 0xffffff, opacity:0.6, emissive: 0xffffff});
@@ -613,6 +606,17 @@ function filterData(countryData) {
 		// add the cube to an array, so it can be easily looked up
 		countryBox.push(cube);
 		countryRepresented.push(c);
+	}
+
+	var maxRatio = Math.max.apply(Math, ratioArray);
+	var minRatio = Math.min.apply(Math, ratioArray);
+	for(var i = 0; i < ratioArray.length; i++) {
+		var ratio = ratioArray[i];
+		var code = countryCodeArray[i];
+		var scaleValue = scaleDown(maxRatio, minRatio, 1, 0, ratio);
+		var scale = chroma.scale(['#AA4439', '#2B803E']);
+		var color = scale(scaleValue).hex();
+		colorCountry(countryColorMap[code], color);
 	}
 
 	// create a new mesh, containing all the other meshes.
@@ -687,6 +691,6 @@ function update() {
 function render() {
 	skyBox.rotation.y += 0.0003;
 	renderer.clear();
-	renderer.render( scene, camera );
+	renderer.render(scene, camera);
 	composer.render();
 }
