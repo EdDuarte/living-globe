@@ -590,8 +590,9 @@ function filterData(countryData) {
 		var cubeMat = new THREE.MeshBasicMaterial({color: 0xff0000, opacity:0.6, emissive: 0xffffff});
 
 		//provisório PB
-		densityRatio = scaleDown(selectedMaxDensity, selectedMinDensity, 95, 0, density);
-		//var scale = chroma.scale(['#64ff74', '#fa3232']);var scale = chroma.scale(['#AA4439', '#2B803E']);
+		densityRatio = scaleDown(selectedMaxDensity, selectedMinDensity, 1, 0, density);
+		//alert (densityRatio);
+		//var scale = chroma.scale(['#64ff74', '#fa3232']);
 		var scale = chroma.scale(['#AA4439', '#2B803E']); 
 		var barColor = scale(densityRatio).hex();
 
