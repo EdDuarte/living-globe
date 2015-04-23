@@ -1,10 +1,27 @@
+/*!
+ * 3D Earth v1.0.0
+ * Authors: Ed Duarte - eduardo.miguel.duarte@gmail.com // Pedro Bordonhos - bordonhos@ua.pt
+ * Date: 23 April 2015
+ */
 
 body {
-	font-family: Monospace;
-	font-weight: bold;
-	background-color: #ccccff;
+	background-color: #000000;
 	margin: 0px;
 	overflow: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Raleway', sans-serif;
+}
+
+p, div, button {
+	font-family: 'Raleway', sans-serif;
+}
+
+table.right {
+    width: auto;
+    margin-left: auto;
+    margin-right: 0px;
 }
 
 #parameters {
@@ -17,14 +34,14 @@ body {
 }
 
 #credits {
-	position: fixed;
-	height: 26px;
-	width: 270px;
+	width: 420px;
+	height: 170px;
 	bottom: 0;
 	right: 0;
 	margin: 6px;
-	width: 400px;
-	height: 20px;
+	position: fixed;
+	color: red;
+	font-size: 12px;
 }
 
 #search {
@@ -39,12 +56,22 @@ body {
 	width: 360px;
 }
 
-h1, h2, h3, h4, h5, h6 {
-	font-family: 'Raleway', sans-serif;
+#grad1 {
+	width: 90px;
+    height: 20px;
+    background: -webkit-linear-gradient(left, #AA4439, #2B803E); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(right, #AA4439, #2B803E); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(right, #AA4439, #2B803E); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(to right, #AA4439 , #2B803E); /* Standard syntax (must be last) */
 }
 
-p, div, button {
-	font-family: 'Raleway', sans-serif;
+#grad2 {
+	width: 90px;
+    height: 20px;
+    background: -webkit-linear-gradient(left, #D4B36A , #505F8F); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(right, #D4B36A, #505F8F); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(right, #D4B36A, #505F8F); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(to right, #D4B36A , #505F8F); /* Standard syntax (must be last) */
 }
 
 #sliderPopulation .noUi-connect {

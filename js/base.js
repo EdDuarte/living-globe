@@ -1,10 +1,10 @@
-// 
-// All rights reserved 2015
-// by:
-// Ed Duarte - eduardo.miguel.duarte@gmail.com
-// Pedro Bordonhos - 
+/**
+ * 3D Earth v1.0.0
+ * Authors: Ed Duarte - eduardo.miguel.duarte@gmail.com // Pedro Bordonhos - bordonhos@ua.pt
+ * Date: 23 April 2015
+ */
 
-// external data that maps gray luminosity value of ratio texture with
+// external data that maps gray luminosity values with ISO 3166-1 country codes
 var countryColorMap = {
 	"PE":1, "BF":2,"FR":3,"LY":4,"BY":5,"PK":6,"ID":7,"YE":8,"MG":9,"BO":10,
 	"CI":11,"DZ":12,"CH":13,"CM":14,"MK":15,"BW":16,"UA":17,"KE":18,"TW":19,
@@ -167,8 +167,8 @@ renderer.domElement.addEventListener('mouseup', onMouseUp);
 
 // controls
 worldContainer.appendChild(renderer.domElement);
-var controls = new THREE.TrackballControls(camera, worldIntercept);
-// controls.dynamicDampingFactor = 0.5;
+var controls = new THREE.OrbitControls(camera, worldIntercept);
+controls.dynamicDampingFactor = 0.5;
 
 // lights
 var light1 = new THREE.PointLight(0xffffff);
@@ -542,6 +542,7 @@ function filterData(countryData) {
 		scene.remove(countryBox[i])
 	}
 
+	// clears all colored countries
 	ratioContext.clearRect(0,0,256,1);
 
 	// arrays that will contain all our cubes
@@ -561,6 +562,7 @@ function filterData(countryData) {
 		var population = parseInt(c[5]);
 		var density = parseInt(c[6]);
 		var births = parseInt(c[8]);
+		var birthPerSecond = parseInt(c[9]);
 		var deaths = parseInt(c[12]);
 
 		var value = 0;
@@ -582,36 +584,32 @@ function filterData(countryData) {
 			continue;
 		}
 
-
 		ratioArray.push(births - deaths);
 		countryCodeArray.push(countryCode);
 
 		var position = latLongToVector3(lat, lon, 100, 1);
-		var cubeMat = new THREE.MeshBasicMaterial({color: 0xff0000, opacity:0.6, emissive: 0xffffff});
 
-		//provisório PB
-		densityRatio = scaleDown(selectedMaxDensity, selectedMinDensity, 1, 0, density);
-		//alert (densityRatio);
-		//var scale = chroma.scale(['#64ff74', '#fa3232']);
-		var scale = chroma.scale(['#AA4439', '#2B803E']); 
-		var barColor = scale(densityRatio).hex();
+		// find the color of the bar for the capital, which should be the density scaled between 0 and 1
+		// this value between 0 and 1 is then used to collect a color between yellow and blue
+		var scaledDensity = scaleDown(selectedMaxDensity, selectedMinDensity, 1, 0, density);
+		var scale = chroma.scale(['#D4B36A', '#505F8F']); 
+		var barColor = scale(scaledDensity).hex();
 
+		// setup the bar with the obtained color above and the latlng position of the capital
+		var cubeMat = new THREE.MeshBasicMaterial({ color: barColor, wireframe: false});
 
-		cubeMat.color = barColor;
-		
-		// a CubeGeometry is used instead of a BoxGeometry
+		// a CubeGeometry is used instead of a BoxGeometry because we are using a old version of three.js (version 62)
 		var box = new THREE.CubeGeometry(0.5, 0.5, value);
-		var cube = new THREE.Mesh( box, cubeMat );
+		var mesh = new THREE.Mesh(box, cubeMat);
+		mesh.position.x = position.x;
+		mesh.position.y = position.y;
+		mesh.position.z = position.z;
+		mesh.lookAt(new THREE.Vector3(0,0,0));
 
-		cube.position.x = position.x;
-		cube.position.y = position.y;
-		cube.position.z = position.z;
-		cube.lookAt(new THREE.Vector3(0,0,0));
+		scene.add(mesh);
 
-		scene.add(cube);
-
-		// add the cube to an array, so it can be easily looked up
-		countryBox.push(cube);
+		// add the mesh to an array, so it can be easily looked up
+		countryBox.push(mesh);
 		countryRepresented.push(c);
 	}
 
@@ -625,11 +623,6 @@ function filterData(countryData) {
 		var color = scale(scaleValue).hex();
 		colorCountry(countryColorMap[code], color);
 	}
-
-	// create a new mesh, containing all the other meshes.
-	//var total = new THREE.Mesh(geom,new THREE.MeshFaceMaterial());
-
-	// and add the total mesh to the scene
 }
 
 function colorCountry(countryCode, color) {
