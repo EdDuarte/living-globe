@@ -1,4 +1,4 @@
-Pais,Capital,Latitude,Longitude,Area,Populacao,Densidade,Nascimentos por 1000 habitantes,nascimentos anuais,Nascimentos por segundo,Segundos até um nascimento,Mortes por 1000 Habitantes,Mortes Anuais,Mortes por segundo,Seguntos até ocorrer uma morte,Codigo ISO-3166
+Country,Capital,Latitude,Longitude,Area,Population,Density,CBR,Birth rate,Births per second,Seconds until a birth,CDR,Death rate,Deaths per second,Seconds until a death,ISO-3166 country code
 Afghanistan,Kabul,"34,53","69,17",647500,32738000,50.56061776,39.3,1286603.4,0.04079792618,24.51104979,14.59,477647.42,0.01514610033,66.0235954,AF
 Albania,Tirana,"41,33","19,82",28748,3619000,125.8870182,12.38,44803.22,0.001420700786,703.8779802,6.25,22618.75,0.0007172358574,1394.241503,AL
 Algeria,Algiers,"36,75","3,04",2381740,33739000,14.16569399,16.64,561416.96,0.01780241502,56.17215412,4.72,159248.08,0.005049723491,198.030645,DZ
