@@ -35,6 +35,14 @@ var countryColorMap = {
 	"NR":221,"GI":222,"PN":223,"MC":224,"VA":225,"IM":226,"GU":227,"SG":228
 };
 
+CAMERA_SHOULD_MOVE = false;
+CAMERA_X    = 0;
+CAMERA_Y    = 1000;
+CAMERA_Z    = 500;
+CAMERA_LX   = 0;
+CAMERA_LY   = 0;
+CAMERA_LZ   = 0;
+
 // global variables
 var lastMouseX = 0;
 var lastMouseY = 0;
@@ -54,6 +62,16 @@ var selectedMinBirths = 0;
 var selectedMaxBirths = 0;
 var selectedMinDeaths = 0;
 var selectedMaxDeaths = 0;
+
+var camera       // camera
+var cameraPos0   // initial camera position
+var cameraUp0    // initial camera up
+var cameraZoom   // camera zoom
+var iniQ         // initial quaternion
+var endQ         // target quaternion
+var curQ         // temp quaternion during slerp
+var vec3         // generic vector object
+var tweenValue   // tweenable value 
 
 // list of country names and capitals used for auto complete
 var autoCompleteLookup;
@@ -143,6 +161,10 @@ var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
 var camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 camera.position.set(0,250,250);
+// camera.position = new THREE.Vector3(0, 0, 80)
+cameraPos0 = camera.position.clone()
+cameraUp0 = camera.up.clone()
+cameraZoom = camera.position.z
 // camera.lookAt(scene.position);
 scene.add(camera);
 
@@ -161,6 +183,8 @@ renderer.setClearColor(0x000000);
 // mouse events
 THREEx.WindowResize(renderer, camera);
 // THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+renderer.domElement.addEventListener('mousewheel', onMouseWheel);
+renderer.domElement.addEventListener('DOMMouseScroll', onMouseWheel);
 renderer.domElement.addEventListener('mousemove', onMouseMove);
 renderer.domElement.addEventListener('mousedown', onMouseDown);
 renderer.domElement.addEventListener('mouseup', onMouseUp);
@@ -282,6 +306,7 @@ $(document).ready(function() {
 			analyseData();
 			$('#searchfield').val("").devbridgeAutocomplete({
 				minChars: 1,
+				autoSelectFirst: true,
 				triggerSelectOnValidInput: false,
 				preventBadQueries: false,
 				lookup: autoCompleteLookup,
@@ -402,6 +427,21 @@ function analyseData() {
 	});
 }
 
+
+// set a new target for the camera
+function moveCamera() {
+	var speed = 0.1;
+	var target_x = (this.CAMERA_X - this.camera.position.x) * speed;
+	var target_y = (this.CAMERA_Y - this.camera.position.y) * speed;
+	var target_z = (this.CAMERA_Z - this.camera.position.z) * speed;
+
+	camera.position.x += target_x;
+	camera.position.y += target_y;
+	camera.position.z += target_z;
+
+	camera.lookAt( {x: CAMERA_LX, y: 0, z: CAMERA_LZ } );
+}
+
 function onMouseMove(event) {
 	event.preventDefault();
 
@@ -426,6 +466,10 @@ function onMouseMove(event) {
 	}
 }
 
+function onMouseWheel(event) {
+	CAMERA_SHOULD_MOVE = false;
+}
+
 function onMouseDown(event) {
 	event.preventDefault();
 
@@ -433,19 +477,20 @@ function onMouseDown(event) {
 	lastMouseY = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
 	selectCountry = true;
+	CAMERA_SHOULD_MOVE = false;
 }
 
-function select(countryCode) {
-	var countryColor = countryColorMap[countryCode];
+function select(countryCodeToSelect) {
 	if(countryColor != 0) {
 		for (var i = 0; i < countryRepresented.length; i++) {
 			var c = countryRepresented[i];
 			var countryCode = c[15];
-			if(countryColorMap[countryCode] == countryColor) {
-				var box = countryBox[i];
-				camera.position.x = box.position.x;
-				camera.position.y = box.position.y;
-				camera.position.z = box.position.z;
+			if(countryCode == countryCodeToSelect) {
+				var selectedObject = countryBox[i];
+				CAMERA_X = selectedObject.position.x;
+				CAMERA_Y = selectedObject.position.y;
+				CAMERA_Z = selectedObject.position.z;
+				CAMERA_SHOULD_MOVE = true;
 				detailsContainer.innerHTML = getDetails(c);
 				hasDetails = true;
 				break;
@@ -453,6 +498,7 @@ function select(countryCode) {
 		}
 
 		if(hasDetails) {
+			var countryColor = countryColorMap[countryCode];
 			selectContext.clearRect(0,0,256,1);
 			selectContext.fillStyle = "#666666";
 			selectContext.fillRect( countryColor, 0, 1, 1 );
@@ -474,8 +520,14 @@ function onMouseUp(event) {
 	var selectedABar = false;
 
 	for (var i = 0; i < countryBox.length; i++) {
-		var intersects = rayCaster.intersectObject(countryBox[i]);
+		var selectedObject = countryBox[i];
+		var intersects = rayCaster.intersectObject(selectedObject);
 		if (intersects.length) {
+			// mouse click intersected the bar i, so select it and the corresponding country
+			CAMERA_X = selectedObject.position.x;
+			CAMERA_Y = selectedObject.position.y;
+			CAMERA_Z = selectedObject.position.z;
+			CAMERA_SHOULD_MOVE = true;
 			var c = countryRepresented[i];
 			detailsContainer.innerHTML = getDetails(c);
 			var countryCode = c[15];
@@ -491,6 +543,7 @@ function onMouseUp(event) {
 	}
 
 	if(!selectedABar) {
+		// mouse did not intersect a bar, so check if it intersected a country
 		var countryColor = -1;
 		var intersectionList = rayCaster.intersectObject( mesh );
 		if (intersectionList.length > 0) {
@@ -500,14 +553,20 @@ function onMouseUp(event) {
 			var v = Math.round(2048 * (0.5 - Math.asin(d.y) / Math.PI));
 			var p = mapContext.getImageData(u,v,1,1).data;
 			countryColor = p[0];
-			if(countryColor != 0) {
+			if(countryColor != 0) { // countryColor == 0 is the sea
+				// a country was clicked, but we need to ignore it if its details were filtered
 				var hasDetails = false;
-
 				for (var i = 0; i < countryRepresented.length; i++) {
 					var c = countryRepresented[i];
 					var countryCode = c[15];
 					if(countryColorMap[countryCode] == countryColor) {
+						// the country was clicked and had details, so select it
 						detailsContainer.innerHTML = getDetails(c);
+						var selectedObject = countryBox[i];
+						CAMERA_X = selectedObject.position.x;
+						CAMERA_Y = selectedObject.position.y;
+						CAMERA_Z = selectedObject.position.z;
+						CAMERA_SHOULD_MOVE = true;
 						hasDetails = true;
 						break;
 					}
@@ -679,6 +738,14 @@ function scaleDown(oldRangeMax, oldRangeMin, newRangeMax, newRangeMin, input) {
 }
 
 function animate() {
+	if(CAMERA_SHOULD_MOVE && (CAMERA_X != camera.position.x || CAMERA_Y != camera.position.y || CAMERA_Z != camera.position.z)) {
+		moveCamera();
+	} else {
+		CAMERA_SHOULD_MOVE = false;
+	}
+	if (camera.position.length() < 300) camera.position.setLength(300);
+	if (camera.position.length() > 1000) camera.position.setLength(1000);
+
 	requestAnimationFrame(animate);
 	render();
 	update();
@@ -686,8 +753,6 @@ function animate() {
 
 function update() {
 	controls.update();
-	if (camera.position.length() < 300) camera.position.setLength(300);
-	if (camera.position.length() > 1000) camera.position.setLength(1000);
 }
 
 function render() {
