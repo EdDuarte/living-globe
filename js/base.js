@@ -35,18 +35,24 @@ var countryColorMap = {
 	"NR":221,"GI":222,"PN":223,"MC":224,"VA":225,"IM":226,"GU":227,"SG":228
 };
 
-CAMERA_SHOULD_MOVE = false;
-CAMERA_X    = 0;
-CAMERA_Y    = 1000;
-CAMERA_Z    = 500;
-CAMERA_LX   = 0;
-CAMERA_LY   = 0;
-CAMERA_LZ   = 0;
+// camera zoom & tween target variables used on "animate()" method to move the
+// camera to the target (a country that was selected)
+var cameraIsMovingToTarget = false;
+var cameraTargetX = 0;
+var cameraTargetY = 1000;
+var cameraTargetZ = 500;
+var cameraTargetLX = 0;
+var cameraTargetLY = 0;
+var cameraTargetLZ = 0;
 
-// global variables
+// mouse interaction variables
 var lastMouseX = 0;
 var lastMouseY = 0;
-var selectCountry = false;
+var isSelectingCountry = false;
+var projector = new THREE.Projector();
+var mouse2D = new THREE.Vector3(0, 0, 0.5);
+
+// fixed variables that are obtained when reading the CSV data
 var countryData = [];
 var countryRepresented = [];
 var countryBox = [];
@@ -54,6 +60,13 @@ var maxPopulation = 0;
 var maxDensity = 0;
 var maxBirths = 0;
 var maxDeaths = 0;
+
+// to filter data, the selection min and max values is used to scale down values
+// for each country:
+// - reducing the selected max increases the normalized values until >= fixed
+//   max (above), in which case they are removed from view
+// - increasing the selected min decreases the normalized values until <= 0, in
+//   which case they are removed from view
 var selectedMinPopulation = 0;
 var selectedMaxPopulation = 0;
 var selectedMinDensity = 0;
@@ -63,30 +76,20 @@ var selectedMaxBirths = 0;
 var selectedMinDeaths = 0;
 var selectedMaxDeaths = 0;
 
-var camera       // camera
-var cameraPos0   // initial camera position
-var cameraUp0    // initial camera up
-var cameraZoom   // camera zoom
-var iniQ         // initial quaternion
-var endQ         // target quaternion
-var curQ         // temp quaternion during slerp
-var vec3         // generic vector object
-var tweenValue   // tweenable value 
-
-// list of country names and capitals used for auto complete
+// list of country names and capitals, used for the auto complete field
 var autoCompleteLookup;
 
 // data type can be 0 (population), 1 (density), 2 (birth rate) and 3 (death rate)
 var selectedDataType = 0;
 
-// setup sliders
+// sliders setup, used to filter data
 var sPopulation = $('#sliderPopulation');
 sPopulation.on({
 	slide: function(){
 		var newRange = sPopulation.val();
 		selectedMinPopulation = newRange[0];
 		selectedMaxPopulation = newRange[1];
-		filterData(countryData);
+		rebuildBars(countryData);
 	}
 });
 var sDensity = $('#sliderDensity');
@@ -95,7 +98,7 @@ sDensity.on({
 		var newRange = sDensity.val();
 		selectedMinDensity = newRange[0];
 		selectedMaxDensity = newRange[1];
-		filterData(countryData);
+		rebuildBars(countryData);
 	}
 });
 var sBirths = $('#sliderBirth');
@@ -104,7 +107,7 @@ sBirths.on({
 		var newRange = sBirths.val();
 		selectedMinBirths = newRange[0];
 		selectedMaxBirths = newRange[1];
-		filterData(countryData);
+		rebuildBars(countryData);
 	}
 });
 var sDeaths = $('#sliderDeath');
@@ -113,17 +116,18 @@ sDeaths.on({
 		var newRange = sDeaths.val();
 		selectedMinDeaths = newRange[0];
 		selectedMaxDeaths = newRange[1];
-		filterData(countryData);
+		rebuildBars(countryData);
 	}
 });
 
+// buttons that select what data should be presented in the bars
 $('#buttonPopulation').click(function(){
 	sPopulation.show();
 	sDensity.hide();
 	sBirths.hide();
 	sDeaths.hide();
 	selectedDataType = 0;
-	filterData(countryData);
+	rebuildBars(countryData);
 });
 $('#buttonDensity').click(function(){
 	sPopulation.hide();
@@ -131,7 +135,7 @@ $('#buttonDensity').click(function(){
 	sBirths.hide();
 	sDeaths.hide();
 	selectedDataType = 1;
-	filterData(countryData);
+	rebuildBars(countryData);
 });
 $('#buttonBirth').click(function(){
 	sPopulation.hide();
@@ -139,7 +143,7 @@ $('#buttonBirth').click(function(){
 	sBirths.show();
 	sDeaths.hide();
 	selectedDataType = 2;
-	filterData(countryData);
+	rebuildBars(countryData);
 });
 $('#buttonDeath').click(function(){
 	sPopulation.hide();
@@ -147,11 +151,8 @@ $('#buttonDeath').click(function(){
 	sBirths.hide();
 	sDeaths.show();
 	selectedDataType = 3;
-	filterData(countryData);
+	rebuildBars(countryData);
 });
-
-var projector = new THREE.Projector();
-var mouse2D = new THREE.Vector3(0, 0, 0.5);
 
 // scene
 var scene = new THREE.Scene();
@@ -161,11 +162,9 @@ var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
 var camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 camera.position.set(0,250,250);
-// camera.position = new THREE.Vector3(0, 0, 80)
 cameraPos0 = camera.position.clone()
 cameraUp0 = camera.up.clone()
 cameraZoom = camera.position.z
-// camera.lookAt(scene.position);
 scene.add(camera);
 
 // renderer
@@ -179,6 +178,7 @@ renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 renderer.sortObjects = false;
 renderer.generateMipmaps = false;
 renderer.setClearColor(0x000000);
+worldContainer.appendChild(renderer.domElement);
 
 // mouse events
 THREEx.WindowResize(renderer, camera);
@@ -189,8 +189,7 @@ renderer.domElement.addEventListener('mousemove', onMouseMove);
 renderer.domElement.addEventListener('mousedown', onMouseDown);
 renderer.domElement.addEventListener('mouseup', onMouseUp);
 
-// controls
-worldContainer.appendChild(renderer.domElement);
+// controls (OrbitControls with damping)
 var controls = new THREE.OrbitControls(camera, worldIntercept);
 controls.dynamicDampingFactor = 0.5;
 
@@ -212,12 +211,12 @@ for (var i = 0; i < 6; i++)
 		map: THREE.ImageUtils.loadTexture( imagePrefix + directions[i] + imageSuffix ),
 		side: THREE.BackSide
 	}));
-var skyBox = new THREE.Mesh(new THREE.CubeGeometry( 5000, 5000, 5000 ), new THREE.MeshFaceMaterial( materialArray ));
+var skyBox = new THREE.Mesh(new THREE.CubeGeometry(5000, 5000, 5000),
+	new THREE.MeshFaceMaterial(materialArray));
 scene.add(skyBox);
 
 
-// "ratio texture", which contains a colored pixel for each country
-//  -- the pixel at (x,1) is the color of the country labelled with gray RGB_Color(x,x,x,1).
+// "ratio texture", which contains colored pixels for each country
 var ratioCanvas = document.createElement('canvas');
 ratioCanvas.width = 256;
 ratioCanvas.height = 1;
@@ -227,7 +226,7 @@ ratioTexture.magFilter = THREE.NearestFilter;
 ratioTexture.minFilter = THREE.NearestFilter;
 ratioTexture.needsUpdate = true;
 
-// "select texture", which fills a pixel for the selected country
+// "select texture", which fills pixels in white for the selected country
 var selectCanvas = document.createElement('canvas');
 selectCanvas.width = 256;
 selectCanvas.height = 1;
@@ -237,13 +236,17 @@ selectTexture.magFilter = THREE.NearestFilter;
 selectTexture.minFilter = THREE.NearestFilter;
 selectTexture.needsUpdate = true;
 
+// lookup texture, where each country is colored with a different luminosity of
+// gray. the country can be identified using the countryColorMap
 var mapTexture = THREE.ImageUtils.loadTexture("img/earth-index-shifted-gray.png");
 mapTexture.magFilter = THREE.NearestFilter;
 mapTexture.minFilter = THREE.NearestFilter;
 mapTexture.needsUpdate = true;
 
+// satellite texture, used for aesthetic purposes only
 var blendImage = THREE.ImageUtils.loadTexture("img/earth-day.jpg");
 
+// the final material for the world object merges multiple layered textures
 var planeMaterial = new THREE.ShaderMaterial({
 	uniforms: {
 		width:      { type: "f", value: window.innerWidth },
@@ -260,10 +263,11 @@ var planeMaterial = new THREE.ShaderMaterial({
 
 // world / sphere object
 var geometry = new THREE.SphereGeometry(100, 64, 32);
-var mesh = new THREE.Mesh( geometry, planeMaterial );
+var mesh = new THREE.Mesh(geometry, planeMaterial);
 mesh.position.set(0,0,0);
 scene.add(mesh);
 
+// the map canvas, used to obtain the luminosity value of the lookup texture
 var mapCanvas = document.createElement('canvas');
 mapCanvas.width = 4096;
 mapCanvas.height = 2048;
@@ -274,14 +278,12 @@ imageObj.onload = function() {
 };
 imageObj.src = 'img/earth-index-shifted-gray.png';
 
-// post-processing
+// post-processing flag
 renderer.autoClear = false;
 
-// anti-aliasing
+// anti-aliasing setup
 var composer = new THREE.EffectComposer( renderer );
-
 var renderModel = new THREE.RenderPass( scene, camera );
-
 var effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
 var width = window.innerWidth || 2;
 var height = window.innerHeight || 2;
@@ -294,8 +296,7 @@ composer.addPass( renderModel );
 composer.addPass( effectFXAA );
 composer.addPass( effectCopy );
 
-// Initialize data
-
+// reads data from the csv file "data.csv" using ajax
 $(document).ready(function() {
 	$.ajax({
 		type: "GET",
@@ -314,18 +315,27 @@ $(document).ready(function() {
 					select(suggestion.data);
 				}
 			});
-			filterData(countryData);
+			rebuildBars(countryData);
 		}
 	});
 });
 
 animate();
 
+
+// --- FUNCTIONS ---
+
+// function that analyses data in the array "countryData" to discover the
+// maximum and minimum population, density, birth-rate and death-rate. These
+// values are used to produce normalized scales on the function "rebuildBars"
+// and to setup the filter sliders
 function analyseData() {
-	// get all max values to have normalized scales
-	var birthsArray = [];
-	var deathsArray = [];
+
+	// data is listed in a second array with the format
+	// [{value: capital + country name, data: ISO-3166 country code}, ...],
+	// which is then used as the input of dev-bridge auto-complete plugin
 	autoCompleteLookup = [];
+
 	for (var i = 1; i < countryData.length-1; i++) {
 		var c = countryData[i];
 
@@ -337,20 +347,26 @@ function analyseData() {
 		var births = parseInt(c[8]);
 		var deaths = parseInt(c[12]);
 
+		// finds the maximum population
 		if (maxPopulation < population) {
 			maxPopulation = population;
 		}
 
+		// finds the maximum density
 		if (maxDensity < density) {
 			maxDensity = density;
 		}
 
-		birthsArray.push(births);
-		deathsArray.push(deaths);
-	}
+		// finds the maximum birth-rate
+		if (maxBirths < births) {
+			maxBirths = births;
+		}
 
-	maxBirths = Math.max.apply(Math, birthsArray);
-	maxDeaths = Math.max.apply(Math, deathsArray);
+		// finds the maximum death-rate
+		if (maxDeaths < deaths) {
+			maxDeaths = deaths;
+		}
+	}
 
 	selectedMinPopulation = 0;
 	selectedMaxPopulation = maxPopulation;
@@ -361,7 +377,7 @@ function analyseData() {
 	selectedMinDeaths = 0;
 	selectedMaxDeaths = maxDeaths;
 
-	// get the range for the sliders based on the max values
+	// setup the range for the sliders, based on the obtained max values
 	sPopulation.noUiSlider({
 		start: [selectedMinPopulation, selectedMaxPopulation],
 		orientation: 'vertical',
@@ -377,7 +393,6 @@ function analyseData() {
 		mode: 'steps',
 		density: 5
 	});
-
 	sDensity.noUiSlider({
 		start: [selectedMinDensity, selectedMaxDensity],
 		orientation: 'vertical',
@@ -393,7 +408,6 @@ function analyseData() {
 		mode: 'steps',
 		density: 5
 	});
-
 	sBirths.noUiSlider({
 		start: [selectedMinBirths, selectedMaxBirths],
 		orientation: 'vertical',
@@ -409,7 +423,6 @@ function analyseData() {
 		mode: 'steps',
 		density: 5
 	});
-
 	sDeaths.noUiSlider({
 		start: [selectedMinDeaths, selectedMaxDeaths],
 		orientation: 'vertical',
@@ -427,27 +440,14 @@ function analyseData() {
 	});
 }
 
-
-// set a new target for the camera
-function moveCamera() {
-	var speed = 0.1;
-	var target_x = (this.CAMERA_X - this.camera.position.x) * speed;
-	var target_y = (this.CAMERA_Y - this.camera.position.y) * speed;
-	var target_z = (this.CAMERA_Z - this.camera.position.z) * speed;
-
-	camera.position.x += target_x;
-	camera.position.y += target_y;
-	camera.position.z += target_z;
-
-	camera.lookAt( {x: CAMERA_LX, y: 0, z: CAMERA_LZ } );
-}
-
 function onMouseMove(event) {
 	event.preventDefault();
 
 	mouse2D.x =   ( event.clientX / window.innerWidth  ) * 2 - 1;
 	mouse2D.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
+	// xdiff and ydiff represent the mouse distance between the current mouse
+	// position and the mouse position when the mouse button was last pressed
 	var xdiff = lastMouseX - mouse2D.x;
 	if(xdiff < 0) {
 		xdiff = -xdiff;
@@ -458,16 +458,18 @@ function onMouseMove(event) {
 		ydiff = -ydiff;
 	}
 
+	// if the distance measured above exceeds 0.05, mouseUp measures to check
+	// intersecting bars or countries is ignored, since it could have been a
+	// mouse drag instead of a mouse click
 	if(xdiff > 0.05 || ydiff > 0.05) {
-		// it was a mouse drag, ignore and skip click event
-		selectCountry = false;
+		isSelectingCountry = false;
 	} else {
-		selectCountry = true;
+		isSelectingCountry = true;
 	}
 }
 
 function onMouseWheel(event) {
-	CAMERA_SHOULD_MOVE = false;
+	cameraIsMovingToTarget = false;
 }
 
 function onMouseDown(event) {
@@ -476,35 +478,8 @@ function onMouseDown(event) {
 	lastMouseX =   ( event.clientX / window.innerWidth  ) * 2 - 1;
 	lastMouseY = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-	selectCountry = true;
-	CAMERA_SHOULD_MOVE = false;
-}
-
-function select(countryCodeToSelect) {
-	if(countryColor != 0) {
-		for (var i = 0; i < countryRepresented.length; i++) {
-			var c = countryRepresented[i];
-			var countryCode = c[15];
-			if(countryCode == countryCodeToSelect) {
-				var selectedObject = countryBox[i];
-				CAMERA_X = selectedObject.position.x;
-				CAMERA_Y = selectedObject.position.y;
-				CAMERA_Z = selectedObject.position.z;
-				CAMERA_SHOULD_MOVE = true;
-				detailsContainer.innerHTML = getDetails(c);
-				hasDetails = true;
-				break;
-			}
-		}
-
-		if(hasDetails) {
-			var countryColor = countryColorMap[countryCode];
-			selectContext.clearRect(0,0,256,1);
-			selectContext.fillStyle = "#666666";
-			selectContext.fillRect( countryColor, 0, 1, 1 );
-			selectTexture.needsUpdate = true;
-		}
-	}
+	isSelectingCountry = true;
+	cameraIsMovingToTarget = false;
 }
 
 function onMouseUp(event) {
@@ -513,7 +488,7 @@ function onMouseUp(event) {
 	mouse2D.x =   ( event.clientX / window.innerWidth  ) * 2 - 1;
 	mouse2D.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-	if(!selectCountry){
+	if(!isSelectingCountry){
 		return;
 	}
 	var rayCaster = projector.pickingRay(mouse2D.clone(), camera);
@@ -524,10 +499,10 @@ function onMouseUp(event) {
 		var intersects = rayCaster.intersectObject(selectedObject);
 		if (intersects.length) {
 			// mouse click intersected the bar i, so select it and the corresponding country
-			CAMERA_X = selectedObject.position.x;
-			CAMERA_Y = selectedObject.position.y;
-			CAMERA_Z = selectedObject.position.z;
-			CAMERA_SHOULD_MOVE = true;
+			cameraTargetX = selectedObject.position.x;
+			cameraTargetY = selectedObject.position.y;
+			cameraTargetZ = selectedObject.position.z;
+			cameraIsMovingToTarget = true;
 			var c = countryRepresented[i];
 			detailsContainer.innerHTML = getDetails(c);
 			var countryCode = c[15];
@@ -553,7 +528,8 @@ function onMouseUp(event) {
 			var v = Math.round(2048 * (0.5 - Math.asin(d.y) / Math.PI));
 			var p = mapContext.getImageData(u,v,1,1).data;
 			countryColor = p[0];
-			if(countryColor != 0) { // countryColor == 0 is the sea
+			if(countryColor != 0) { // countryColor == 0 is the sea, so we ignore it
+
 				// a country was clicked, but we need to ignore it if its details were filtered
 				var hasDetails = false;
 				for (var i = 0; i < countryRepresented.length; i++) {
@@ -563,10 +539,10 @@ function onMouseUp(event) {
 						// the country was clicked and had details, so select it
 						detailsContainer.innerHTML = getDetails(c);
 						var selectedObject = countryBox[i];
-						CAMERA_X = selectedObject.position.x;
-						CAMERA_Y = selectedObject.position.y;
-						CAMERA_Z = selectedObject.position.z;
-						CAMERA_SHOULD_MOVE = true;
+						cameraTargetX = selectedObject.position.x;
+						cameraTargetY = selectedObject.position.y;
+						cameraTargetZ = selectedObject.position.z;
+						cameraIsMovingToTarget = true;
 						hasDetails = true;
 						break;
 					}
@@ -584,6 +560,7 @@ function onMouseUp(event) {
 	}
 }
 
+// function that returns text details for a given country
 function getDetails(countryLine) {
 	text = "<h1>" + countryLine[1] + "</h1><h4>(" +countryLine[0] + ")</h4>" +
 	"<h5><span>" + numeral(countryLine[4]).format('0,0') + " km²</span></h5>" +
@@ -594,9 +571,40 @@ function getDetails(countryLine) {
 	return text;
 }
 
-function filterData(countryData) {
+// function that select a country with the specified ISO-3166 country code (used by auto-complete)
+function select(countryCodeToSelect) {
+	if(countryColor != 0) {
+		for (var i = 0; i < countryRepresented.length; i++) {
+			var c = countryRepresented[i];
+			var countryCode = c[15];
+			if(countryCode == countryCodeToSelect) {
+				var selectedObject = countryBox[i];
+				cameraTargetX = selectedObject.position.x;
+				cameraTargetY = selectedObject.position.y;
+				cameraTargetZ = selectedObject.position.z;
+				cameraIsMovingToTarget = true;
+				detailsContainer.innerHTML = getDetails(c);
+				hasDetails = true;
+				break;
+			}
+		}
 
-	// remove previous cubes
+		if(hasDetails) {
+			var countryColor = countryColorMap[countryCode];
+			selectContext.clearRect(0,0,256,1);
+			selectContext.fillStyle = "#666666";
+			selectContext.fillRect( countryColor, 0, 1, 1 );
+			selectTexture.needsUpdate = true;
+		}
+	}
+}
+
+// function that rebuilds (or, if they didn't exist before, creates) all of the
+// bars shown on the globe according to new selection boundaries (different
+// selected max and min values or different shown type)
+function rebuildBars(countryData) {
+
+	// remove previous bars
 	for (var i = 0 ; i < countryBox.length; i++) {
 		scene.remove(countryBox[i])
 	}
@@ -604,7 +612,7 @@ function filterData(countryData) {
 	// clears all colored countries
 	ratioContext.clearRect(0,0,256,1);
 
-	// arrays that will contain all our cubes
+	// arrays that will contain all our new bars
 	countryRepresented = [];
 	countryBox = [];
 	var ratioArray = [];
@@ -627,47 +635,53 @@ function filterData(countryData) {
 		var value = 0;
 
 		if (selectedDataType == 0 && population >= selectedMinPopulation && population <= selectedMaxPopulation) {
-			value = scaleDown(selectedMaxPopulation, selectedMinPopulation, 95, 0, population);
+			value = scaleDown(selectedMinPopulation, selectedMaxPopulation, 0, 95, population);
 
 		} else if (selectedDataType == 1 && density >= selectedMinDensity && density <= selectedMaxDensity) {
-			value = scaleDown(selectedMaxDensity, selectedMinDensity, 95, 0, density);
+			value = scaleDown(selectedMinDensity, selectedMaxDensity, 0, 95, density);
 
 		} else if (selectedDataType == 2 && births >= selectedMinBirths && births <= selectedMaxBirths) {
-			value = scaleDown(selectedMaxBirths, selectedMinBirths, 95, 0, births);
+			value = scaleDown(selectedMinBirths, selectedMaxBirths, 0, 95, births);
 
 		} else if (selectedDataType == 3 && deaths >= selectedMinDeaths && deaths <= selectedMaxDeaths) {
-			value = scaleDown(selectedMaxDeaths, selectedMinDeaths, 95, 0, deaths);
+			value = scaleDown(selectedMinDeaths, selectedMaxDeaths, 0, 95, deaths);
 		}
 
 		if (value == 0) {
+			// if the value has been scaled down to 0, do not show bar and
+			// color, and remove interaction
 			continue;
 		}
 
 		ratioArray.push(births - deaths);
 		countryCodeArray.push(countryCode);
 
-		var position = latLongToVector3(lat, lon, 100, 1);
-
-		// find the color of the bar for the capital, which should be the density scaled between 0 and 1
-		// this value between 0 and 1 is then used to collect a color between yellow and blue
-		var scaledDensity = scaleDown(selectedMaxDensity, selectedMinDensity, 1, 0, density);
+		// find the color of the bar for the capital, which should be the
+		// density scaled between 0 and 1 this value between 0 and 1 is then
+		// used to collect a color between yellow and blue
+		var scaledDensity = scaleDown(selectedMinDensity, selectedMaxDensity, 0, 1, density);
 		var scale = chroma.scale(['#D4B36A', '#505F8F']); 
 		var barColor = scale(scaledDensity).hex();
 
-		// setup the bar with the obtained color above and the latlng position of the capital
-		var cubeMat = new THREE.MeshBasicMaterial({ color: barColor, wireframe: false});
+		// setup the bar material with the obtained color above
+		var barMat = new THREE.MeshBasicMaterial({ color: barColor, wireframe: false});
 
-		// a CubeGeometry is used instead of a BoxGeometry because we are using a old version of three.js (version 62)
-		var box = new THREE.CubeGeometry(0.5, 0.5, value);
-		var mesh = new THREE.Mesh(box, cubeMat);
+		// a CubeGeometry is used for the bar geometry instead of a BoxGeometry
+		// because we are using a old version of three.js (version 62)
+		var barGeom = new THREE.CubeGeometry(0.5, 0.5, value);
+		var mesh = new THREE.Mesh(barGeom, barMat);
+
+
+		// converts the country capital lat-lng position into a vector in the
+		// three-dimensional space
+		var position = latLongToVector3(lat, lon, 100, 1);
 		mesh.position.x = position.x;
 		mesh.position.y = position.y;
 		mesh.position.z = position.z;
 		mesh.lookAt(new THREE.Vector3(0,0,0));
 
+		// the bar is added to the scene and lookup-array
 		scene.add(mesh);
-
-		// add the mesh to an array, so it can be easily looked up
 		countryBox.push(mesh);
 		countryRepresented.push(c);
 	}
@@ -677,50 +691,24 @@ function filterData(countryData) {
 	for(var i = 0; i < ratioArray.length; i++) {
 		var ratio = ratioArray[i];
 		var code = countryCodeArray[i];
-		var scaleValue = scaleDown(maxRatio, minRatio, 1, 0, ratio);
+		var scaleValue = scaleDown(minRatio, maxRatio, 0, 1, ratio);
 		var scale = chroma.scale(['#AA4439', '#2B803E']);
 		var color = scale(scaleValue).hex();
 		colorCountry(countryColorMap[code], color);
 	}
 }
 
+// function that colors a country with the specified ISO-3166 code with the
+// specified color
 function colorCountry(countryCode, color) {
 	ratioContext.fillStyle = color;
-	ratioContext.fillRect( countryCode, 0, 1, 1 );
+	ratioContext.fillRect(countryCode, 0, 1, 1);
 	ratioTexture.needsUpdate = true;
 }
 
-function addCountryData(lat,lon,value) {
-	var position = latLongToVector3(lat, lon, 100, 1);
-
-	// cube / bar
-	var cubeMat = new THREE.MeshBasicMaterial({color: 0xff0000, opacity: 0.6, emissive: 0xffffff});
-	var cubeMat = new THREE.MeshBasicMaterial({color: 'red'} );
-
-
-	var box = new THREE.CubeGeometry( 0.5, 0.5,  value );
-	var cube = new THREE.Mesh(box, cubeMat);
-
-	// position it according to the vector made from the latitude and longitude
-	cube.position.x = position.x;
-	cube.position.y = position.y;
-	cube.position.z = position.z;
-	cube.lookAt( new THREE.Vector3(0,0,0) );
-
-	// add bar to the scene and lookup-array
-	scene.add(cube);
-	countryBox.push (cube);
-}
-
-function findCountryCode(countryName){
-	countryName = countryName.toUpperCase();
-	for( var i in countryratio ){
-		if( countryratio[i] === countryName )
-			return i;
-	}
-	return 'not found';
-}
-
+// utility function that converts latitude and longitude variables to a vector
+// in the three-dimensional space, according to a specific radius. For this
+// implementation, the radius of the sphere is 100.
 function latLongToVector3(lat, lon, radius, heigth) {
 	var phi = (lat) * Math.PI / 180;
 	var theta = (lon-180) * Math.PI / 180;
@@ -732,29 +720,46 @@ function latLongToVector3(lat, lon, radius, heigth) {
 	return new THREE.Vector3(x,y,z);
 }
 
-function scaleDown(oldRangeMax, oldRangeMin, newRangeMax, newRangeMin, input) {
-	var percent = (input - oldRangeMin) / (oldRangeMax - oldRangeMin);
-	return percent * (newRangeMax - newRangeMin) + newRangeMin;
+// utility function that scales down a input value that exists within a range
+// [oldMin, oldMax] to fit in a new range [newMin, newMax]
+function scaleDown(oldMin, oldMax, newMin, newMax, input) {
+	var percent = (input - oldMin) / (oldMax - oldMin);
+	return percent * (newMax - newMin) + newMin;
 }
 
+// three.js animation function that is recursively called using
+// "requestAnimationFrame". Every time this function is executed, we check if
+// the camera should be moving to a target and if it is positioned on top of
+// said target. If not, then move the camera 0.1 pixels in its direction.
 function animate() {
-	if(CAMERA_SHOULD_MOVE && (CAMERA_X != camera.position.x || CAMERA_Y != camera.position.y || CAMERA_Z != camera.position.z)) {
+	if(cameraIsMovingToTarget && (cameraTargetX != camera.position.x || cameraTargetY != camera.position.y || cameraTargetZ != camera.position.z)) {
 		moveCamera();
 	} else {
-		CAMERA_SHOULD_MOVE = false;
+		cameraIsMovingToTarget = false;
 	}
 	if (camera.position.length() < 300) camera.position.setLength(300);
 	if (camera.position.length() > 1000) camera.position.setLength(1000);
 
 	requestAnimationFrame(animate);
 	render();
-	update();
-}
-
-function update() {
 	controls.update();
 }
 
+// function that sets a new target for the camera
+function moveCamera() {
+	var speed = 0.1;
+	var target_x = (cameraTargetX - camera.position.x) * speed;
+	var target_y = (cameraTargetY - camera.position.y) * speed;
+	var target_z = (cameraTargetZ - camera.position.z) * speed;
+
+	camera.position.x += target_x;
+	camera.position.y += target_y;
+	camera.position.z += target_z;
+
+	camera.lookAt( {x: cameraTargetLX, y: 0, z: cameraTargetLZ } );
+}
+
+// three.js render function that is recursively called
 function render() {
 	skyBox.rotation.y += 0.0003;
 	renderer.clear();
