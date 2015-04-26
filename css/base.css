@@ -45,15 +45,15 @@ table.right {
 }
 
 #search {
-	width: 400px;
+	width: 240px;
 	position: fixed;
 	top: 0;
-	right: 0;
+	left: 0;
 	margin: 6px;
 }
 
 #searchfield {
-	width: 360px;
+	width: 240px;
 }
 
 #grad1 {
