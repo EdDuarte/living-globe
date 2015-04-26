@@ -254,19 +254,21 @@ imageObj.src = 'img/earth-index-shifted-gray.png';
 renderer.autoClear = false;
 
 // anti-aliasing setup
-var composer = new THREE.EffectComposer( renderer );
-var renderModel = new THREE.RenderPass( scene, camera );
-var effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
+var composer = new THREE.EffectComposer(renderer);
+var renderModel = new THREE.RenderPass(scene, camera);
+var effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
 var width = window.innerWidth || 2;
 var height = window.innerHeight || 2;
-effectFXAA.uniforms[ 'resolution' ].value.set( 1 / width, 1 / height );
+effectFXAA.uniforms[ 'resolution' ].value.set(1 / width, 1 / height);
 
-var effectCopy = new THREE.ShaderPass( THREE.CopyShader );
+var effectCopy = new THREE.ShaderPass(THREE.CopyShader);
 effectCopy.renderToScreen = true;
 
-composer.addPass( renderModel );
-composer.addPass( effectFXAA );
-composer.addPass( effectCopy );
+composer.addPass(renderModel);
+composer.addPass(effectFXAA);
+composer.addPass(effectCopy);
+
+var searchfield = $('#searchfield');
 
 $.getJSON('iso3166_gray_codes.json', function(json) {
 	countryColorMap = json;
@@ -280,12 +282,18 @@ $.getJSON('iso3166_gray_codes.json', function(json) {
 			success: function(data) {
 				countryData = CSVToArray(data);
 				analyseData();
-				$('#searchfield')
-				.on("click", function () {
-					$(this).select();
-				})
-				.val("")
-				.devbridgeAutocomplete({
+				searchfield.on('focus', function() {
+					var $this = $(this)
+					.one('mouseup.mouseupSelect', function() {
+						$this.select();
+						return false;
+					})
+					.one('mousedown', function() {
+           				// compensate for untriggered 'mouseup' caused by focus via tab
+           				$this.off('mouseup.mouseupSelect');
+           			})
+					.select();
+				}).val("").devbridgeAutocomplete({
 					minChars: 1,
 					width: 430,
 					autoSelectFirst: true,
@@ -294,6 +302,7 @@ $.getJSON('iso3166_gray_codes.json', function(json) {
 					lookup: autoCompleteLookup,
 					onSelect: function (suggestion) {
 						select(suggestion.data);
+						// searchfield.blur();
 					}
 				});
 				rebuildBars(countryData);
@@ -302,6 +311,7 @@ $.getJSON('iso3166_gray_codes.json', function(json) {
 	});
 });
 
+// start animation loop
 animate();
 
 
@@ -495,6 +505,7 @@ function onMouseUp(event) {
 				selectContext.fillRect(countryColor, 0, 1, 1);
 				selectTexture.needsUpdate = true;
 				selectedABar = true;
+				searchfield.blur();
 			}
 		}
 	}
@@ -535,6 +546,7 @@ function onMouseUp(event) {
 					selectContext.fillStyle = "#666666";
 					selectContext.fillRect( countryColor, 0, 1, 1 );
 					selectTexture.needsUpdate = true;
+					searchfield.blur();
 				}
 			}
 
