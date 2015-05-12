@@ -132,7 +132,7 @@ var scene = new THREE.Scene();
 // camera
 var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
-var camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+var camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 camera.position.set(0,250,250);
 cameraPos0 = camera.position.clone()
 cameraUp0 = camera.up.clone()
@@ -179,8 +179,8 @@ directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"],
 imageSuffix = ".png",
 materialArray = [];
 for (var i = 0; i < 6; i++)
-	materialArray.push( new THREE.MeshBasicMaterial({
-		map: THREE.ImageUtils.loadTexture( imagePrefix + directions[i] + imageSuffix ),
+	materialArray.push(new THREE.MeshBasicMaterial({
+		map: THREE.ImageUtils.loadTexture(imagePrefix + directions[i] + imageSuffix),
 		side: THREE.BackSide
 	}));
 var skyBox = new THREE.Mesh(new THREE.CubeGeometry(5000, 5000, 5000),
@@ -229,8 +229,8 @@ var planeMaterial = new THREE.ShaderMaterial({
 		select:     { type: "t", value: selectTexture },
 		blendImage: { type: "t", value: blendImage }
 	},
-	vertexShader:   document.getElementById( 'globeVertexShader'   ).textContent,
-	fragmentShader: document.getElementById( 'globeFragmentShader' ).textContent
+	vertexShader:   document.getElementById('globeVertexShader').textContent,
+	fragmentShader: document.getElementById('globeFragmentShader').textContent
 });
 
 // world / sphere object
@@ -259,7 +259,7 @@ var renderModel = new THREE.RenderPass(scene, camera);
 var effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
 var width = window.innerWidth || 2;
 var height = window.innerHeight || 2;
-effectFXAA.uniforms[ 'resolution' ].value.set(1 / width, 1 / height);
+effectFXAA.uniforms['resolution'].value.set(1 / width, 1 / height);
 
 var effectCopy = new THREE.ShaderPass(THREE.CopyShader);
 effectCopy.renderToScreen = true;
@@ -435,8 +435,8 @@ function analyseData() {
 function onMouseMove(event) {
 	event.preventDefault();
 
-	mouse2D.x =   ( event.clientX / window.innerWidth  ) * 2 - 1;
-	mouse2D.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+	mouse2D.x =   (event.clientX / window.innerWidth) * 2 - 1;
+	mouse2D.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
 	// xdiff and ydiff represent the mouse distance between the current mouse
 	// position and the mouse position when the mouse button was last pressed
@@ -467,8 +467,8 @@ function onMouseWheel(event) {
 function onMouseDown(event) {
 	event.preventDefault();
 
-	lastMouseX =   ( event.clientX / window.innerWidth  ) * 2 - 1;
-	lastMouseY = - ( event.clientY / window.innerHeight ) * 2 + 1;
+	lastMouseX =   (event.clientX / window.innerWidth) * 2 - 1;
+	lastMouseY = - (event.clientY / window.innerHeight) * 2 + 1;
 
 	isSelectingCountry = true;
 	cameraIsMovingToTarget = false;
@@ -477,8 +477,8 @@ function onMouseDown(event) {
 function onMouseUp(event) {
 	event.preventDefault();
 
-	mouse2D.x =   ( event.clientX / window.innerWidth  ) * 2 - 1;
-	mouse2D.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+	mouse2D.x =   (event.clientX / window.innerWidth) * 2 - 1;
+	mouse2D.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
 	if(!isSelectingCountry){
 		return;
@@ -513,7 +513,7 @@ function onMouseUp(event) {
 	if(!selectedABar) {
 		// mouse did not intersect a bar, so check if it intersected a country
 		var countryColor = -1;
-		var intersectionList = rayCaster.intersectObject( mesh );
+		var intersectionList = rayCaster.intersectObject(mesh);
 		if (intersectionList.length > 0) {
 			data = intersectionList[0];
 			var d = data.point.clone().normalize();
@@ -544,7 +544,7 @@ function onMouseUp(event) {
 				if(hasDetails) {
 					selectContext.clearRect(0,0,256,1);
 					selectContext.fillStyle = "#666666";
-					selectContext.fillRect( countryColor, 0, 1, 1 );
+					selectContext.fillRect(countryColor, 0, 1, 1);
 					selectTexture.needsUpdate = true;
 					searchfield.blur();
 				}
@@ -587,7 +587,7 @@ function select(countryCodeToSelect) {
 			var countryColor = countryColorMap[countryCode];
 			selectContext.clearRect(0,0,256,1);
 			selectContext.fillStyle = "#666666";
-			selectContext.fillRect( countryColor, 0, 1, 1 );
+			selectContext.fillRect(countryColor, 0, 1, 1);
 			selectTexture.needsUpdate = true;
 		}
 	}
@@ -650,9 +650,10 @@ function rebuildBars(countryData) {
 		ratioArray.push(births - deaths);
 		countryCodeArray.push(countryCode);
 
-		// find the color of the bar for the capital, which should be the
-		// density scaled between 0 and 1 this value between 0 and 1 is then
-		// used to collect a color between yellow and blue
+		// find the color of the bar for the capital, which is a color picked
+		// from a gradient of yellow to blue associated with a scale between 0
+		// and 1. This value within that scale is obtained by scaling down the
+		// density value.
 		var scaledDensity = scaleDown(selectedMinDensity, selectedMaxDensity, 0, 1, density);
 		var scale = chroma.scale(['#D4B36A', '#505F8F']); 
 		var barColor = scale(scaledDensity).hex();
@@ -682,6 +683,8 @@ function rebuildBars(countryData) {
 
 	var maxRatio = Math.max.apply(Math, ratioArray);
 	var minRatio = Math.min.apply(Math, ratioArray);
+	alert(maxRatio);
+	alert(minRatio);
 	for(var i = 0; i < ratioArray.length; i++) {
 		var ratio = ratioArray[i];
 		var code = countryCodeArray[i];
@@ -750,7 +753,7 @@ function moveCamera() {
 	camera.position.y += target_y;
 	camera.position.z += target_z;
 
-	camera.lookAt( {x: cameraTargetLX, y: 0, z: cameraTargetLZ } );
+	camera.lookAt({x: cameraTargetLX, y: 0, z: cameraTargetLZ });
 }
 
 // three.js render function that is recursively called
