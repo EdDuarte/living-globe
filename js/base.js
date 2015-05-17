@@ -683,8 +683,6 @@ function rebuildBars(countryData) {
 
 	var maxRatio = Math.max.apply(Math, ratioArray);
 	var minRatio = Math.min.apply(Math, ratioArray);
-	alert(maxRatio);
-	alert(minRatio);
 	for(var i = 0; i < ratioArray.length; i++) {
 		var ratio = ratioArray[i];
 		var code = countryCodeArray[i];
