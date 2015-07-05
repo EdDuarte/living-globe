@@ -1,4 +1,18 @@
-/**
+/*
+ * Copyright 2015 Ed Duarte
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  * 3D Earth v1.0.0
  * Authors: Ed Duarte (edmiguelduarte@gmail.com) and Pedro Bordonhos (bordonhos@ua.pt)
  */
@@ -269,14 +283,14 @@ composer.addPass(effectCopy);
 
 var searchfield = $('#searchfield');
 
-$.getJSON('iso3166_gray_codes.json', function(json) {
+$.getJSON('data/iso3166_gray_codes.json', function(json) {
 	countryColorMap = json;
 
 	// reads data from the csv file "data.csv" using ajax
 	$(document).ready(function() {
 		$.ajax({
 			type: "GET",
-			url: "data.csv",
+			url: "data/data.csv",
 			dataType: "text",
 			success: function(data) {
 				countryData = CSVToArray(data);
