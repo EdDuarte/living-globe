@@ -4,7 +4,7 @@
 
 ## Description
 
-Living Globe is a simple 3D information visualisation tool of world demographical data, namely, the total population, total density, crude birth rate and crude mortality rate.
+Living Globe is a simple 3D information visualisation tool of worldwide demographical data, namely, the total population, total density, crude birth rate and crude mortality rate for each capital.
 
 Total of population is displayed as bars over capitals, the density as the bars colors, and the ratio between birth-rate and death-rate as countries colors. Shown data is scaled to a minimum and maximum population, density, birth-rate or death-rate value that can be changed, so as to avoid skewness due to the excedingly large samples sitting in China and India.
 
