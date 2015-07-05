@@ -1,7 +1,6 @@
 /**
  * 3D Earth v1.0.0
- * Authors: Ed Duarte - eduardo.miguel.duarte@gmail.com // Pedro Bordonhos - bordonhos@ua.pt
- * Date: 23 April 2015
+ * Authors: Ed Duarte (edmiguelduarte@gmail.com) and Pedro Bordonhos (bordonhos@ua.pt)
  */
 
 // external data that maps gray luminosity values with ISO 3166-1 country codes
