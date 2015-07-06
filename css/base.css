@@ -1,5 +1,5 @@
 /*!
- * Copyright 2015 Ed Duarte
+ * Copyright 2015 University of Aveiro
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Living Globe v1.0.0
+ * Living Globe v2.0.0
  * Authors: Ed Duarte (edmiguelduarte@gmail.com) and Pedro Bordonhos (bordonhos@ua.pt)
  */
 
@@ -27,7 +27,7 @@ h1, h2, h3, h4, h5, h6 {
 	font-family: 'Raleway', sans-serif;
 }
 
-p, div, button {
+div, p, button {
 	font-family: 'Raleway', sans-serif;
 }
 

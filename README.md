@@ -16,7 +16,7 @@ Additionally, this tool improves on previous state-of-the-art work by implementi
 
 ## License
 
-    Copyright 2015 Ed Duarte
+    Copyright 2015 University of Aveiro
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
