@@ -17,6 +17,14 @@
  * Authors: Ed Duarte (edmiguelduarte@gmail.com) and Pedro Bordonhos (bordonhos@ua.pt)
  */
 
+var minimumDragDistance = 0.04;
+
+var countryColorScaleStart = '#FF2A2A';
+var countryColorScaleEnd = '#23D723';
+
+var barColorScaleStart = '#007aff';
+var barColorScaleEnd = '#ffd500';
+
 // external data that maps gray luminosity values with ISO 3166-1 country codes
 var countryColorMap;
 
@@ -40,7 +48,7 @@ var mouse2D = new THREE.Vector3(0, 0, 0.5);
 // fixed variables that are obtained when reading the CSV data
 var countryData = [];
 var countryRepresented = [];
-var countryBox = [];
+var countryBar = [];
 var maxPopulation = 0;
 var maxDensity = 0;
 var maxBirths = 0;
@@ -143,19 +151,23 @@ $('#buttonDeath').click(function(){
 var scene = new THREE.Scene();
 
 // camera
-var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
-var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+var SCREEN_WIDTH = window.innerWidth;
+var SCREEN_HEIGHT = window.innerHeight;
+var VIEW_ANGLE = 40;
+var ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT;
+var NEAR = 0.1;
+var FAR = 20000;
 var camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 camera.position.set(0,250,250);
-cameraPos0 = camera.position.clone()
-cameraUp0 = camera.up.clone()
-cameraZoom = camera.position.z
+cameraPos0 = camera.position.clone();
+cameraUp0 = camera.up.clone();
+cameraZoom = camera.position.z;
 scene.add(camera);
 
 // renderer
 var renderer;
 if (Detector.webgl) {
-	renderer = new THREE.WebGLRenderer({ antialias:false });
+	renderer = new THREE.WebGLRenderer({ antialias:true });
 } else {
 	renderer = new THREE.CanvasRenderer();
 }
@@ -188,9 +200,9 @@ scene.add(light2);
 
 // skybox
 var imagePrefix = "img/nebula-",
-directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"],
-imageSuffix = ".png",
-materialArray = [];
+	directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"],
+	imageSuffix = ".png",
+	materialArray = [];
 for (var i = 0; i < 6; i++)
 	materialArray.push(new THREE.MeshBasicMaterial({
 		map: THREE.ImageUtils.loadTexture(imagePrefix + directions[i] + imageSuffix),
@@ -297,15 +309,15 @@ $.getJSON('data/iso3166_gray_codes.json', function(json) {
 				analyseData();
 				searchfield.on('focus', function() {
 					var $this = $(this)
-					.one('mouseup.mouseupSelect', function() {
-						$this.select();
-						return false;
-					})
-					.one('mousedown', function() {
-           				// compensate for untriggered 'mouseup' caused by focus via tab
-           				$this.off('mouseup.mouseupSelect');
-           			})
-					.select();
+						.one('mouseup.mouseupSelect', function() {
+							$this.select();
+							return false;
+						})
+						.one('mousedown', function() {
+							// compensate for untriggered 'mouseup' caused by focus via tab
+							$this.off('mouseup.mouseupSelect');
+						})
+						.select();
 				}).val("").devbridgeAutocomplete({
 					minChars: 1,
 					width: 430,
@@ -466,7 +478,7 @@ function onMouseMove(event) {
 	// if the distance measured above exceeds 0.05, mouseUp measures to check
 	// intersecting bars or countries is ignored, since it could have been a
 	// mouse drag instead of a mouse click
-	if(xdiff > 0.05 || ydiff > 0.05) {
+	if(xdiff > minimumDragDistance || ydiff > minimumDragDistance) {
 		isSelectingCountry = false;
 	} else {
 		isSelectingCountry = true;
@@ -499,8 +511,8 @@ function onMouseUp(event) {
 	var rayCaster = projector.pickingRay(mouse2D.clone(), camera);
 	var selectedABar = false;
 
-	for (var i = 0; i < countryBox.length; i++) {
-		var selectedObject = countryBox[i];
+	for (var i = 0; i < countryBar.length; i++) {
+		var selectedObject = countryBar[i];
 		var intersects = rayCaster.intersectObject(selectedObject);
 		if (intersects.length) {
 			// mouse click intersected the bar i, so select it and the corresponding country
@@ -544,7 +556,7 @@ function onMouseUp(event) {
 					if(countryColorMap[countryCode] == countryColor) {
 						// the country was clicked and had details, so select it
 						detailsContainer.innerHTML = getDetails(c);
-						var selectedObject = countryBox[i];
+						var selectedObject = countryBar[i];
 						cameraTargetX = selectedObject.position.x;
 						cameraTargetY = selectedObject.position.y;
 						cameraTargetZ = selectedObject.position.z;
@@ -569,40 +581,38 @@ function onMouseUp(event) {
 
 // function that returns text details for a given country
 function getDetails(countryLine) {
-	text = "<h1>" + countryLine[1] + "</h1><h4>(" +countryLine[0] + ")</h4>" +
-	"<h5><span>" + numeral(countryLine[4]).format('0,0') + " km²</span></h5>" +
-	"<h5>Population <span class='label label-info'>" + numeral(countryLine[5]).format('0,0') + "</span></h5>" +
-	"<h5>Density <span class='label label-primary'>" + numeral(countryLine[6]).format('0,0') + "</span></h5>" +
-	"<h5>Births <span class='label label-success'>" + numeral(countryLine[8]).format('0,0') + "</span></h5>" +
-	"<h5>Deaths <span class='label label-warning'>" + numeral(countryLine[12]).format('0,0') + "</span></h5>";
-	return text;
+	return "<h1>" + countryLine[1] + "</h1><h4>(" +countryLine[0] + ")</h4>" +
+		"<h5><span>" + numeral(countryLine[4]).format('0,0') + " km²</span></h5>" +
+		"<h5>Population <span class='label label-info'>" + numeral(countryLine[5]).format('0,0') + "</span></h5>" +
+		"<h5>Density <span class='label label-primary'>" + numeral(countryLine[6]).format('0,0') + "</span></h5>" +
+		"<h5>Births <span class='label label-success'>" + numeral(countryLine[8]).format('0,0') + "</span></h5>" +
+		"<h5>Deaths <span class='label label-warning'>" + numeral(countryLine[12]).format('0,0') + "</span></h5>";
 }
 
 // function that select a country with the specified ISO-3166 country code (used by auto-complete)
 function select(countryCodeToSelect) {
-	if(countryColor != 0) {
-		for (var i = 0; i < countryRepresented.length; i++) {
-			var c = countryRepresented[i];
-			var countryCode = c[15];
-			if(countryCode == countryCodeToSelect) {
-				var selectedObject = countryBox[i];
-				cameraTargetX = selectedObject.position.x;
-				cameraTargetY = selectedObject.position.y;
-				cameraTargetZ = selectedObject.position.z;
-				cameraIsMovingToTarget = true;
-				detailsContainer.innerHTML = getDetails(c);
-				hasDetails = true;
-				break;
-			}
+	var hasDetails = false;
+	for (var i = 0; i < countryRepresented.length; i++) {
+		var c = countryRepresented[i];
+		var countryCode = c[15];
+		if(countryCode == countryCodeToSelect) {
+			var selectedObject = countryBar[i];
+			cameraTargetX = selectedObject.position.x;
+			cameraTargetY = selectedObject.position.y;
+			cameraTargetZ = selectedObject.position.z;
+			cameraIsMovingToTarget = true;
+			detailsContainer.innerHTML = getDetails(c);
+			hasDetails = true;
+			break;
 		}
+	}
 
-		if(hasDetails) {
-			var countryColor = countryColorMap[countryCode];
-			selectContext.clearRect(0,0,256,1);
-			selectContext.fillStyle = "#666666";
-			selectContext.fillRect(countryColor, 0, 1, 1);
-			selectTexture.needsUpdate = true;
-		}
+	if(hasDetails) {
+		var countryColor = countryColorMap[countryCode];
+		selectContext.clearRect(0,0,256,1);
+		selectContext.fillStyle = "#666666";
+		selectContext.fillRect(countryColor, 0, 1, 1);
+		selectTexture.needsUpdate = true;
 	}
 }
 
@@ -612,8 +622,8 @@ function select(countryCodeToSelect) {
 function rebuildBars(countryData) {
 
 	// remove previous bars
-	for (var i = 0 ; i < countryBox.length; i++) {
-		scene.remove(countryBox[i])
+	for (var i = 0 ; i < countryBar.length; i++) {
+		scene.remove(countryBar[i])
 	}
 
 	// clears all colored countries
@@ -621,7 +631,7 @@ function rebuildBars(countryData) {
 
 	// arrays that will contain all our new bars
 	countryRepresented = [];
-	countryBox = [];
+	countryBar = [];
 	var ratioArray = [];
 	var countryCodeArray = [];
 
@@ -668,7 +678,7 @@ function rebuildBars(countryData) {
 		// and 1. This value within that scale is obtained by scaling down the
 		// density value.
 		var scaledDensity = scaleDown(selectedMinDensity, selectedMaxDensity, 0, 1, density);
-		var scale = chroma.scale(['#D4B36A', '#505F8F']); 
+		var scale = chroma.scale([barColorScaleStart, barColorScaleEnd]);
 		var barColor = scale(scaledDensity).hex();
 
 		// setup the bar material with the obtained color above
@@ -676,7 +686,7 @@ function rebuildBars(countryData) {
 
 		// a CubeGeometry is used for the bar geometry instead of a BoxGeometry
 		// because we are using a old version of three.js (version 62)
-		var barGeom = new THREE.CubeGeometry(0.5, 0.5, value);
+		var barGeom = new THREE.CubeGeometry(0.3, 0.3, value);
 		var mesh = new THREE.Mesh(barGeom, barMat);
 
 
@@ -690,7 +700,7 @@ function rebuildBars(countryData) {
 
 		// the bar is added to the scene and lookup-array
 		scene.add(mesh);
-		countryBox.push(mesh);
+		countryBar.push(mesh);
 		countryRepresented.push(c);
 	}
 
@@ -700,7 +710,7 @@ function rebuildBars(countryData) {
 		var ratio = ratioArray[i];
 		var code = countryCodeArray[i];
 		var scaleValue = scaleDown(minRatio, maxRatio, 0, 1, ratio);
-		var scale = chroma.scale(['#AA4439', '#2B803E']);
+		var scale = chroma.scale([countryColorScaleStart, countryColorScaleEnd]);
 		var color = scale(scaleValue).hex();
 		colorCountry(countryColorMap[code], color);
 	}
@@ -745,8 +755,14 @@ function animate() {
 	} else {
 		cameraIsMovingToTarget = false;
 	}
-	if (camera.position.length() < 300) camera.position.setLength(300);
-	if (camera.position.length() > 1000) camera.position.setLength(1000);
+
+	if (camera.position.length() < 300){
+		camera.position.setLength(300);
+	}
+
+	if (camera.position.length() > 1000) {
+		camera.position.setLength(1000);
+	}
 
 	requestAnimationFrame(animate);
 	render();
@@ -769,7 +785,7 @@ function moveCamera() {
 
 // three.js render function that is recursively called
 function render() {
-	skyBox.rotation.y += 0.0003;
+	skyBox.rotation.y += 0.0001;
 	renderer.clear();
 	renderer.render(scene, camera);
 	composer.render();

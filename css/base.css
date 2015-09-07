@@ -72,34 +72,35 @@ table.right {
 #grad1 {
 	width: 90px;
     height: 20px;
-    background: -webkit-linear-gradient(left, #AA4439, #2B803E); /* For Safari 5.1 to 6.0 */
-    background: -o-linear-gradient(right, #AA4439, #2B803E); /* For Opera 11.1 to 12.0 */
-    background: -moz-linear-gradient(right, #AA4439, #2B803E); /* For Firefox 3.6 to 15 */
-    background: linear-gradient(to right, #AA4439 , #2B803E); /* Standard syntax (must be last) */
+    background: -webkit-linear-gradient(left, #FF2A2A, #23D723); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(right, #FF2A2A, #23D723); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(right, #FF2A2A, #23D723); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(to right, #FF2A2A , #23D723); /* Standard syntax (must be last) */
 }
 
 #grad2 {
 	width: 90px;
     height: 20px;
-    background: -webkit-linear-gradient(left, #D4B36A , #505F8F); /* For Safari 5.1 to 6.0 */
-    background: -o-linear-gradient(right, #D4B36A, #505F8F); /* For Opera 11.1 to 12.0 */
-    background: -moz-linear-gradient(right, #D4B36A, #505F8F); /* For Firefox 3.6 to 15 */
-    background: linear-gradient(to right, #D4B36A , #505F8F); /* Standard syntax (must be last) */
+    background: -webkit-linear-gradient(left, #007aff , #ffd500); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(right, #007aff, #ffd500); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(right, #007aff, #ffd500); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(to right, #007aff , #ffd500); /* Standard syntax (must be last) */
 }
 
 #sliderPopulation .noUi-connect {
+	background: #007aff;
 }
 
 #sliderDensity .noUi-connect {
-	background: #AA7039;
+	background: #ffd500;
 }
 
 #sliderBirth .noUi-connect {
-	background: #2B803E;
+	background: #23D723;
 }
 
 #sliderDeath .noUi-connect {
-	background: #AA4439;
+	background: #FF2A2A;
 }
 
 .autocomplete-suggestions {
