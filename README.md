@@ -1,13 +1,13 @@
 # Living Globe
 
+**This project is still under development. The following features will be added with v2.0.0:**
+- **configurable view-to-indicator mappings;**
+- **annually-gathered data, along with a year-slider;**
+- **improved textures.**
+
+**Meanwhile, you can check the [current stable version](https://cdn.rawgit.com/edduarte/living-globe/master/index.html).**
+
 ![Screenshot](screenshot.png)
-
-This project is still under development. The following features will be added with v2.0.0:
-- configurable view-to-indicator mappings;
-- annually-gathered data, along with a year-slider;
-- improved textures.
-
- Meanwhile, you can check the current stable version [Try a Demo](https://cdn.rawgit.com/edduarte/living-globe/master/index.html)
 
 ## Description
 
