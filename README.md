@@ -17,10 +17,6 @@ Total of population is displayed as bars over capitals, the density as the bars 
 
 Additionally, this tool improves on previous state-of-the-art work by implementing interaction capabilities like selection, search and filtering.
 
-## Demo
-
-
-
 ## License
 
     Copyright 2015 University of Aveiro
