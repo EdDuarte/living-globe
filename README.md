@@ -2,6 +2,13 @@
 
 ![Screenshot](screenshot.png)
 
+This project is still under development. The following features will be added with v2.0.0:
+- configurable view-to-indicator mappings;
+- annually-gathered data, along with a year-slider;
+- improved textures.
+
+ Meanwhile, you can check the current stable version [Try a Demo](https://cdn.rawgit.com/edduarte/living-globe/master/index.html)
+
 ## Description
 
 Living Globe is a simple 3D information visualisation tool of worldwide demographical data, namely, the total population, total density, crude birth rate and crude mortality rate for each capital.
@@ -12,7 +19,7 @@ Additionally, this tool improves on previous state-of-the-art work by implementi
 
 ## Demo
 
-[Try a Demo](https://cdn.rawgit.com/edduarte/living-globe/master/index.html)
+
 
 ## License
 
