@@ -1,21 +1,32 @@
 # Living Globe
 
-**This project is still under development. The following features will be added with v2.0.0:**
+**This project is still under development. The following features will be added
+with v2:**
 - **configurable view-to-indicator mappings;**
 - **annually-gathered data, along with a year-slider;**
 - **improved textures.**
 
-**Meanwhile, you can check the [current stable version](https://cdn.rawgit.com/edduarte/living-globe/master/index.html).**
+**Meanwhile, you can check the [current stable version v1.0.1](https://cdn.rawgit.com/edduarte/living-globe/master/index.html).**
 
 ![Screenshot](screenshot.png)
 
 ## Description
 
-Living Globe is a simple 3D information visualisation tool of worldwide demographical data, namely, the total population, total density, crude birth rate and crude mortality rate for each capital.
+Living Globe is an application for tri-dimensional information visualization
+for worldwide demographical data. It allows the simultaneous visualization of
+multiple indicators, like total population, density, population-growth, life
+expectancy, net migration, crude birth rate, crude death rate and the ratio
+between the last two. The mapping of data to the provided visual structures is
+configurable by the user, introducing an aspect of customization which
+encourages a more immediate, visual-only interpretation of the data.
+Additionally, the represented data is normalized within a adjustable scale.
+This can be used to filter out extremely high or extremely low samples, which
+will even the remaining data and improve its visibility.
 
-Total of population is displayed as bars over capitals, the density as the bars colors, and the ratio between birth-rate and death-rate as countries colors. Shown data is scaled to a minimum and maximum population, density, birth-rate or death-rate value that can be changed, so as to avoid skewness due to the excedingly large samples sitting in China and India.
-
-Additionally, this tool improves on previous state-of-the-art work by implementing interaction capabilities like selection, search and filtering.
+The results from preliminary testing indicate that the data filtering and
+customizable mapping features encourage the fast reading of relational
+information. Moreover, this tool improves on previous state-of-the-art work by
+implementing interaction capabilities like selection, search and filtering.
 
 ## License
 
