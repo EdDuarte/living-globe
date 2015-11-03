@@ -12,16 +12,16 @@ with v2:**
 
 ## Description
 
-Living Globe is an application for tri-dimensional information visualization
-for worldwide demographical data. It allows the simultaneous visualization of
-multiple indicators, like total population, density, population-growth, life
-expectancy, net migration, crude birth rate, crude death rate and the ratio
-between the last two. The mapping of data to the provided visual structures is
-configurable by the user, introducing an aspect of customization which
-encourages a more immediate, visual-only interpretation of the data.
-Additionally, the represented data is normalized within a adjustable scale.
-This can be used to filter out extremely high or extremely low samples, which
-will even the remaining data and improve its visibility.
+Living Globe is an application for tri-dimensional worldwide demographical data
+visualization. It allows the simultaneous representation of multiple
+indicators, like total population, density, population-growth, life expectancy,
+net migration, crude birth rate, crude death rate and the ratio between the
+last two. The mapping of data to the provided visual structures is configurable
+by the user, introducing an aspect of customization which encourages a more
+immediate, visual-only interpretation of the data. Additionally, the
+represented data is normalized within an adjustable scale. This can be used to
+filter out extremely high or extremely low samples, uniforming the remaining
+data and improving its visibility.
 
 The results from preliminary testing indicate that the data filtering and
 customizable mapping features encourage the fast reading of relational
