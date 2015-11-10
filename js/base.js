@@ -165,20 +165,21 @@ var dropdownIndicator1Container = $('#dropdownIndicator1Container');
 var dropdownIndicator1Toggle = dropdownIndicator1Container.find('.dropdown-toggle');
 var dropdownIndicator1Text = dropdownIndicator1Container.find('.dropdownIndicatorText');
 dropdownIndicator1Container.on('click', '.dropdown-menu li a', function() {
+    var id = "";
+    var name = "None";
+
     var selectedText = $(this).text();
     for(var k in indicatorIdToDetailsMap) {
         var indicatorName = indicatorIdToDetailsMap[k].name;
         if(indicatorName == selectedText) {
-            selectedIndicator1Id = k;
-            dropdownIndicator1Text.html(selectedText);
-            dropdownIndicator1Toggle.blur();
-            updateIndicator1Slider();
-            rebuildComponents1And2();
-            return;
+            id = k;
+            name = selectedText;
+            break;
         }
     }
-    selectedIndicator1Id = "";
-    dropdownIndicator1Text.html('None');
+
+    selectedIndicator1Id = id;
+    dropdownIndicator1Text.html(name);
     dropdownIndicator1Toggle.blur();
     updateIndicator1Slider();
     rebuildComponents1And2();
@@ -188,20 +189,21 @@ var dropdownIndicator2Container = $('#dropdownIndicator2Container');
 var dropdownIndicator2Toggle = dropdownIndicator2Container.find('.dropdown-toggle');
 var dropdownIndicator2Text = dropdownIndicator2Container.find('.dropdownIndicatorText');
 dropdownIndicator2Container.on('click', '.dropdown-menu li a', function() {
+    var id = "";
+    var name = "None";
+
     var selectedText = $(this).text();
     for(var k in indicatorIdToDetailsMap) {
         var indicatorName = indicatorIdToDetailsMap[k].name;
         if(indicatorName == selectedText) {
-            selectedIndicator2Id = k;
-            dropdownIndicator2Text.html(selectedText);
-            dropdownIndicator2Toggle.blur();
-            updateIndicator2Slider();
-            rebuildComponents1And2();
-            return;
+            id = k;
+            name = selectedText;
+            break;
         }
     }
-    selectedIndicator2Id = "";
-    dropdownIndicator2Text.html('None');
+
+    selectedIndicator2Id = id;
+    dropdownIndicator2Text.html(name);
     dropdownIndicator2Toggle.blur();
     updateIndicator2Slider();
     rebuildComponents1And2();
@@ -211,20 +213,21 @@ var dropdownIndicator3Container = $('#dropdownIndicator3Container');
 var dropdownIndicator3Toggle = dropdownIndicator3Container.find('.dropdown-toggle');
 var dropdownIndicator3Text = dropdownIndicator3Container.find('.dropdownIndicatorText');
 dropdownIndicator3Container.on('click', '.dropdown-menu li a', function() {
+    var id = "";
+    var name = "None";
+
     var selectedText = $(this).text();
     for(var k in indicatorIdToDetailsMap) {
         var indicatorName = indicatorIdToDetailsMap[k].name;
         if(indicatorName == selectedText) {
-            selectedIndicator3Id = k;
-            dropdownIndicator3Text.html(selectedText);
-            dropdownIndicator3Toggle.blur();
-            updateIndicator3Slider();
-            rebuildComponents3();
-            return;
+            id = k;
+            name = selectedText;
+            break;
         }
     }
-    selectedIndicator3Id = "";
-    dropdownIndicator3Text.html('None');
+
+    selectedIndicator3Id = id;
+    dropdownIndicator3Text.html(name);
     dropdownIndicator3Toggle.blur();
     updateIndicator3Slider();
     rebuildComponents3();
@@ -569,7 +572,7 @@ readJsonFile('data/gray_codes.json', function(gray_codes) {
                 }
                 selectedYear = newSelectedYear;
                 selectedYearJson = inputData[selectedYear];
-                updateAllIndicators();
+                updateIndicators(true, true, true, false);
                 rebuildAllComponents();
                 if(selectedCountryCode!=-1 && selectedCountryCode!=-1) {
                     detailsContainer.innerHTML = getDetails(selectedCountryCode, selectedCountryLineIndex);
@@ -586,7 +589,7 @@ readJsonFile('data/gray_codes.json', function(gray_codes) {
             dropdownIndicator3Container.find('.dropdownIndicatorText')
                 .html(indicatorIdToDetailsMap[selectedIndicator3Id].name);
 
-            updateAllIndicators();
+            updateIndicators(true, true, true, true);
 
             // once data is fully loaded, fade in hidden components
             timelineContainer.fadeIn('slow', function() {
@@ -629,23 +632,19 @@ function readJsonFile(path, successCallback) {
 // minimum values of the default indicators.
 // These values are used to produce normalized scales on the
 // function "rebuildAllComponents" and to setup the filter sliders
-function updateAllIndicators() {
-    updateIndicators(true, true, true);
-}
-
 function updateIndicator1Slider() {
-    updateIndicators(true, false, false);
+    updateIndicators(true, false, false, true);
 }
 
 function updateIndicator2Slider() {
-    updateIndicators(false, true, false);
+    updateIndicators(false, true, false, true);
 }
 
 function updateIndicator3Slider() {
-    updateIndicators(false, false, true);
+    updateIndicators(false, false, true, true);
 }
 
-function updateIndicators(update1, update2, update3) {
+function updateIndicators(update1, update2, update3, resetSelected) {
     if(update1) {
         realMinIndicator1 = 0;
         realMaxIndicator1 = 0;
@@ -798,13 +797,20 @@ function updateIndicators(update1, update2, update3) {
     if(update1) {
         // setup the range for the indicator 1 slider, based on the obtained
         // max and min values
-        var indicator1Data = indicatorIdToDetailsMap[selectedIndicator1Id];
-        if(selectedMinIndicator1 < realMinIndicator1 || selectedMinIndicator1 > realMaxIndicator1) {
+        if(resetSelected || selectedMinIndicator1 == selectedMaxIndicator1) {
             selectedMinIndicator1 = realMinIndicator1;
-        }
-        if(selectedMaxIndicator1 > realMaxIndicator1 || selectedMaxIndicator1 < realMinIndicator1) {
             selectedMaxIndicator1 = realMaxIndicator1;
+        } else {
+            if(selectedMinIndicator1 < realMinIndicator1 ||
+                selectedMinIndicator1 > realMaxIndicator1) {
+                selectedMinIndicator1 = realMinIndicator1;
+            }
+            if(selectedMaxIndicator1 > realMaxIndicator1 || selectedMaxIndicator1 < realMinIndicator1) {
+                selectedMaxIndicator1 = realMaxIndicator1;
+            }
         }
+
+        var indicator1Data = indicatorIdToDetailsMap[selectedIndicator1Id];
         if(realMinIndicator1 == realMaxIndicator1) {
             settings = {
                 start: 0,
@@ -846,13 +852,19 @@ function updateIndicators(update1, update2, update3) {
     if(update2) {
         // setup the range for the indicator 2 slider, based on the obtained
         // max and min values
-        var indicator2Data = indicatorIdToDetailsMap[selectedIndicator2Id];
-        if(selectedMinIndicator2 < realMinIndicator2 || selectedMinIndicator2 > realMaxIndicator2) {
+        if(resetSelected || selectedMinIndicator2 == selectedMaxIndicator2) {
             selectedMinIndicator2 = realMinIndicator2;
-        }
-        if(selectedMaxIndicator2 > realMaxIndicator2 || selectedMaxIndicator2 < realMinIndicator2) {
             selectedMaxIndicator2 = realMaxIndicator2;
+        } else {
+            if(selectedMinIndicator2 < realMinIndicator2 || selectedMinIndicator2 > realMaxIndicator2) {
+                selectedMinIndicator2 = realMinIndicator2;
+            }
+            if(selectedMaxIndicator2 > realMaxIndicator2 || selectedMaxIndicator2 < realMinIndicator2) {
+                selectedMaxIndicator2 = realMaxIndicator2;
+            }
         }
+
+        var indicator2Data = indicatorIdToDetailsMap[selectedIndicator2Id];
         if (realMinIndicator2 == realMaxIndicator2) {
             settings = {
                 start: 0,
@@ -894,17 +906,19 @@ function updateIndicators(update1, update2, update3) {
     if(update3) {
         // setup the range for the indicator 3 slider, based on the obtained
         // max and min values
+        if(resetSelected || selectedMinIndicator3 == selectedMaxIndicator3) {
+            selectedMinIndicator3 = realMinIndicator3;
+            selectedMaxIndicator3 = realMaxIndicator3;
+        } else {
+            if(selectedMinIndicator3 < realMinIndicator3 || selectedMinIndicator3 > realMaxIndicator3) {
+                selectedMinIndicator3 = realMinIndicator3;
+            }
+            if(selectedMaxIndicator3 > realMaxIndicator3 || selectedMaxIndicator3 < realMinIndicator3) {
+                selectedMaxIndicator3 = realMaxIndicator3;
+            }
+        }
+
         var indicator3Data = indicatorIdToDetailsMap[selectedIndicator3Id];
-        if(selectedMinIndicator3 < realMinIndicator3 || selectedMinIndicator3 > realMaxIndicator3) {
-            selectedMinIndicator3 = realMinIndicator3;
-        }
-        if(selectedMaxIndicator3 > realMaxIndicator3 || selectedMaxIndicator3 < realMinIndicator3) {
-            selectedMaxIndicator3 = realMaxIndicator3;
-        }
-        if(selectedMinIndicator3 == selectedMaxIndicator3) {
-            selectedMinIndicator3 = realMinIndicator3;
-            selectedMaxIndicator3 = realMaxIndicator3;
-        }
         if(realMinIndicator3 == realMaxIndicator3) {
             settings = {
                 start: 0,
