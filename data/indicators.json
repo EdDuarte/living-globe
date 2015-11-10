@@ -20,16 +20,16 @@
         "unit": "years"
     },
     "SP.POP.0014.TO.ZS": {
-        "name": "Population ages 0-14",
-        "unit": "% of total"
+        "name": "Population 0-14",
+        "unit": "%&nbsp;of&nbsp;total"
     },
     "SP.POP.65UP.TO.ZS": {
-        "name": "Population ages 65 and above",
-        "unit": "% of total"
+        "name": "Population 65 and above",
+        "unit": "%&nbsp;of&nbsp;total"
     },
     "SP.POP.1564.TO.ZS": {
-        "name": "Population ages 15-64",
-        "unit": "% of total"
+        "name": "Population 15-64",
+        "unit": "%&nbsp;of&nbsp;total"
     },
     "SP.POP.GROW": {
         "name": "Population growth",

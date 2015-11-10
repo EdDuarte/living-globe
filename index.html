@@ -24,6 +24,7 @@
     <title>Living Globe</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link href='https://fonts.googleapis.com/css?family=Raleway:500' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:600' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="css/base.css">
@@ -72,65 +73,110 @@
     </form>
 </div>
 
-<div id="worldIntercept">
+<div class="modal fade" id="info-modal" data-width="1000" tabindex="-1"
+     role="dialog" aria-labelledby="info-modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="form-signin-heading">Add a new triple</h2>
+            </div>
+            <div class="modal-body">
+                <p style="font-weight: 500;">
+                    Drag the slider handles to filter the presented data according to new minimum and maximum values.
+                </p>
+                <p style="font-weight: 500;">
+                    Click the data types below to map another demographic indicator to the corresponding visual structure.
+                </p>
+                <p style="font-weight: 500;">
+                    Select a country, or write its name in the search field above, to show detailed data for that country.
+                </p>
+                <!--<div id="credits" style="color: white;">-->
+                <!--<table class="right">-->
+                <!--<tr>-->
+                <!--<td style="padding: 10px;">-->
+                <!--<div id="grad1"></div>-->
+                <!--</td>-->
+                <!--<td>-->
+                <!--Red - more deaths than births<br>-->
+                <!--Green - more births than deaths<br>-->
+                <!--</td>-->
+                <!--</tr>-->
+                <!--<tr>-->
+                <!--<td style="padding: 10px;">-->
+                <!--<div id="grad2"></div>-->
+                <!--</td>-->
+                <!--<td>-->
+                <!--<br>-->
+                <!--Yellow - lower density<br>-->
+                <!--Blue - higher density<br>-->
+                <!--<br>-->
+                <!--</td>-->
+                <!--</tr>-->
+                <!--</table>-->
+                <!--<br>-->
+                <!--<p style="text-align: right;">-->
+                <!--Ed Duarte & Pedro Bordonhos - All rights reserved 2015-->
+                <!--</p>-->
+                <!--</div>-->
+            </div>
+            <div class="modal-footer">
+                <button id="addSubmit" type="submit"
+                        class="btn btn-primary">Add
+                </button>
+                <button type="button" class="btn btn-default"
+                        data-dismiss="modal">Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
+<div id="worldIntercept">
     <div id="parameters" hidden="true">
-        <table width="100%">
-            <tr>
-                <td width="40%" style="padding-bottom: 33px; padding-right: 20px">
-                    <div style="color: white; height: 30px">Bar Height</div>
+        <div class="container-fluid" style="width: 390px;">
+            <div class="row-fluid">
+                <div class="span5">
+                    <div style="font-family: 'Raleway', sans-serif; font-weight: 500; color: #bbb; height: 30px">Bar Height</div>
                     <div id="dropdownIndicator1Container" class="dropdown transparentbar" style="width:100%; z-index: 6;">
                         <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                             <span class="dropdownIndicatorText">None</span>
                             <span class="caret"></span></button>
-                        <ul id="dropdownIndicator1" class="dropdown-menu">
-
-                        </ul>
+                        <ul id="dropdownIndicator1" class="dropdown-menu"></ul>
                     </div>
-                </td>
-                <td width="60%">
-                    <div id="sliderIndicator1" class="sliderIndicator"></div>
-                </td>
-            </tr>
-            <tr>
-                <td width="40%" style="padding-bottom: 33px; padding-right: 20px">
-                    <div style="color: white; height: 30px">Bar Color</div>
+                </div>
+                <div class="span6" style="text-align: center; padding: 20px; position: relative;">
+                    <div id="sliderIndicator1" class="sliderIndicator" style="width:150px; margin: 0; position: absolute; top: 50%; transform: translate(0, -50%);"></div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span5">
+                    <div style="font-family: 'Raleway', sans-serif; font-weight: 500; color: #bbb; height: 30px">Bar Color</div>
                     <div id="dropdownIndicator2Container" class="dropdown transparentbar" style="width:100%; z-index: 5;">
                         <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                             <span class="dropdownIndicatorText">None</span>
                             <span class="caret"></span></button>
-                        <ul id="dropdownIndicator2" class="dropdown-menu">
-
-                        </ul>
+                        <ul id="dropdownIndicator2" class="dropdown-menu"></ul>
                     </div>
-                </td>
-                <td width="60%">
-                    <div id="sliderIndicator2" class="sliderIndicator"></div>
-                </td>
-            </tr>
-            <tr>
-                <td width="40%" style="padding-bottom: 33px; padding-right: 20px">
-                    <div style="color: white; height: 30px">Country Color</div>
+                </div>
+                <div class="span6" style="text-align: center; padding: 20px; position: relative;">
+                    <div id="sliderIndicator2" class="sliderIndicator" style="width:150px; margin: 0; position: absolute; top: 50%; transform: translate(0, -50%);"></div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span5">
+                    <div style="font-family: 'Raleway', sans-serif; font-weight: 500; color: #bbb; height: 30px">Country Color</div>
                     <div id="dropdownIndicator3Container" class="dropdown transparentbar" style="width:100%; z-index: 4;">
                         <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                             <span class="dropdownIndicatorText">None</span>
                             <span class="caret"></span></button>
-                        <ul id="dropdownIndicator3" class="dropdown-menu">
-
-                        </ul>
+                        <ul id="dropdownIndicator3" class="dropdown-menu"></ul>
                     </div>
-                </td>
-                <td width="60%">
-                    <div id="sliderIndicator3" class="sliderIndicator"></div>
-                </td>
-            </tr>
-        </table>
-        <!--<br/><br/>-->
-        <!--<div class="btn-group" data-toggle="buttons-radio">-->
-        <!--<button id="buttonIndicator1" type="button" class="btn btn-large btn-inverse btn active">Indicator1</button>-->
-        <!--<button id="buttonIndicator2" type="button" class="btn btn-large btn-inverse">Indicator2</button>-->
-        <!--<button id="buttonIndicator3" type="button" class="btn btn-large btn-inverse">Indicator3</button>-->
-        <!--</div>-->
+                </div>
+                <div class="span6" style="text-align: center; padding: 20px; position: relative;">
+                    <div id="sliderIndicator3" class="sliderIndicator" style="width:150px; margin: 0; position: absolute; top: 50%; transform: translate(0, -50%);"></div>
+                </div>
+            </div>
+        </div>
 
         <div id="detailsContainer" style="z-index: 1"></div>
     </div>
@@ -139,34 +185,6 @@
     <div id="timelineContainer" hidden="true">
         <div id="timeline" class="timeline"></div>
     </div>
-    <!--<div id="credits" style="color: white;">-->
-    <!--<table class="right">-->
-    <!--<tr>-->
-    <!--<td style="padding: 10px;">-->
-    <!--<div id="grad1"></div>-->
-    <!--</td>-->
-    <!--<td>-->
-    <!--Red - more deaths than births<br>-->
-    <!--Green - more births than deaths<br>-->
-    <!--</td>-->
-    <!--</tr>-->
-    <!--<tr>-->
-    <!--<td style="padding: 10px;">-->
-    <!--<div id="grad2"></div>-->
-    <!--</td>-->
-    <!--<td>-->
-    <!--<br>-->
-    <!--Yellow - lower density<br>-->
-    <!--Blue - higher density<br>-->
-    <!--<br>-->
-    <!--</td>-->
-    <!--</tr>-->
-    <!--</table>-->
-    <!--<br>-->
-    <!--<p style="text-align: right;">-->
-    <!--Ed Duarte & Pedro Bordonhos - All rights reserved 2015-->
-    <!--</p>-->
-    <!--</div>-->
 
     <div id="worldContainer" style="width: 100%; height: 100%"></div>
 </div>
