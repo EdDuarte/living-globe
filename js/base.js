@@ -29,6 +29,7 @@ var barColorScaleStart = '#007aff';
 var barColorScaleEnd = '#ffd500';
 var barColorScale = chroma.scale([barColorScaleStart, barColorScaleEnd]);
 var barNoDataColor = '#ffffff';
+var barNoDataHeight = 40;
 var countryColorScaleStart = '#FF2A2A';
 var countryColorScaleEnd = '#23D723';
 var countryColorScale = chroma.scale([countryColorScaleStart, countryColorScaleEnd]);
@@ -83,6 +84,8 @@ var shownCountriesArray = [];
 var countryBar = [];
 var selectedYear = defaultSelectedYear;
 var selectedYearJson = {};
+var selectedCountryCode = -1;
+var selectedCountryLineIndex = -1;
 
 
 // to filter data, the selection min and max values is used to scale down values
@@ -91,6 +94,7 @@ var selectedYearJson = {};
 //   max (above), in which case they are removed from view
 // - increasing the selected min decreases the normalized values until <= 0, in
 //   which case they are removed from view
+// initial values are automatically adjusted when a new real scale is found
 var realMinIndicator1 = 0;
 var selectedMinIndicator1 = 0;
 var realMaxIndicator1 = 0;
@@ -567,7 +571,9 @@ readJsonFile('data/gray_codes.json', function(gray_codes) {
                 selectedYearJson = inputData[selectedYear];
                 updateAllIndicators();
                 rebuildAllComponents();
-                detailsContainer.innerHTML = getDetails(selectedCountryCode, selectedCountryLineIndex);
+                if(selectedCountryCode!=-1 && selectedCountryCode!=-1) {
+                    detailsContainer.innerHTML = getDetails(selectedCountryCode, selectedCountryLineIndex);
+                }
             });
             //slider.on('change', function(values, handle, unencoded) {
             //});
@@ -624,439 +630,316 @@ function readJsonFile(path, successCallback) {
 // These values are used to produce normalized scales on the
 // function "rebuildAllComponents" and to setup the filter sliders
 function updateAllIndicators() {
-    realMinIndicator1 = 0;
-    realMaxIndicator1 = 0;
-    realMinIndicator2 = 0;
-    realMaxIndicator2 = 0;
-    realMinIndicator3 = 0;
-    realMaxIndicator3 = 0;
-
-    var indicator1Array = selectedYearJson[selectedIndicator1Id];
-    var indicator2Array = selectedYearJson[selectedIndicator2Id];
-    var indicator3Array = selectedYearJson[selectedIndicator3Id];
-
-    for(var k in indicator1Array) {
-        var v1 = indicator1Array[k];
-        var value1 = Number(v1.value);
-        var v2 = indicator2Array[k];
-        var value2 = Number(v2.value);
-        var v3 = indicator3Array[k];
-        var value3 = Number(v3.value);
-        var countryDetails = ISOCodeToDetailsMap[v1.countryCode];
-        if(countryDetails == null) {
-            continue;
-        }
-
-        // finds the maximum and minimum values
-        if(k == 0) {
-            if(v1.value.length != 0) {
-                realMaxIndicator1 = value1;
-                realMinIndicator1 = value1;
-            }
-            if(v2.value.length != 0) {
-                realMaxIndicator2 = value2;
-                realMinIndicator2 = value2;
-            }
-            continue;
-        }
-
-        if (v1.value.length != 0 && realMaxIndicator1 < value1) {
-            realMaxIndicator1 = value1;
-        }
-        if (v1.value.length != 0 && realMinIndicator1 > value1) {
-            realMinIndicator1 = value1;
-        }
-
-        if (v2.value.length != 0 && realMaxIndicator2 < value2) {
-            realMaxIndicator2 = value2;
-        }
-        if (v2.value.length != 0 && realMinIndicator2 > value2) {
-            realMinIndicator2 = value2;
-        }
-
-        if (v3.value.length != 0 && realMaxIndicator3 < value3) {
-            realMaxIndicator3 = value3;
-        }
-        if (v3.value.length != 0 && realMinIndicator3 > value3) {
-            realMinIndicator3 = value3;
-        }
-    }
-    var settings;
-    var hasNoData;
-
-
-    // setup the range for the indicator 1 slider, based on the obtained max
-    // and min values
-    var indicator1Data = indicatorIdToDetailsMap[selectedIndicator1Id];
-    selectedMinIndicator1 = realMinIndicator1;
-    selectedMaxIndicator1 = realMaxIndicator1;
-    hasNoData = false;
-    if(realMinIndicator1 == realMaxIndicator1) {
-        settings = {
-            start: [selectedMinIndicator1, selectedMaxIndicator1],
-            tooltips: true,
-            connect: true,
-            range: {
-                'min': realMinIndicator1,
-                'max': realMaxIndicator1
-            }
-        };
-        indicator1Slider.setAttribute('disabled', true);
-        hasNoData = true;
-    } else {
-        settings = {
-            start: [selectedMinIndicator1, selectedMaxIndicator1],
-            tooltips: true,
-            connect: true,
-            range: {
-                'min': realMinIndicator1,
-                'max': realMaxIndicator1
-            },
-            format: wNumb({
-                decimals: 3,
-                thousand: '&nbsp;',
-                postfix: '&nbsp;'+indicator1Data.unit
-            })
-        };
-    }
-    indicator1Slider.noUiSlider.destroy();
-    var indicator1noUISlider = noUiSlider.create(indicator1Slider, settings);
-    indicator1noUISlider.on('slide', function(values, handle, unencoded) {
-        selectedMinIndicator1 = unencoded[0];
-        selectedMaxIndicator1 = unencoded[1];
-        rebuildComponents1And2();
-    });
-    if(!hasNoData) {
-        indicator1Slider.removeAttribute('disabled');
-    }
-
-
-    // setup the range for the indicator 2 slider, based on the obtained max
-    // and min values
-    var indicator2Data = indicatorIdToDetailsMap[selectedIndicator2Id];
-    selectedMinIndicator2 = realMinIndicator2;
-    selectedMaxIndicator2 = realMaxIndicator2;
-    hasNoData = false;
-    if(realMinIndicator2 == realMaxIndicator2) {
-        settings = {
-            start: [selectedMinIndicator2, selectedMaxIndicator2],
-            tooltips: true,
-            connect: true,
-            range: {
-                'min': realMinIndicator2,
-                'max': realMaxIndicator2
-            }
-        };
-        indicator2Slider.setAttribute('disabled', true);
-        hasNoData = true;
-    } else {
-        settings = {
-            start: [selectedMinIndicator2, selectedMaxIndicator2],
-            tooltips: true,
-            connect: true,
-            range: {
-                'min': realMinIndicator2,
-                'max': realMaxIndicator2
-            },
-            format: wNumb({
-                decimals: 3,
-                thousand: '&nbsp;',
-                postfix: '&nbsp;'+indicator2Data.unit
-            })
-        };
-    }
-    indicator2Slider.noUiSlider.destroy();
-    var indicator2noUISlider = noUiSlider.create(indicator2Slider, settings);
-    indicator2noUISlider.on('slide', function(values, handle, unencoded) {
-        selectedMinIndicator2 = unencoded[0];
-        selectedMaxIndicator2 = unencoded[1];
-        rebuildComponents1And2();
-    });
-    if(!hasNoData) {
-        indicator2Slider.removeAttribute('disabled');
-    }
-
-
-    // setup the range for the indicator 3 slider, based on the obtained max
-    // and min values
-    var indicator3Data = indicatorIdToDetailsMap[selectedIndicator3Id];
-    selectedMinIndicator3 = realMinIndicator3;
-    selectedMaxIndicator3 = realMaxIndicator3;
-    hasNoData = false;
-    if(realMinIndicator3 == realMaxIndicator3) {
-        settings = {
-            start: [selectedMinIndicator3, selectedMaxIndicator3],
-            tooltips: true,
-            connect: true,
-            range: {
-                'min': realMinIndicator3,
-                'max': realMaxIndicator3
-            }
-        };
-        indicator3Slider.setAttribute('disabled', true);
-        hasNoData = true;
-    } else {
-        settings = {
-            start: [selectedMinIndicator3, selectedMaxIndicator3],
-            tooltips: true,
-            connect: true,
-            range: {
-                'min': realMinIndicator3,
-                'max': realMaxIndicator3
-            },
-            format: wNumb({
-                decimals: 3,
-                thousand: '&nbsp;',
-                postfix: '&nbsp;'+indicator3Data.unit
-            })
-        };
-    }
-    indicator3Slider.noUiSlider.destroy();
-    var indicator3noUISlider = noUiSlider.create(indicator3Slider, settings);
-    indicator3noUISlider.on('slide', function(values, handle, unencoded) {
-        selectedMinIndicator3 = unencoded[0];
-        selectedMaxIndicator3 = unencoded[1];
-        rebuildComponents3();
-    });
-    if(!hasNoData) {
-        indicator3Slider.removeAttribute('disabled');
-    }
+    updateIndicators(true, true, true);
 }
 
 function updateIndicator1Slider() {
-    realMinIndicator1 = 0;
-    realMaxIndicator1 = 0;
-
-    var indicator1Array = selectedYearJson[selectedIndicator1Id];
-
-    for(var k in indicator1Array) {
-        var v = indicator1Array[k];
-        var value = Number(v.value);
-        if(v.value.length == 0) {
-            continue;
-        }
-        var countryDetails = ISOCodeToDetailsMap[v.countryCode];
-        if(countryDetails == null) {
-            continue;
-        }
-
-        // finds the maximum and minimum values
-        if(k == 0) {
-            realMaxIndicator1 = value;
-            realMinIndicator1 = value;
-            continue;
-        }
-        if (realMaxIndicator1 < value) {
-            realMaxIndicator1 = value;
-        }
-        if(realMinIndicator1 > value) {
-            realMinIndicator1 = value;
-        }
-    }
-
-
-    // setup the range for the indicator 1 slider, based on the obtained max
-    // and min values
-    var settings;
-    var indicator1Data = indicatorIdToDetailsMap[selectedIndicator1Id];
-    selectedMinIndicator1 = realMinIndicator1;
-    selectedMaxIndicator1 = realMaxIndicator1;
-    var hasNoData = false;
-    if(realMinIndicator1 == realMaxIndicator1) {
-        settings = {
-            start: [selectedMinIndicator1, selectedMaxIndicator1],
-            tooltips: true,
-            connect: true,
-            range: {
-                'min': realMinIndicator1,
-                'max': realMaxIndicator1
-            }
-        };
-        indicator1Slider.setAttribute('disabled', true);
-        hasNoData = true;
-    } else {
-        settings = {
-            start: [selectedMinIndicator1, selectedMaxIndicator1],
-            tooltips: true,
-            connect: true,
-            range: {
-                'min': realMinIndicator1,
-                'max': realMaxIndicator1
-            },
-            format: wNumb({
-                decimals: 3,
-                thousand: '&nbsp;',
-                postfix: '&nbsp;'+indicator1Data.unit
-            })
-        };
-    }
-    indicator1Slider.noUiSlider.destroy();
-    var indicator1noUISlider = noUiSlider.create(indicator1Slider, settings);
-    indicator1noUISlider.on('slide', function(values, handle, unencoded) {
-        selectedMinIndicator1 = unencoded[0];
-        selectedMaxIndicator1 = unencoded[1];
-        rebuildComponents1And2();
-    });
-    if(!hasNoData) {
-        indicator1Slider.removeAttribute('disabled');
-    }
+    updateIndicators(true, false, false);
 }
 
 function updateIndicator2Slider() {
-    realMinIndicator2 = 0;
-    realMaxIndicator2 = 0;
-
-    var indicator2Array = selectedYearJson[selectedIndicator2Id];
-
-    for(var k in indicator2Array) {
-        var v = indicator2Array[k];
-        var value = Number(v.value);
-        if(v.value.length == 0) {
-            continue;
-        }
-        var countryDetails = ISOCodeToDetailsMap[v.countryCode];
-        if(countryDetails == null) {
-            continue;
-        }
-
-        // finds the maximum and minimum values
-        if(k == 0) {
-            realMaxIndicator2 = value;
-            realMinIndicator2 = value;
-            continue;
-        }
-        if (realMaxIndicator2 < value) {
-            realMaxIndicator2 = value;
-        }
-        if(realMinIndicator2 > value) {
-            realMinIndicator2 = value;
-        }
-    }
-
-
-    // setup the range for the indicator 1 slider, based on the obtained max
-    // and min values
-    var settings;
-    var indicator2Data = indicatorIdToDetailsMap[selectedIndicator2Id];
-    selectedMinIndicator2 = realMinIndicator2;
-    selectedMaxIndicator2 = realMaxIndicator2;
-    var hasNoData = false;
-    if(realMinIndicator2 == realMaxIndicator2) {
-        settings = {
-            start: [selectedMinIndicator2, selectedMaxIndicator2],
-            tooltips: true,
-            connect: true,
-            range: {
-                'min': realMinIndicator2,
-                'max': realMaxIndicator2
-            }
-        };
-        indicator2Slider.setAttribute('disabled', true);
-        hasNoData = true;
-    } else {
-        settings = {
-            start: [selectedMinIndicator2, selectedMaxIndicator2],
-            tooltips: true,
-            connect: true,
-            range: {
-                'min': realMinIndicator2,
-                'max': realMaxIndicator2
-            },
-            format: wNumb({
-                decimals: 3,
-                thousand: '&nbsp;',
-                postfix: '&nbsp;'+indicator2Data.unit
-            })
-        };
-    }
-    indicator2Slider.noUiSlider.destroy();
-    var indicator2noUISlider = noUiSlider.create(indicator2Slider, settings);
-    indicator2noUISlider.on('slide', function(values, handle, unencoded) {
-        selectedMinIndicator2 = unencoded[0];
-        selectedMaxIndicator2 = unencoded[1];
-        rebuildComponents1And2();
-    });
-    if(!hasNoData) {
-        indicator2Slider.removeAttribute('disabled');
-    }
+    updateIndicators(false, true, false);
 }
 
 function updateIndicator3Slider() {
-    realMinIndicator3 = 0;
-    realMaxIndicator3 = 0;
+    updateIndicators(false, false, true);
+}
 
+function updateIndicators(update1, update2, update3) {
+    if(update1) {
+        realMinIndicator1 = 0;
+        realMaxIndicator1 = 0;
+    }
+    if(update2) {
+        realMinIndicator2 = 0;
+        realMaxIndicator2 = 0;
+    }
+    if(update3) {
+        realMinIndicator3 = 0;
+        realMaxIndicator3 = 0;
+    }
+
+    var indicator1Array = selectedYearJson[selectedIndicator1Id];
+    var indicator2Array = selectedYearJson[selectedIndicator2Id];
     var indicator3Array = selectedYearJson[selectedIndicator3Id];
-
-    for(var k in indicator3Array) {
-        var v = indicator3Array[k];
-        var value = Number(v.value);
-        if(v.value.length == 0) {
-            continue;
+    if (typeof indicator1Array === 'undefined' || indicator1Array.length == 0) {
+        update1 = false;
+        if (!indicator1Slider.hasAttribute('disabled')) {
+            indicator1Slider.setAttribute('disabled', true);
+            indicator1Slider.noUiSlider.destroy();
+            noUiSlider.create(indicator1Slider, {
+                start: 0,
+                tooltips: false,
+                connect: false,
+                range: {
+                    'min': 0,
+                    'max': 0
+                }
+            });
         }
-        var countryDetails = ISOCodeToDetailsMap[v.countryCode];
+    }
+    if (typeof indicator2Array === 'undefined' || indicator2Array.length == 0) {
+        update2 = false;
+        if (!indicator2Slider.hasAttribute('disabled')) {
+            indicator2Slider.setAttribute('disabled', true);
+            indicator2Slider.noUiSlider.destroy();
+            noUiSlider.create(indicator2Slider, {
+                start: 0,
+                tooltips: false,
+                connect: false,
+                range: {
+                    'min': 0,
+                    'max': 0
+                }
+            });
+        }
+    }
+    if (typeof indicator3Array === 'undefined' || indicator3Array.length == 0) {
+        update3 = false;
+        if (!indicator3Slider.hasAttribute('disabled')) {
+            indicator3Slider.setAttribute('disabled', true);
+            indicator3Slider.noUiSlider.destroy();
+            noUiSlider.create(indicator3Slider, {
+                start: 0,
+                tooltips: false,
+                connect: false,
+                range: {
+                    'min': 0,
+                    'max': 0
+                }
+            });
+        }
+    }
+    var length = 0;
+
+    if(update1) {
+        length = indicator1Array.length;
+    } else if (update2) {
+        length = indicator2Array.length;
+    } else if(update3) {
+        length = indicator3Array.length;
+    }
+
+    for (var j = 0; j < length; j++) {
+        var v1, value1, v2, value2, v3, value3;
+        if(update1) {
+            v1 = indicator1Array[j];
+            value1 = Number(v1.value);
+        }
+        if(update2) {
+            v2 = indicator2Array[j];
+            value2 = Number(v2.value);
+        }
+        if(update3) {
+            v3 = indicator3Array[j];
+            value3 = Number(v3.value);
+        }
+
+        var countryCode;
+        if(update1) {
+            countryCode = v1.countryCode;
+        } else if(update2) {
+            countryCode = v2.countryCode;
+        } else if(update3) {
+            countryCode = v3.countryCode;
+        }
+        var countryDetails = ISOCodeToDetailsMap[countryCode];
         if(countryDetails == null) {
             continue;
         }
 
         // finds the maximum and minimum values
-        if(k == 0) {
-            realMaxIndicator3 = value;
-            realMinIndicator3 = value;
+        if(j == 0) {
+            if(update1 && v1.value.length != 0) {
+                realMaxIndicator1 = value1;
+                realMinIndicator1 = value1;
+            }
+            if(update2 && v2.value.length != 0) {
+                realMaxIndicator2 = value2;
+                realMinIndicator2 = value2;
+            }
+            if(update3 && v3.value.length != 0) {
+                realMaxIndicator3 = value3;
+                realMinIndicator3 = value3;
+            }
             continue;
         }
-        if (realMaxIndicator3 < value) {
-            realMaxIndicator3 = value;
-        }
-        if(realMinIndicator3 > value) {
-            realMinIndicator3 = value;
-        }
-    }
 
-
-    // setup the range for the indicator 1 slider, based on the obtained max
-    // and min values
-    var settings;
-    var indicator3Data = indicatorIdToDetailsMap[selectedIndicator3Id];
-    selectedMinIndicator3 = realMinIndicator3;
-    selectedMaxIndicator3 = realMaxIndicator3;
-    var hasNoData = false;
-    if(realMinIndicator3 == realMaxIndicator3) {
-        settings = {
-            start: [selectedMinIndicator3, selectedMaxIndicator3],
-            tooltips: true,
-            connect: true,
-            range: {
-                'min': realMinIndicator3,
-                'max': realMaxIndicator3
+        if(update1) {
+            if (v1.value.length != 0 && realMaxIndicator1 < value1) {
+                realMaxIndicator1 = value1;
             }
-        };
-        indicator3Slider.setAttribute('disabled', true);
-        hasNoData = true;
-    } else {
-        settings = {
-            start: [selectedMinIndicator3, selectedMaxIndicator3],
-            tooltips: true,
-            connect: true,
-            range: {
-                'min': realMinIndicator3,
-                'max': realMaxIndicator3
-            },
-            format: wNumb({
-                decimals: 3,
-                thousand: '&nbsp;',
-                postfix: '&nbsp;'+indicator3Data.unit
-            })
-        };
+            if (v1.value.length != 0 && realMinIndicator1 > value1) {
+                realMinIndicator1 = value1;
+            }
+        }
+
+        if(update2) {
+            if (v2.value.length != 0 && realMaxIndicator2 < value2) {
+                realMaxIndicator2 = value2;
+            }
+            if (v2.value.length != 0 && realMinIndicator2 > value2) {
+                realMinIndicator2 = value2;
+            }
+        }
+
+        if(update3) {
+            if (v3.value.length != 0 && realMaxIndicator3 < value3) {
+                realMaxIndicator3 = value3;
+            }
+            if (v3.value.length != 0 && realMinIndicator3 > value3) {
+                realMinIndicator3 = value3;
+            }
+        }
     }
-    indicator3Slider.noUiSlider.destroy();
-    var indicator3noUISlider = noUiSlider.create(indicator3Slider, settings);
-    indicator3noUISlider.on('slide', function(values, handle, unencoded) {
-        selectedMinIndicator3 = unencoded[0];
-        selectedMaxIndicator3 = unencoded[1];
-        rebuildComponents3();
-    });
-    if(!hasNoData) {
-        indicator3Slider.removeAttribute('disabled');
+    var settings;
+
+
+    if(update1) {
+        // setup the range for the indicator 1 slider, based on the obtained
+        // max and min values
+        var indicator1Data = indicatorIdToDetailsMap[selectedIndicator1Id];
+        if(selectedMinIndicator1 < realMinIndicator1 || selectedMinIndicator1 > realMaxIndicator1) {
+            selectedMinIndicator1 = realMinIndicator1;
+        }
+        if(selectedMaxIndicator1 > realMaxIndicator1 || selectedMaxIndicator1 < realMinIndicator1) {
+            selectedMaxIndicator1 = realMaxIndicator1;
+        }
+        if(realMinIndicator1 == realMaxIndicator1) {
+            settings = {
+                start: 0,
+                tooltips: false,
+                connect: false,
+                range: {
+                    'min': 0,
+                    'max': 0
+                }
+            };
+            indicator1Slider.setAttribute('disabled', true);
+        } else {
+            settings = {
+                start: [selectedMinIndicator1, selectedMaxIndicator1],
+                tooltips: true,
+                connect: true,
+                range: {
+                    'min': realMinIndicator1,
+                    'max': realMaxIndicator1
+                },
+                format: wNumb({
+                    decimals: 3,
+                    thousand: '&nbsp;',
+                    postfix: '&nbsp;'+indicator1Data.unit
+                })
+            };
+            indicator1Slider.removeAttribute('disabled');
+        }
+        indicator1Slider.noUiSlider.destroy();
+        var indicator1noUISlider = noUiSlider.create(indicator1Slider, settings);
+        indicator1noUISlider.on('slide', function(values, handle, unencoded) {
+            selectedMinIndicator1 = unencoded[0];
+            selectedMaxIndicator1 = unencoded[1];
+            rebuildComponents1And2();
+        });
+    }
+
+
+    if(update2) {
+        // setup the range for the indicator 2 slider, based on the obtained
+        // max and min values
+        var indicator2Data = indicatorIdToDetailsMap[selectedIndicator2Id];
+        if(selectedMinIndicator2 < realMinIndicator2 || selectedMinIndicator2 > realMaxIndicator2) {
+            selectedMinIndicator2 = realMinIndicator2;
+        }
+        if(selectedMaxIndicator2 > realMaxIndicator2 || selectedMaxIndicator2 < realMinIndicator2) {
+            selectedMaxIndicator2 = realMaxIndicator2;
+        }
+        if (realMinIndicator2 == realMaxIndicator2) {
+            settings = {
+                start: 0,
+                tooltips: false,
+                connect: false,
+                range: {
+                    'min': 0,
+                    'max': 0
+                }
+            };
+            indicator2Slider.setAttribute('disabled', true);
+        } else {
+            settings = {
+                start: [selectedMinIndicator2, selectedMaxIndicator2],
+                tooltips: true,
+                connect: true,
+                range: {
+                    'min': realMinIndicator2,
+                    'max': realMaxIndicator2
+                },
+                format: wNumb({
+                    decimals: 3,
+                    thousand: '&nbsp;',
+                    postfix: '&nbsp;' + indicator2Data.unit
+                })
+            };
+            indicator2Slider.removeAttribute('disabled');
+        }
+        indicator2Slider.noUiSlider.destroy();
+        var indicator2noUISlider = noUiSlider.create(indicator2Slider, settings);
+        indicator2noUISlider.on('slide', function (values, handle, unencoded) {
+            selectedMinIndicator2 = unencoded[0];
+            selectedMaxIndicator2 = unencoded[1];
+            rebuildComponents1And2();
+        });
+    }
+
+
+    if(update3) {
+        // setup the range for the indicator 3 slider, based on the obtained
+        // max and min values
+        var indicator3Data = indicatorIdToDetailsMap[selectedIndicator3Id];
+        if(selectedMinIndicator3 < realMinIndicator3 || selectedMinIndicator3 > realMaxIndicator3) {
+            selectedMinIndicator3 = realMinIndicator3;
+        }
+        if(selectedMaxIndicator3 > realMaxIndicator3 || selectedMaxIndicator3 < realMinIndicator3) {
+            selectedMaxIndicator3 = realMaxIndicator3;
+        }
+        if(selectedMinIndicator3 == selectedMaxIndicator3) {
+            selectedMinIndicator3 = realMinIndicator3;
+            selectedMaxIndicator3 = realMaxIndicator3;
+        }
+        if(realMinIndicator3 == realMaxIndicator3) {
+            settings = {
+                start: 0,
+                tooltips: false,
+                connect: false,
+                range: {
+                    'min': 0,
+                    'max': 0
+                }
+            };
+            indicator3Slider.setAttribute('disabled', true);
+        } else {
+            settings = {
+                start: [selectedMinIndicator3, selectedMaxIndicator3],
+                tooltips: true,
+                connect: true,
+                range: {
+                    'min': realMinIndicator3,
+                    'max': realMaxIndicator3
+                },
+                format: wNumb({
+                    decimals: 3,
+                    thousand: '&nbsp;',
+                    postfix: '&nbsp;'+indicator3Data.unit
+                })
+            };
+            indicator3Slider.removeAttribute('disabled');
+        }
+        indicator3Slider.noUiSlider.destroy();
+        var indicator3noUISlider = noUiSlider.create(indicator3Slider, settings);
+        indicator3noUISlider.on('slide', function(values, handle, unencoded) {
+            selectedMinIndicator3 = unencoded[0];
+            selectedMaxIndicator3 = unencoded[1];
+            rebuildComponents3();
+        });
     }
 }
 
@@ -1066,34 +949,64 @@ function updateIndicator3Slider() {
 // on the globe according to new selection boundaries (selected max and min
 // values, selected year, selected indicator)
 function rebuildAllComponents() {
-    // remove previous bars
-    for (var i = 0 ; i < countryBar.length; i++) {
-        var bar = countryBar[i];
-        globeScene.remove(bar);
-        bar.geometry.dispose();
-        bar.material.dispose();
-        //bar.texture.dispose()
+    rebuildComponents(true, true);
+}
+
+
+// function that rebuilds (removing previously used and creating new)
+// elements of the first and second components (bar height and bar color)
+// shown on the globe according to new selection boundaries (selected max and
+// min values, selected year, selected indicator)
+function rebuildComponents1And2() {
+    rebuildComponents(true, false);
+}
+
+
+// function that rebuilds (removing previously used and creating new)
+// elements of the third component (country color) shown on the globe
+// according to new selection boundaries (selected max and min values, selected
+// year, selected indicator)
+function rebuildComponents3() {
+    rebuildComponents(false, true);
+}
+
+function rebuildComponents(rebuild1And2, rebuild3) {
+
+    if(rebuild1And2) {
+        // remove previous bars
+        for (var i = 0 ; i < countryBar.length; i++) {
+            var bar = countryBar[i];
+            globeScene.remove(bar);
+            bar.geometry.dispose();
+            bar.material.dispose();
+            //bar.texture.dispose()
+        }
+
+        // empty arrays to contain the new bars
+        countryBar = [];
     }
 
-    // clears all colored countries
-    ratioContext.clearRect(0,0,256,1);
-    ratioTexture.needsUpdate = true;
+    if(rebuild3) {
+        // clears all colored countries
+        ratioContext.clearRect(0,0,256,1);
+        ratioTexture.needsUpdate = true;
+    }
 
     var indicator1Array = selectedYearJson[selectedIndicator1Id];
     var indicator2Array = selectedYearJson[selectedIndicator2Id];
     var indicator3Array = selectedYearJson[selectedIndicator3Id];
-    var has1 = true;
-    var has2 = true;
-    var has3 = true;
+    var has1 = rebuild1And2;
+    var has2 = rebuild1And2;
+    var has3 = rebuild3;
     var length = 0;
 
-    if (typeof indicator1Array === 'undefined' || indicator1Array.length == 0) {
+    if (has1 && (typeof indicator1Array === 'undefined' || indicator1Array.length == 0)) {
         has1 = false;
     }
-    if (typeof indicator2Array === 'undefined' || indicator2Array.length == 0) {
+    if (has2 && (typeof indicator2Array === 'undefined' || indicator2Array.length == 0)) {
         has2 = false;
     }
-    if (typeof indicator3Array === 'undefined' || indicator3Array.length == 0) {
+    if (has3 && (typeof indicator3Array === 'undefined' || indicator3Array.length == 0)) {
         has3 = false;
     }
 
@@ -1104,9 +1017,6 @@ function rebuildAllComponents() {
     } else if(has3) {
         length = indicator3Array.length;
     }
-
-    // empty arrays to contain the new bars
-    countryBar = [];
 
     // if the data to rebuild for all components is from invalid
     // indicators, ignore it
@@ -1160,17 +1070,12 @@ function rebuildAllComponents() {
             }
             if(has2){
                 if(!has1) {
-                    // show bar with 50 height anyway so that the second indicator
-                    // can still be observed
-                    value1 = 50;
+                    // show bar with a default height anyway so that the
+                    // second indicator can still be observed
+                    value1 = barNoDataHeight;
                 }
                 if(i2.value.length != 0 && i2NumberValue <= selectedMaxIndicator2 && i2NumberValue >= selectedMinIndicator2) {
                     value2 = normalize(selectedMinIndicator2, selectedMaxIndicator2, 0, 1, i2NumberValue);
-                    if(!has1) {
-                        // show bar with 50 height anyway so that the second indicator
-                        // can still be observed
-                        value1 = 50;
-                    }
                 } else {
                     value2 = -1;
                 }
@@ -1231,174 +1136,6 @@ function rebuildAllComponents() {
     for(var m in countryBar) {
         var bar = countryBar[m];
         bar.visible = true;
-    }
-}
-
-
-// function that rebuilds (removing previously used and creating new)
-// elements of the first and second components (bar height and bar color)
-// shown on the globe according to new selection boundaries (selected max and
-// min values, selected year, selected indicator)
-function rebuildComponents1And2() {
-    // remove previous bars
-    for (var i = 0 ; i < countryBar.length; i++) {
-        var bar = countryBar[i];
-        globeScene.remove(bar);
-        bar.geometry.dispose();
-        bar.material.dispose();
-        //bar.texture.dispose()
-    }
-
-    var indicator1Array = selectedYearJson[selectedIndicator1Id];
-    var indicator2Array = selectedYearJson[selectedIndicator2Id];
-    var has1 = true;
-    var has2 = true;
-    var length = 0;
-
-    if (typeof indicator1Array === 'undefined' || indicator1Array.length == 0) {
-        has1 = false;
-    }
-    if (typeof indicator2Array === 'undefined' || indicator2Array.length == 0) {
-        has2 = false;
-    }
-
-    if(has1) {
-        length = indicator1Array.length;
-    } else if (has2) {
-        length = indicator2Array.length;
-    }
-
-    // empty arrays to contain the new bars
-    countryBar = [];
-
-    // if the data to rebuild for all components is from invalid
-    // indicators, ignore it
-    if(length == 0) {
-        return;
-    }
-
-    // empty countries array to update with new data
-    // TODO should be done only once?
-    shownCountriesArray = [];
-
-    for (var j = 0; j < length; j++) {
-        var i1, i1NumberValue, i2, i2NumberValue, countryCode;
-
-        if(has1) {
-            i1 = indicator1Array[j];
-            i1NumberValue = Number(i1.value);
-        }
-        if(has2) {
-            i2 = indicator2Array[j];
-            i2NumberValue = Number(i2.value);
-        }
-
-        // get the data, and set the offset, we need to do this since the x,y
-        // coordinates
-        if(has1) {
-            countryCode = i1.countryCode;
-        } else if(has2) {
-            countryCode = i2.countryCode;
-        }
-        shownCountriesArray.push({
-            countryCode: countryCode,
-            lineIndex: j
-        });
-
-        var countryDetails = ISOCodeToDetailsMap[countryCode];
-        if(countryDetails != null) {
-            var value1, value2;
-
-            if(has1 && i1.value.length != 0 && i1NumberValue <= selectedMaxIndicator1 && i1NumberValue >= selectedMinIndicator1) {
-                value1 = normalize(selectedMinIndicator1, selectedMaxIndicator1, 0, 100, i1NumberValue);
-            } else {
-                value1 = 0;
-            }
-            if(has2){
-                if(!has1) {
-                    // show bar with 50 height anyway so that the second indicator
-                    // can still be observed
-                    value1 = 50;
-                }
-                if(i2.value.length != 0 && i2NumberValue <= selectedMaxIndicator2 && i2NumberValue >= selectedMinIndicator2) {
-                    value2 = normalize(selectedMinIndicator2, selectedMaxIndicator2, 0, 1, i2NumberValue);
-                } else {
-                    value2 = -1;
-                }
-            } else {
-                value2 = -1;
-            }
-
-            // find the color of the bar for the country, which is a color picked
-            // from a gradient of blue to yello associated with a scale between 0
-            // and 1. This value within that scale is obtained by scaling down the
-            // density value.
-            var barColor;
-            if(value2 == -1) {
-                barColor = barNoDataColor;
-            } else {
-                barColor = barColorScale(value2).hex();
-            }
-
-            // setup the bar material with the obtained color above
-            var barMat = new THREE.MeshBasicMaterial({
-                color: barColor,
-                wireframe: false
-            });
-
-            // a CubeGeometry is used for the bar geometry instead of a BoxGeometry
-            // because we are using a old version of three.js (version 62)
-            var barGeom = new THREE.CubeGeometry(barWidth, barWidth, value1);
-            var mesh = new THREE.Mesh(barGeom, barMat);
-
-
-            // converts the country country lat-lng position into a vector in the
-            // three-dimensional space
-            var lat = countryDetails.latitude;
-            var lon = countryDetails.longitude;
-            var position = latLongToVector3(lat, lon, 100, 1);
-            mesh.position.x = position.x;
-            mesh.position.y = position.y;
-            mesh.position.z = position.z;
-            mesh.lookAt(new THREE.Vector3(0, 0, 0));
-
-            // the bar is added to the scene and lookup-array
-            globeScene.add(mesh);
-            countryBar.push(mesh);
-        }
-    }
-}
-
-
-// function that rebuilds (removing previously used and creating new)
-// elements of the third component (country color) shown on the globe
-// according to new selection boundaries (selected max and min values, selected
-// year, selected indicator)
-function rebuildComponents3() {
-    // clears all colored countries
-    ratioContext.clearRect(0,0,256,1);
-    ratioTexture.needsUpdate = true;
-
-    var indicator3Array = selectedYearJson[selectedIndicator3Id];
-
-    for (var i = 0; i < indicator3Array.length; i++) {
-
-        var i3 = indicator3Array[i];
-        var i3NumberValue = Number(i3.value);
-
-        // get the data, and set the offset, we need to do this since the x,y coordinates
-        var countryCode = i3.countryCode;
-
-        var countryDetails = ISOCodeToDetailsMap[countryCode];
-
-        if(countryDetails != null) {
-            if(i3.value.length != 0 && i3NumberValue <= selectedMaxIndicator3 && i3NumberValue >= selectedMinIndicator3) {
-                var value3 = normalize(selectedMinIndicator3, selectedMaxIndicator3, 0, 1, i3NumberValue);
-                var countryColor = countryColorScale(value3).hex();
-                var color = scale(value3).hex();
-                colorCountry(ISOCodeToIndexColorMap[countryCode], color);
-            }
-        }
     }
 }
 
@@ -1584,9 +1321,6 @@ function select(countryCodeToSelect) {
         }
     }
 }
-
-var selectedCountryCode;
-var selectedCountryLineIndex;
 
 // function that returns text details for a given country
 function getDetails(countryCode, countryLineIndex) {
