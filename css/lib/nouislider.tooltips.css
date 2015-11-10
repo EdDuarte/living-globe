@@ -1,0 +1,24 @@
+.noUi-tooltip {
+	display: block;
+	position: absolute;
+	border: 1px solid #242424;
+	border-radius: 3px;
+	background: #242424;
+	/*padding: 5px;*/
+	left: -9px;
+    color: white;
+	text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+	width: auto;
+}
+
+.noUi-handle-lower .noUi-tooltip {
+    left: -1px;
+}
+
+.noUi-handle-upper .noUi-tooltip {
+	bottom: 30px;
+    left: -1px;
+    text-align: right;
+}

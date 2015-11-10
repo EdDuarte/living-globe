@@ -14,121 +14,165 @@
  limitations under the License.
 
  Living Globe v2.0.0
- Authors: Ed Duarte (edmiguelduarte@gmail.com) and Pedro Bordonhos (bordonhos@ua.pt)
+ Authors: Ed Duarte (ed@edduarte.com) and Pedro Bordonhos (bordonhos@ua.pt)
 -->
 
 <!doctype html>
 <html lang="en">
 
 <head>
-	<title>Living Globe</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Raleway:300" type="text/css">
-	<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:300" type="text/css">
-	<link rel="stylesheet" href="css/base.css">
-	<link rel="stylesheet" href="css/lib/bootstrap.css">
-	<link rel="stylesheet" href="css/lib/bootstrap-slider.min.css">
-	<link rel="stylesheet" href="css/lib/jquery-ui.min.css" />
-	<link rel="stylesheet" href="css/lib/jquery.nouislider.min.css">
-	<link rel="stylesheet" href="css/lib/jquery.nouislider.pips.css">
+    <title>Living Globe</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:600' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/lib/bootstrap.css">
+    <link rel="stylesheet" href="css/lib/bootstrap-slider.min.css">
+    <link rel="stylesheet" href="css/lib/jquery-ui.min.css" />
+    <link rel="stylesheet" href="css/lib/nouislider.min.css">
+    <link rel="stylesheet" href="css/lib/nouislider.pips.css">
+    <link rel="stylesheet" href="css/lib/nouislider.tooltips.css">
 </head>
 
 <body>
-	<script type="text/javascript" src="js/lib/Three62.js"></script>
-	<script type="text/javascript" src="js/lib/OrbitControls.js"></script>
-	<script type="text/javascript" src="js/lib/TrackballControls.js"></script>
-	<script type="text/javascript" src="js/lib/THREEx.FullScreen.js"></script>
-	<script type="text/javascript" src="js/lib/THREEx.WindowResize.js"></script>
-	<script type="text/javascript" src="js/lib/detector.js"></script>
+<script type="text/javascript" src="js/lib/Three62.js"></script>
+<script type="text/javascript" src="js/lib/OrbitControls.js"></script>
+<script type="text/javascript" src="js/lib/TrackballControls.js"></script>
+<script type="text/javascript" src="js/lib/THREEx.FullScreen.js"></script>
+<script type="text/javascript" src="js/lib/THREEx.WindowResize.js"></script>
+<script type="text/javascript" src="js/lib/detector.js"></script>
 
-	<script type="text/javascript" src="js/lib/jquery-1.11.2.min.js"></script>
-	<script type="text/javascript" src="js/lib/jquery-ui.min.js"></script>
-	<script type="text/javascript" src="js/lib/jquery.autocomplete.js"></script>
-	<script type="text/javascript" src="js/lib/jquery.csv-0.71.min.js"></script>
-	<script type="text/javascript" src="js/lib/jquery.nouislider.all.min.js"></script>
-	<script type="text/javascript" src="js/lib/numeral.min.js"></script>
-	<script type="text/javascript" src="js/lib/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/lib/bootstrap-slider.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery-ui.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.autocomplete.js"></script>
+<script type="text/javascript" src="js/lib/jquery.csv-0.71.min.js"></script>
+<script type="text/javascript" src="js/lib/wNumb.js"></script>
+<script type="text/javascript" src="js/lib/nouislider.min.js"></script>
+<script type="text/javascript" src="js/lib/ion.rangeSlider.min.js"></script>
 
-	<script type="text/javascript" src="js/lib/chroma.min.js"></script>
-	<script type="text/javascript" src="js/lib/utils.js"></script>
+<script type="text/javascript" src="js/lib/numeral.min.js"></script>
+<script type="text/javascript" src="js/lib/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/lib/bootstrap-slider.min.js"></script>
 
-	<script type="text/javascript" src="js/lib/postprocessing/EffectComposer.js"></script>
-	<script type="text/javascript" src="js/lib/postprocessing/RenderPass.js"></script>
-	<script type="text/javascript" src="js/lib/postprocessing/ShaderPass.js"></script>
-	<script type="text/javascript" src="js/lib/postprocessing/MaskPass.js"></script>
+<script type="text/javascript" src="js/lib/chroma.min.js"></script>
+<script type="text/javascript" src="js/lib/utils.js"></script>
 
-	<script type="text/javascript" src="js/lib/shaders/CopyShader.js"></script>
-	<script type="text/javascript" src="js/lib/shaders/FXAAShader.js"></script>
+<script type="text/javascript" src="js/lib/postprocessing/EffectComposer.js"></script>
+<script type="text/javascript" src="js/lib/postprocessing/RenderPass.js"></script>
+<script type="text/javascript" src="js/lib/postprocessing/ShaderPass.js"></script>
+<script type="text/javascript" src="js/lib/postprocessing/MaskPass.js"></script>
 
-	<div id="search" >
-		<form onSubmit="return false;" class="navbar-search pull-left">
-			<input id="searchfield" type="text" class="search-query" autofocus="true" placeholder="Search">
-		</form>
-	</div>
+<script type="text/javascript" src="js/lib/shaders/FXAAShader.js"></script>
+<script type="text/javascript" src="js/lib/shaders/AdditiveBlendShader.js"></script>
+<script type="text/javascript" src="js/lib/shaders/CopyShader.js"></script>
 
-	<div id="worldIntercept">
+<div id="search" hidden="true">
+    <form onSubmit="return false;" class="navbar-search pull-left">
+        <input id="searchField" type="text" class="search-query" autofocus="true" placeholder="Search">
+    </form>
+</div>
 
-		<div id="parameters" >
-			<br/><br/>
+<div id="worldIntercept">
 
-			<table>
-				<tr>
-					<td width="80px">
-						<div id="sliderPopulation" style="height: 300px;"></div>
-						<div id="sliderDensity" hidden="true" style="height: 300px;"></div>
-						<div id="sliderBirth" hidden="true" style="height: 300px;"></div>
-						<div id="sliderDeath" hidden="true" style="height: 300px;"></div>
-					</td>
-					<td>
-						<spam id="detailsContainer" style="color: white;"></spam>
-					</td>
-				</tr>
-			</table>
-			<br/><br/>
-			<div class="btn-group" data-toggle="buttons-radio">
-				<button id="buttonPopulation" type="button" class="btn btn-large btn-inverse btn active">Population</button>
-				<button id="buttonDensity" type="button" class="btn btn-large btn-inverse">Density</button>
-				<button id="buttonBirth" type="button" class="btn btn-large btn-inverse">Birth Rate</button>
-				<button id="buttonDeath" type="button" class="btn btn-large btn-inverse">Death Rate</button>
-			</div>
+    <div id="parameters" hidden="true">
+        <table width="100%">
+            <tr>
+                <td width="40%" style="padding-bottom: 33px; padding-right: 20px">
+                    <div style="color: white; height: 30px">Bar Height</div>
+                    <div id="dropdownIndicator1Container" class="dropdown transparentbar" style="width:100%; z-index: 6;">
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <span class="dropdownIndicatorText">None</span>
+                            <span class="caret"></span></button>
+                        <ul id="dropdownIndicator1" class="dropdown-menu">
 
-		</div>
+                        </ul>
+                    </div>
+                </td>
+                <td width="60%">
+                    <div id="sliderIndicator1" class="sliderIndicator"></div>
+                </td>
+            </tr>
+            <tr>
+                <td width="40%" style="padding-bottom: 33px; padding-right: 20px">
+                    <div style="color: white; height: 30px">Bar Color</div>
+                    <div id="dropdownIndicator2Container" class="dropdown transparentbar" style="width:100%; z-index: 5;">
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <span class="dropdownIndicatorText">None</span>
+                            <span class="caret"></span></button>
+                        <ul id="dropdownIndicator2" class="dropdown-menu">
 
-		<div id="credits" style="color: white;">
-			<table class="right">
-				<tr>
-					<td style="padding: 10px;">
-						<div id="grad1"></div>
-					</td>
-					<td>
-						Red - more deaths than births<br>
-						Green - more births than deaths<br>
-					</td>
-				</tr>
-				<tr>
-					<td style="padding: 10px;">
-						<div id="grad2"></div>
-					</td>
-					<td>
-						<br>
-						Yellow - lower density<br>
-						Blue - higher density<br>
-						<br>
-					</td>
-				</tr>
-			</table>
-			<br>
-			<p style="text-align: right;">
-				Ed Duarte & Pedro Bordonhos - All rights reserved 2015
-			</p>
-		</div>
+                        </ul>
+                    </div>
+                </td>
+                <td width="60%">
+                    <div id="sliderIndicator2" class="sliderIndicator"></div>
+                </td>
+            </tr>
+            <tr>
+                <td width="40%" style="padding-bottom: 33px; padding-right: 20px">
+                    <div style="color: white; height: 30px">Country Color</div>
+                    <div id="dropdownIndicator3Container" class="dropdown transparentbar" style="width:100%; z-index: 4;">
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <span class="dropdownIndicatorText">None</span>
+                            <span class="caret"></span></button>
+                        <ul id="dropdownIndicator3" class="dropdown-menu">
 
-		<div id="worldContainer" style="width: 100%; height: 100%; background-color:black;"></div>
-	</div>
+                        </ul>
+                    </div>
+                </td>
+                <td width="60%">
+                    <div id="sliderIndicator3" class="sliderIndicator"></div>
+                </td>
+            </tr>
+        </table>
+        <!--<br/><br/>-->
+        <!--<div class="btn-group" data-toggle="buttons-radio">-->
+        <!--<button id="buttonIndicator1" type="button" class="btn btn-large btn-inverse btn active">Indicator1</button>-->
+        <!--<button id="buttonIndicator2" type="button" class="btn btn-large btn-inverse">Indicator2</button>-->
+        <!--<button id="buttonIndicator3" type="button" class="btn btn-large btn-inverse">Indicator3</button>-->
+        <!--</div>-->
 
-	<script id="globeVertexShader" type="x-shader/x-vertex">
+        <div id="detailsContainer" style="z-index: 1"></div>
+    </div>
+
+
+    <div id="timelineContainer" hidden="true">
+        <div id="timeline" class="timeline"></div>
+    </div>
+    <!--<div id="credits" style="color: white;">-->
+    <!--<table class="right">-->
+    <!--<tr>-->
+    <!--<td style="padding: 10px;">-->
+    <!--<div id="grad1"></div>-->
+    <!--</td>-->
+    <!--<td>-->
+    <!--Red - more deaths than births<br>-->
+    <!--Green - more births than deaths<br>-->
+    <!--</td>-->
+    <!--</tr>-->
+    <!--<tr>-->
+    <!--<td style="padding: 10px;">-->
+    <!--<div id="grad2"></div>-->
+    <!--</td>-->
+    <!--<td>-->
+    <!--<br>-->
+    <!--Yellow - lower density<br>-->
+    <!--Blue - higher density<br>-->
+    <!--<br>-->
+    <!--</td>-->
+    <!--</tr>-->
+    <!--</table>-->
+    <!--<br>-->
+    <!--<p style="text-align: right;">-->
+    <!--Ed Duarte & Pedro Bordonhos - All rights reserved 2015-->
+    <!--</p>-->
+    <!--</div>-->
+
+    <div id="worldContainer" style="width: 100%; height: 100%"></div>
+</div>
+
+<script id="globeVertexShader" type="x-shader/x-vertex">
 		varying vec3 vNormal;
 		varying vec2 vUv;
 		void main()
@@ -139,7 +183,7 @@
 		}
 	</script>
 
-	<script id="globeFragmentShader" type="x-shader/x-fragment">
+<script id="globeFragmentShader" type="x-shader/x-fragment">
 		uniform sampler2D mapIndex;
 		uniform sampler2D ratio;
 		uniform sampler2D select;
@@ -165,7 +209,7 @@
 		}
 	</script>
 
-	<script type="text/javascript" src="js/base.js"></script>
+<script type="text/javascript" src="js/base.js"></script>
 
 </body>
 
