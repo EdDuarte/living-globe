@@ -277,22 +277,21 @@ rendererDom.addEventListener('DOMMouseScroll', onMouseWheel);
 rendererDom.addEventListener('mousemove', onMouseMove);
 rendererDom.addEventListener('mousedown', onMouseDown);
 rendererDom.addEventListener('mouseup', onMouseUp);
-$('#detailsContainer')
-    .on('mousewheel', onMouseWheel)
-    .on('DOMMouseScroll', onMouseWheel)
-    .on('mousemove', onMouseMove)
-    .on('mousedown', onMouseDown)
-    .on('mouseup', onMouseUp);
-
 $('#worldContainer').append(rendererDom);
+var worldIntercept = document.getElementById('worldIntercept');
+var detailsContainer = document.getElementById('detailsContainer');
+detailsContainer.addEventListener('mousewheel', onMouseWheel);
+detailsContainer.addEventListener('DOMMouseScroll', onMouseWheel);
+detailsContainer.addEventListener('mousemove', onMouseMove);
+detailsContainer.addEventListener('mousedown', onMouseDown);
+detailsContainer.addEventListener('mouseup', onMouseUp);
 
 
 // controls (OrbitControls with damping)
-var detailsContainer = document.getElementById('detailsContainer');
-var worldIntercept = document.getElementById('worldIntercept');
 var controls = new THREE.OrbitControls(camera, worldIntercept);
 controls.dynamicDampingFactor = 0.5;
-
+controls.userPan = false;
+controls.userRotateSpeed = 0.8;
 
 // lights
 var light1 = new THREE.PointLight(0xffffff);
@@ -572,7 +571,8 @@ readJsonFile('data/gray_codes.json', function(gray_codes) {
                 }
                 selectedYear = newSelectedYear;
                 selectedYearJson = inputData[selectedYear];
-                updateIndicators(true, true, true, false);
+                var retainSelectedMaxMin = false;
+                updateIndicators(true, true, true, retainSelectedMaxMin);
                 rebuildAllComponents();
                 if(selectedCountryCode!=-1 && selectedCountryCode!=-1) {
                     detailsContainer.innerHTML = getDetails(selectedCountryCode, selectedCountryLineIndex);

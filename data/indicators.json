@@ -41,6 +41,6 @@
     },
     "EN.POP.DNST": {
         "name": "Population density",
-        "unit": "people per sq. km"
+        "unit": "people/km²"
     }
 }

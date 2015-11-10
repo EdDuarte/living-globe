@@ -1,3 +1,4 @@
 css/lib/* linguist-vendored
 js/lib/* linguist-vendored
 img/* linguist-vendored
+data/original/* linguist-vendored

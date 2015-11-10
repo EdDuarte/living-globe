@@ -139,6 +139,9 @@ THREE.OrbitControls = function ( object, domElement ) {
 	};
 
 	this.pan = function ( distance ) {
+		if(!this.userPan) {
+			return;
+		}
 
 		distance.transformDirection( this.object.matrix );
 		distance.multiplyScalar( scope.userPanSpeed );
@@ -232,8 +235,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 			if ( event.button === 2 )
 				state = STATE.PAN;
 		}
-		
-		
+
+
 		if ( state === STATE.ROTATE ) {
 
 			//state = STATE.ROTATE;
@@ -263,8 +266,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		event.preventDefault();
 
-		
-		
+
+
 		if ( state === STATE.ROTATE ) {
 
 			rotateEnd.set( event.clientX, event.clientY );
@@ -352,18 +355,18 @@ THREE.OrbitControls = function ( object, domElement ) {
 		switch ( event.keyCode ) {
 
 			/*case scope.keys.UP:
-				scope.pan( new THREE.Vector3( 0, 1, 0 ) );
-				break;
-			case scope.keys.BOTTOM:
-				scope.pan( new THREE.Vector3( 0, - 1, 0 ) );
-				break;
-			case scope.keys.LEFT:
-				scope.pan( new THREE.Vector3( - 1, 0, 0 ) );
-				break;
-			case scope.keys.RIGHT:
-				scope.pan( new THREE.Vector3( 1, 0, 0 ) );
-				break;
-			*/
+			 scope.pan( new THREE.Vector3( 0, 1, 0 ) );
+			 break;
+			 case scope.keys.BOTTOM:
+			 scope.pan( new THREE.Vector3( 0, - 1, 0 ) );
+			 break;
+			 case scope.keys.LEFT:
+			 scope.pan( new THREE.Vector3( - 1, 0, 0 ) );
+			 break;
+			 case scope.keys.RIGHT:
+			 scope.pan( new THREE.Vector3( 1, 0, 0 ) );
+			 break;
+			 */
 			case scope.keys.ROTATE:
 				state = STATE.ROTATE;
 				break;
@@ -373,11 +376,11 @@ THREE.OrbitControls = function ( object, domElement ) {
 			case scope.keys.PAN:
 				state = STATE.PAN;
 				break;
-				
+
 		}
 
 	}
-	
+
 	function onKeyUp( event ) {
 
 		switch ( event.keyCode ) {
