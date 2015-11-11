@@ -1,0 +1,46 @@
+{
+    "SM.POP.NETM": {
+        "name": "Net migration",
+        "unit": "people"
+    },
+    "SP.DYN.CBRT.IN": {
+        "name": "Birth rate, crude (per 1,000 people)",
+        "unit": "people"
+    },
+    "SP.DYN.CDRT.IN": {
+        "name": "Death rate, crude (per 1,000 people)",
+        "unit": "people"
+    },
+    "SP.DYN.CBDRT.IN": {
+        "name": "Birth/Death ratio, crude (per 1,000 people)",
+        "unit": ""
+    },
+    "SP.DYN.LE00.IN": {
+        "name": "Life expectancy at birth, total",
+        "unit": "years"
+    },
+    "SP.POP.0014.TO.ZS": {
+        "name": "Population 0-14",
+        "unit": "%&nbsp;of&nbsp;total"
+    },
+    "SP.POP.65UP.TO.ZS": {
+        "name": "Population 65 and above",
+        "unit": "%&nbsp;of&nbsp;total"
+    },
+    "SP.POP.1564.TO.ZS": {
+        "name": "Population 15-64",
+        "unit": "%&nbsp;of&nbsp;total"
+    },
+    "SP.POP.GROW": {
+        "name": "Population growth",
+        "unit": "%"
+    },
+    "SP.POP.TOTL": {
+        "name": "Population, total",
+        "unit": "people"
+    },
+    "EN.POP.DNST": {
+        "name": "Population density",
+        "unit": "people/km²"
+    }
+}

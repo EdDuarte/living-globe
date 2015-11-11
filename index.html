@@ -1,79 +1,264 @@
+<!--
+ Copyright 2015 University of Aveiro
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Living Globe v2.0.0
+ Authors: Ed Duarte (ed@edduarte.com) and Pedro Bordonhos (bordonhos@ua.pt)
+-->
+
 <!doctype html>
-<html>
-  <head>
+<html lang="en">
+
+<head>
+    <title>Living Globe</title>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Living Globe by edduarte</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link href='https://fonts.googleapis.com/css?family=Raleway:500' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:600' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/lib/bootstrap.css">
+    <link rel="stylesheet" href="css/lib/bootstrap-slider.min.css">
+    <link rel="stylesheet" href="css/lib/jquery-ui.min.css" />
+    <link rel="stylesheet" href="css/lib/nouislider.min.css">
+    <link rel="stylesheet" href="css/lib/nouislider.pips.css">
+    <link rel="stylesheet" href="css/lib/nouislider.tooltips.css">
+    <link rel="stylesheet" href="css/lib/awesome-bootstrap-checkbox.css">
+    <link rel="stylesheet" href="css/lib/font-awesome.min.css">
+</head>
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/github-light.css">
-    <meta name="viewport" content="width=device-width">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
-        <h1>Living Globe</h1>
-        <p>3D world demography visualisation in three.js</p>
+<body>
+<script type="text/javascript" src="js/lib/Three62.js"></script>
+<script type="text/javascript" src="js/lib/OrbitControls.js"></script>
+<script type="text/javascript" src="js/lib/TrackballControls.js"></script>
+<script type="text/javascript" src="js/lib/THREEx.FullScreen.js"></script>
+<script type="text/javascript" src="js/lib/THREEx.WindowResize.js"></script>
+<script type="text/javascript" src="js/lib/detector.js"></script>
 
-        <p class="view"><a href="https://github.com/edduarte/living-globe">View the Project on GitHub <small>edduarte/living-globe</small></a></p>
+<script type="text/javascript" src="js/lib/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery-ui.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.autocomplete.js"></script>
+<script type="text/javascript" src="js/lib/jquery.csv-0.71.min.js"></script>
+<script type="text/javascript" src="js/lib/wNumb.js"></script>
+<script type="text/javascript" src="js/lib/nouislider.min.js"></script>
 
+<script type="text/javascript" src="js/lib/numeral.min.js"></script>
+<script type="text/javascript" src="js/lib/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/lib/bootstrap-slider.min.js"></script>
 
-        <ul>
-          <li><a href="https://github.com/edduarte/living-globe/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/edduarte/living-globe/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/edduarte/living-globe">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h1>
-<a id="living-globe" class="anchor" href="#living-globe" aria-hidden="true"><span class="octicon octicon-link"></span></a>Living Globe</h1>
+<script type="text/javascript" src="js/lib/chroma.min.js"></script>
+<script type="text/javascript" src="js/lib/utils.js"></script>
 
-<h2>
-<a id="description" class="anchor" href="#description" aria-hidden="true"><span class="octicon octicon-link"></span></a>Description</h2>
+<script type="text/javascript" src="js/lib/postprocessing/EffectComposer.js"></script>
+<script type="text/javascript" src="js/lib/postprocessing/RenderPass.js"></script>
+<script type="text/javascript" src="js/lib/postprocessing/ShaderPass.js"></script>
+<script type="text/javascript" src="js/lib/postprocessing/MaskPass.js"></script>
 
-<p>Living Globe is an application for tri-dimensional worldwide demographical data
-visualization. It allows the simultaneous representation of multiple
-indicators, like total population, density, population-growth, life expectancy,
-net migration, crude birth rate, crude death rate and the ratio between the
-last two. The mapping of data to the provided visual structures is configurable
-by the user, introducing an aspect of customization which encourages a more
-immediate, visual-only interpretation of the data. Additionally, the
-represented data is normalized within an adjustable scale. This can be used to
-filter out extremely high or extremely low samples, uniforming the remaining
-data and improving its visibility.</p>
+<script type="text/javascript" src="js/lib/shaders/FXAAShader.js"></script>
+<script type="text/javascript" src="js/lib/shaders/AdditiveBlendShader.js"></script>
+<script type="text/javascript" src="js/lib/shaders/CopyShader.js"></script>
 
-<p>The results from preliminary testing indicate that the data filtering and
-customizable mapping features encourage the fast reading of relational
-information. Moreover, this tool improves on previous state-of-the-art work by
-implementing interaction capabilities like selection, search and filtering.</p>
+<div id="search" hidden="true">
+    <form onSubmit="return false;" class="navbar-search pull-left">
+        <input id="searchField" type="text" class="search-query" autofocus="true" placeholder="Search">
+    </form>
+</div>
 
-<h2>
-<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+<div id="worldIntercept">
+    <div id="parameters" hidden="true">
+        <div class="container-fluid" style="width: 390px;">
+            <div class="row-fluid">
+                <div class="span5">
+                    <div style="font-family: 'Raleway', sans-serif; font-weight: 500; color: #bbb; height: 30px">Bar Height</div>
+                    <div id="dropdownIndicator1Container" class="dropdown transparentbar" style="width:100%; z-index: 6;">
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <span class="dropdownIndicatorText">None</span>
+                            <span class="caret"></span></button>
+                        <ul id="dropdownIndicator1" class="dropdown-menu"></ul>
+                    </div>
+                </div>
+                <div class="span6" style="text-align: center; padding: 20px; position: relative;">
+                    <div id="sliderIndicator1" class="sliderIndicator" style="width:150px; margin: 0; position: absolute; top: 50%; transform: translate(0, -50%);"></div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span5">
+                    <div style="font-family: 'Raleway', sans-serif; font-weight: 500; color: #bbb; height: 30px">Bar Color</div>
+                    <div id="dropdownIndicator2Container" class="dropdown transparentbar" style="width:100%; z-index: 5;">
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <span class="dropdownIndicatorText">None</span>
+                            <span class="caret"></span></button>
+                        <ul id="dropdownIndicator2" class="dropdown-menu"></ul>
+                    </div>
+                </div>
+                <div class="span6" style="text-align: center; padding: 20px; position: relative;">
+                    <div id="sliderIndicator2" class="sliderIndicator" style="width:150px; margin: 0; position: absolute; top: 50%; transform: translate(0, -50%);"></div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span5">
+                    <div style="font-family: 'Raleway', sans-serif; font-weight: 500; color: #bbb; height: 30px">Country Color</div>
+                    <div id="dropdownIndicator3Container" class="dropdown transparentbar" style="width:100%; z-index: 4;">
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <span class="dropdownIndicatorText">None</span>
+                            <span class="caret"></span></button>
+                        <ul id="dropdownIndicator3" class="dropdown-menu"></ul>
+                    </div>
+                </div>
+                <div class="span6" style="text-align: center; padding: 20px; position: relative;">
+                    <div id="sliderIndicator3" class="sliderIndicator" style="width:150px; margin: 0; position: absolute; top: 50%; transform: translate(0, -50%);"></div>
+                </div>
+            </div>
+            <div class="row-fluid" style="margin-top: -30px">
+                <div class="span9">
+                    <table>
+                        <tr>
+                            <td>
+                                <div class="customCheckbox">
+                                    <input type="checkbox" value="" id="keepBoundsCheckbox" onchange="onKeepBoundsCheckboxChange()" name="check" />
+                                    <label for="keepBoundsCheckbox"></label>
+                                </div>
+                            </td>
+                            <td width="7px"></td>
+                            <td>
+                                <div id="keepBoundsLabel" class="customCheckboxLabel" onclick="onKeepBoundsLabelClick()">
+                                    Keep configured bounds when changing the year
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-<pre><code>Copyright 2015 University of Aveiro
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-</code></pre>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/edduarte">edduarte</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
+        <div id="detailsContainer" style="z-index: 1"></div>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
-  </body>
+
+
+    <div id="timelineContainer" hidden="true">
+        <div id="timeline" class="timeline"></div>
+    </div>
+
+    <div id="infoButtonContainer">
+        <a href="#" data-toggle="modal" data-target="#info-modal">
+            <i class="fa fa-info-circle fa-2x"></i>
+        </a>
+        <!--<a href="#" class="btn btn-primary btn-large">Learn more &raquo;</a>-->
+    </div>
+
+    <div id="worldContainer" style="width: 100%; height: 100%"></div>
+
+</div>
+
+<div class="modal fade" id="info-modal" data-width="1000" tabindex="-1" role="dialog" aria-labelledby="info-modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!--<div class="modal-header">-->
+                <!--<h2 class="form-signin-heading">More Info</h2>-->
+            <!--</div>-->
+            <div class="modal-body">
+                <h3>More Info</h3>
+                <p style="font-weight: 500;">
+                    Press the data types on the left panel to map another demographic indicator to the corresponding visual structure.
+                </p>
+                <p style="font-weight: 500;">
+                    Drag the slider handles on the left panel to limit the presented data according to new minimum and maximum values.
+                </p>
+                <p>
+                <div id="grad2"></div>
+                Data mapped to the <b>bar color</b> uses colors from the gradient above, where blue represents lower values and yellow represents higher ones.
+                </p>
+                <p>
+                <div id="grad1"></div>
+                Data mapped to the <b>country color</b> uses colors from the gradient above, where red represents lower values and green represents higher ones.
+                </p>
+                <br/>
+                <p style="font-weight: 500;">
+                    Drag the slider below to change the year of collected data.
+                </p>
+                <p style="font-weight: 500;">
+                    Select a country on the globe, or write its name in the search field, to show detailed data for that country.
+                </p>
+                <br/>
+                <h3>License</h3>
+                Living Globe was developed by Ed Duarte
+                (<a href="mailto:ed@edduarte.com">ed@edduarte.com</a>)
+                and Pedro Bordonhos
+                (<a href="mailto:bordonhos@ua.pt">bordonhos@ua.pt</a>)
+                , under the supervision of Paulo Dias
+                (<a href="mailto:paulo.dias@ua.pt">paulo.dias@ua.pt</a>)
+                and Beatriz Sousa Santos
+                (<a href="mailto:bss@ua.pt">bss@ua.pt</a>).<br/>
+                <br/>
+                Copyright 2015 University of Aveiro<br/>
+                <br/>
+                Licensed under the Apache License, Version 2.0 (the "License");<br/>
+                <br/>
+                Unless required by applicable law or agreed to in writing, software<br/>
+                distributed under the License is distributed on an "AS IS" BASIS,<br/>
+                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<br/>
+                See the License for the specific language governing permissions and<br/>
+                limitations under the License.<br/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="globeVertexShader" type="x-shader/x-vertex">
+		varying vec3 vNormal;
+		varying vec2 vUv;
+		void main()
+		{
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0);
+			vNormal = normalize( normalMatrix * normal );
+			vUv = uv;
+		}
+	</script>
+
+<script id="globeFragmentShader" type="x-shader/x-fragment">
+		uniform sampler2D mapIndex;
+		uniform sampler2D ratio;
+		uniform sampler2D select;
+		uniform sampler2D outline;
+		uniform sampler2D blendImage;
+		varying vec3 vNormal;
+		varying vec2 vUv;
+		void main() {
+			vec4 mapColor = texture2D( mapIndex, vUv );
+			float indexedColor = mapColor.y;
+
+			vec2 ratioUV = vec2( indexedColor, 0.0 );
+			vec4 ratioColor = texture2D( ratio, ratioUV );
+
+			vec2 selectUV = vec2( indexedColor, 0.0 );
+			vec4 selectColor = texture2D( select, selectUV );
+
+			vec4 outlineColor = texture2D( outline, vUv );
+			vec4 blendColor = texture2D( blendImage, vUv );
+			// if (outlineColor.x > 0.1) outlineColor = vec4(1.0,1.0,1.0,1.0);
+
+			gl_FragColor = 0.5 * outlineColor + 1.0 * ratioColor + 1.0 * selectColor + 0.5 * blendColor;
+		}
+	</script>
+
+<script type="text/javascript" src="js/base.js"></script>
+
+</body>
+
 </html>
