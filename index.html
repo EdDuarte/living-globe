@@ -34,6 +34,8 @@
     <link rel="stylesheet" href="css/lib/nouislider.min.css">
     <link rel="stylesheet" href="css/lib/nouislider.pips.css">
     <link rel="stylesheet" href="css/lib/nouislider.tooltips.css">
+    <link rel="stylesheet" href="css/lib/awesome-bootstrap-checkbox.css">
+    <link rel="stylesheet" href="css/lib/font-awesome.min.css">
 </head>
 
 <body>
@@ -71,64 +73,6 @@
     <form onSubmit="return false;" class="navbar-search pull-left">
         <input id="searchField" type="text" class="search-query" autofocus="true" placeholder="Search">
     </form>
-</div>
-
-<div class="modal fade" id="info-modal" data-width="1000" tabindex="-1"
-     role="dialog" aria-labelledby="info-modal" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="form-signin-heading">Add a new triple</h2>
-            </div>
-            <div class="modal-body">
-                <p style="font-weight: 500;">
-                    Drag the slider handles to filter the presented data according to new minimum and maximum values.
-                </p>
-                <p style="font-weight: 500;">
-                    Click the data types below to map another demographic indicator to the corresponding visual structure.
-                </p>
-                <p style="font-weight: 500;">
-                    Select a country, or write its name in the search field above, to show detailed data for that country.
-                </p>
-                <!--<div id="credits" style="color: white;">-->
-                <!--<table class="right">-->
-                <!--<tr>-->
-                <!--<td style="padding: 10px;">-->
-                <!--<div id="grad1"></div>-->
-                <!--</td>-->
-                <!--<td>-->
-                <!--Red - more deaths than births<br>-->
-                <!--Green - more births than deaths<br>-->
-                <!--</td>-->
-                <!--</tr>-->
-                <!--<tr>-->
-                <!--<td style="padding: 10px;">-->
-                <!--<div id="grad2"></div>-->
-                <!--</td>-->
-                <!--<td>-->
-                <!--<br>-->
-                <!--Yellow - lower density<br>-->
-                <!--Blue - higher density<br>-->
-                <!--<br>-->
-                <!--</td>-->
-                <!--</tr>-->
-                <!--</table>-->
-                <!--<br>-->
-                <!--<p style="text-align: right;">-->
-                <!--Ed Duarte & Pedro Bordonhos - All rights reserved 2015-->
-                <!--</p>-->
-                <!--</div>-->
-            </div>
-            <div class="modal-footer">
-                <button id="addSubmit" type="submit"
-                        class="btn btn-primary">Add
-                </button>
-                <button type="button" class="btn btn-default"
-                        data-dismiss="modal">Cancel
-                </button>
-            </div>
-        </div>
-    </div>
 </div>
 
 <div id="worldIntercept">
@@ -176,6 +120,26 @@
                     <div id="sliderIndicator3" class="sliderIndicator" style="width:150px; margin: 0; position: absolute; top: 50%; transform: translate(0, -50%);"></div>
                 </div>
             </div>
+            <div class="row-fluid" style="margin-top: -30px">
+                <div class="span9">
+                    <table>
+                        <tr>
+                            <td>
+                                <div class="customCheckbox">
+                                    <input type="checkbox" value="" id="keepBoundsCheckbox" onchange="onKeepBoundsCheckboxChange()" name="check" />
+                                    <label for="keepBoundsCheckbox"></label>
+                                </div>
+                            </td>
+                            <td width="7px"></td>
+                            <td>
+                                <div id="keepBoundsLabel" class="customCheckboxLabel" onclick="onKeepBoundsLabelClick()">
+                                    Keep configured bounds when changing the year
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <div id="detailsContainer" style="z-index: 1"></div>
@@ -186,7 +150,74 @@
         <div id="timeline" class="timeline"></div>
     </div>
 
+    <div id="infoButtonContainer">
+        <a href="#" data-toggle="modal" data-target="#info-modal">
+            <i class="fa fa-info-circle fa-2x"></i>
+        </a>
+        <!--<a href="#" class="btn btn-primary btn-large">Learn more &raquo;</a>-->
+    </div>
+
     <div id="worldContainer" style="width: 100%; height: 100%"></div>
+
+</div>
+
+<div class="modal fade" id="info-modal" data-width="1000" tabindex="-1" role="dialog" aria-labelledby="info-modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!--<div class="modal-header">-->
+                <!--<h2 class="form-signin-heading">More Info</h2>-->
+            <!--</div>-->
+            <div class="modal-body">
+                <h3>More Info</h3>
+                <p style="font-weight: 500;">
+                    Press the data types on the left panel to map another demographic indicator to the corresponding visual structure.
+                </p>
+                <p style="font-weight: 500;">
+                    Drag the slider handles on the left panel to limit the presented data according to new minimum and maximum values.
+                </p>
+                <p>
+                <div id="grad2"></div>
+                Data mapped to the <b>bar color</b> uses colors from the gradient above, where blue represents lower values and yellow represents higher ones.
+                </p>
+                <p>
+                <div id="grad1"></div>
+                Data mapped to the <b>country color</b> uses colors from the gradient above, where red represents lower values and green represents higher ones.
+                </p>
+                <br/>
+                <p style="font-weight: 500;">
+                    Drag the slider below to change the year of collected data.
+                </p>
+                <p style="font-weight: 500;">
+                    Select a country on the globe, or write its name in the search field, to show detailed data for that country.
+                </p>
+                <br/>
+                <h3>License</h3>
+                Living Globe was developed by Ed Duarte
+                (<a href="mailto:ed@edduarte.com">ed@edduarte.com</a>)
+                and Pedro Bordonhos
+                (<a href="mailto:bordonhos@ua.pt">bordonhos@ua.pt</a>)
+                , under the supervision of Paulo Dias
+                (<a href="mailto:paulo.dias@ua.pt">paulo.dias@ua.pt</a>)
+                and Beatriz Sousa Santos
+                (<a href="mailto:bss@ua.pt">bss@ua.pt</a>).<br/>
+                <br/>
+                Copyright 2015 University of Aveiro<br/>
+                <br/>
+                Licensed under the Apache License, Version 2.0 (the "License");<br/>
+                <br/>
+                Unless required by applicable law or agreed to in writing, software<br/>
+                distributed under the License is distributed on an "AS IS" BASIS,<br/>
+                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<br/>
+                See the License for the specific language governing permissions and<br/>
+                limitations under the License.<br/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script id="globeVertexShader" type="x-shader/x-vertex">

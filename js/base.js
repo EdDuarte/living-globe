@@ -86,6 +86,9 @@ var selectedYear = defaultSelectedYear;
 var selectedYearJson = {};
 var selectedCountryCode = -1;
 var selectedCountryLineIndex = -1;
+var keepBoundsOnYearChange = false;
+var keepBoundsCheckbox = document.getElementById("keepBoundsCheckbox");
+keepBoundsCheckbox.checked = keepBoundsOnYearChange;
 
 
 // to filter data, the selection min and max values is used to scale down values
@@ -108,6 +111,7 @@ var selectedMinIndicator3 = 0;
 var realMaxIndicator3 = 0;
 var selectedMaxIndicator3 = 0;
 
+$('#info-modal').modal('show').modal('hide');
 
 // sliders setup, used to filter data
 var timelineContainer = $('#timelineContainer');
@@ -277,14 +281,15 @@ rendererDom.addEventListener('DOMMouseScroll', onMouseWheel);
 rendererDom.addEventListener('mousemove', onMouseMove);
 rendererDom.addEventListener('mousedown', onMouseDown);
 rendererDom.addEventListener('mouseup', onMouseUp);
-$('#worldContainer').append(rendererDom);
-var worldIntercept = document.getElementById('worldIntercept');
 var detailsContainer = document.getElementById('detailsContainer');
 detailsContainer.addEventListener('mousewheel', onMouseWheel);
 detailsContainer.addEventListener('DOMMouseScroll', onMouseWheel);
 detailsContainer.addEventListener('mousemove', onMouseMove);
 detailsContainer.addEventListener('mousedown', onMouseDown);
 detailsContainer.addEventListener('mouseup', onMouseUp);
+var worldIntercept = document.getElementById('worldIntercept');
+var worldContainer = document.getElementById('worldContainer');
+worldContainer.appendChild(rendererDom);
 
 
 // controls (OrbitControls with damping)
@@ -348,11 +353,11 @@ mapTexture.needsUpdate = true;
 
 
 // satellite texture, used for aesthetic purposes only
-var blendImage = THREE.ImageUtils.loadTexture("img/earth-day4.jpg");
+var blendImage = THREE.ImageUtils.loadTexture("img/earth-day.png");
 
 
 // outline texture, used for aesthetic purposes only
-var outlineTexture = THREE.ImageUtils.loadTexture("img/outline3.png");
+var outlineTexture = THREE.ImageUtils.loadTexture("img/outline.png");
 outlineTexture.needsUpdate = true;
 
 
@@ -571,8 +576,7 @@ readJsonFile('data/gray_codes.json', function(gray_codes) {
                 }
                 selectedYear = newSelectedYear;
                 selectedYearJson = inputData[selectedYear];
-                var retainSelectedMaxMin = false;
-                updateIndicators(true, true, true, retainSelectedMaxMin);
+                updateIndicators(true, true, true, !keepBoundsOnYearChange);
                 rebuildAllComponents();
                 if(selectedCountryCode!=-1 && selectedCountryCode!=-1) {
                     detailsContainer.innerHTML = getDetails(selectedCountryCode, selectedCountryLineIndex);
@@ -1103,7 +1107,7 @@ function rebuildComponents(rebuild1And2, rebuild3) {
                 value3 = -1;
             }
 
-            if(has1 || has2) {
+            if(value1 != 0) {
                 // find the color of the bar for the country, which is a color picked
                 // from a gradient of blue to yello associated with a scale between 0
                 // and 1. This value within that scale is obtained by scaling down the
@@ -1160,6 +1164,19 @@ function colorCountry(countryCode, color) {
     ratioContext.fillStyle = color;
     ratioContext.fillRect(countryCode, 0, 1, 1);
     ratioTexture.needsUpdate = true;
+}
+
+
+
+function onKeepBoundsCheckboxChange() {
+    keepBoundsOnYearChange = keepBoundsCheckbox.checked;
+}
+
+
+
+function onKeepBoundsLabelClick() {
+    keepBoundsCheckbox.checked = !keepBoundsCheckbox.checked;
+    keepBoundsOnYearChange = keepBoundsCheckbox.checked;
 }
 
 
