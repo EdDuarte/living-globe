@@ -11,7 +11,7 @@ represented data is normalized within an adjustable scale. This can be used to
 filter out extremely high or extremely low samples, uniforming the remaining
 data and improving its visibility.
 
-**[DEMO](https://cdn.rawgit.com/edduarte/living-globe/master/index.html)**
+**[DEMO](http://edduarte.com/living-globe/)**
 <br/>
 
 ![Screenshot](screenshot.png)
