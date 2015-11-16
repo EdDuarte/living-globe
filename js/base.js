@@ -24,7 +24,7 @@ var selectedIndicator1Id = "SP.POP.TOTL";
 var selectedIndicator2Id = "SP.POP.GROW";
 var selectedIndicator3Id = "SP.DYN.CBDRT.IN";
 var minimumDragDistance = 0.04;
-var barWidth = 0.3;
+var barWidth = 0.4;
 var barColorScaleStart = '#007aff';
 var barColorScaleEnd = '#ffd500';
 var barColorScale = chroma.scale([barColorScaleStart, barColorScaleEnd]);
@@ -270,7 +270,7 @@ renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 renderer.sortObjects = false;
 renderer.generateMipmaps = false;
 renderer.setClearColor(0x000000, 0);
-//renderer.setClearColor( 0xffffff, 1);
+//renderer.setClearColor( 0xffffff, 0);
 THREEx.WindowResize(renderer, camera);
 
 

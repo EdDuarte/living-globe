@@ -15,6 +15,7 @@ data and improving its visibility.
 <br/>
 
 ![Screenshot](screenshot.png)
+![Screenshot](screenshot-white.png)
 
 ## Description
 
