@@ -337,6 +337,7 @@ table.right {
 .customCheckboxLabel {
     cursor: pointer;
     font-size: 11px;
+    padding-top: 4px;
     color: #bbb;
     font-family: 'Raleway', sans-serif;
 }
