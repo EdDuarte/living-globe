@@ -105,8 +105,8 @@ table.right {
 #parameters {
     color: #ddd;
     font-size: 12px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 25px;
+    /*background-color: rgba(0, 0, 0, 0.5);*/
+    /*border-radius: 25px;*/
     padding-top: 20px;
     position: fixed;
     left: 0;

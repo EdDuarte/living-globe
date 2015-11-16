@@ -80,8 +80,8 @@ var autoCompleteLookup;
 // variables collected when analysing the input data and used to interpret
 // selection
 var inputData = {};
-var shownCountriesArray = [];
-var countryBar = [];
+var shownCountries = [];
+var shownBars = [];
 var selectedYear = defaultSelectedYear;
 var selectedYearJson = {};
 var selectedCountryCode = -1;
@@ -307,21 +307,6 @@ globeScene.add(light1);
 //globeScene.add(light2);
 
 
-// skybox
-var imagePrefix = "img/nebula-",
-    directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"],
-    imageSuffix = ".png",
-    materialArray = [];
-for (var i = 0; i < 6; i++)
-    materialArray.push(new THREE.MeshBasicMaterial({
-        map: THREE.ImageUtils.loadTexture(imagePrefix + directions[i] + imageSuffix),
-        side: THREE.BackSide
-    }));
-var skyBox = new THREE.Mesh(new THREE.CubeGeometry(5000, 5000, 5000),
-    new THREE.MeshFaceMaterial(materialArray));
-globeScene.add(skyBox);
-
-
 // "ratio texture", which contains colored pixels for each country
 var ratioCanvas = document.createElement('canvas');
 ratioCanvas.width = 256;
@@ -353,11 +338,11 @@ mapTexture.needsUpdate = true;
 
 
 // satellite texture, used for aesthetic purposes only
-var blendImage = THREE.ImageUtils.loadTexture("img/earth-day.png");
+var blendImage = THREE.ImageUtils.loadTexture("img/earth-day-compressed.png");
 
 
 // outline texture, used for aesthetic purposes only
-var outlineTexture = THREE.ImageUtils.loadTexture("img/outline.png");
+var outlineTexture = THREE.ImageUtils.loadTexture("img/outline-compressed.png");
 outlineTexture.needsUpdate = true;
 
 
@@ -992,16 +977,16 @@ function rebuildComponents(rebuild1And2, rebuild3) {
 
     if(rebuild1And2) {
         // remove previous bars
-        for (var i = 0 ; i < countryBar.length; i++) {
-            var bar = countryBar[i];
-            globeScene.remove(bar);
-            bar.geometry.dispose();
-            bar.material.dispose();
-            //bar.texture.dispose()
+        for (var i = 0 ; i < shownBars.length; i++) {
+            var barToRemove = shownBars[i];
+            globeScene.remove(barToRemove);
+            barToRemove.geometry.dispose();
+            barToRemove.material.dispose();
+            //barToRemove.texture.dispose()
         }
 
         // empty arrays to contain the new bars
-        countryBar = [];
+        shownBars = [];
     }
 
     if(rebuild3) {
@@ -1044,7 +1029,7 @@ function rebuildComponents(rebuild1And2, rebuild3) {
 
     // empty countries array to update with new data
     // TODO should be done only once?
-    shownCountriesArray = [];
+    shownCountries = [];
 
     for (var j = 0; j < length; j++) {
         var i1, i1NumberValue, i2, i2NumberValue, i3, i3NumberValue, countryCode;
@@ -1072,7 +1057,7 @@ function rebuildComponents(rebuild1And2, rebuild3) {
             countryCode = i3.countryCode;
         }
 
-        shownCountriesArray.push({
+        shownCountries.push({
             countryCode: countryCode,
             lineIndex: j
         });
@@ -1141,7 +1126,7 @@ function rebuildComponents(rebuild1And2, rebuild3) {
 
                 // the bar is added to the scene and lookup-array
                 globeScene.add(mesh);
-                countryBar.push(mesh);
+                shownBars.push(mesh);
             }
 
             if(value3 != -1) {
@@ -1151,9 +1136,9 @@ function rebuildComponents(rebuild1And2, rebuild3) {
         }
     }
 
-    for(var m in countryBar) {
-        var bar = countryBar[m];
-        bar.visible = true;
+    for(var m in shownBars) {
+        var barToShow = shownBars[m];
+        barToShow.visible = true;
     }
 }
 
@@ -1205,11 +1190,7 @@ function onMouseMove(event) {
     // if the distance measured above exceeds a minimum value (defined as a
     // constant), then the country selection action is ignored, performing
     // only the globe drag
-    if(xdiff > minimumDragDistance || ydiff > minimumDragDistance) {
-        isSelectingCountry = false;
-    } else {
-        isSelectingCountry = true;
-    }
+    isSelectingCountry = !(xdiff > minimumDragDistance || ydiff > minimumDragDistance);
 }
 
 
@@ -1248,8 +1229,8 @@ function onMouseUp(event) {
     var rayCaster = projector.pickingRay(mouse2D.clone(), camera);
     var countryIndexColor = -1;
     //var selectedABar = false;
-    //for (var i = 0; i < countryBar.length; i++) {
-    //    var selectedObject = countryBar[i];
+    //for (var i = 0; i < shownBars.length; i++) {
+    //    var selectedObject = shownBars[i];
     //    var intersects = rayCaster.intersectObject(selectedObject);
     //    if (intersects.length) {
     //        // mouse click intersected the bar i, so select it and the corresponding country
@@ -1257,7 +1238,7 @@ function onMouseUp(event) {
     //        cameraTargetY = selectedObject.position.y;
     //        cameraTargetZ = selectedObject.position.z;
     //        cameraIsMovingToTarget = true;
-    //        var c = shownCountriesArray[i];
+    //        var c = shownCountries[i];
     //        countryIndexColor = ISOCodeToIndexColorMap[c.countryCode];
     //        if (countryIndexColor > 0) {
     //
@@ -1297,8 +1278,8 @@ function onMouseUp(event) {
         if (countryIndexColor > 0) {
             // a country was clicked, but we need to ignore it if its
             // details were filtered
-            for (var i = 0; i < shownCountriesArray.length; i++) {
-                var c = shownCountriesArray[i];
+            for (var i = 0; i < shownCountries.length; i++) {
+                var c = shownCountries[i];
                 if (ISOCodeToIndexColorMap[c.countryCode] == countryIndexColor) {
                     // the country was clicked and had details, so select it
                     detailsContainer.innerHTML = getDetails(c.countryCode, c.lineIndex);
@@ -1343,8 +1324,8 @@ function select(countryCodeToSelect) {
     highlightContext.fillRect(countryIndexColor, 0, 1, 1);
     highlightTexture.needsUpdate = true;
 
-    for (var i = 0; i < shownCountriesArray.length; i++) {
-        var c = shownCountriesArray[i];
+    for (var i = 0; i < shownCountries.length; i++) {
+        var c = shownCountries[i];
         if (ISOCodeToIndexColorMap[c.countryCode] == countryIndexColor) {
             // the country was clicked and had details, so select it
             detailsContainer.innerHTML = getDetails(c.countryCode, c.lineIndex);
@@ -1477,7 +1458,6 @@ function moveCamera() {
 
 // three.js render function that is recursively called
 function render() {
-    skyBox.rotation.y += 0.0001;
     renderer.clear();
     renderer.render(globeScene, camera);
     composer.render();
