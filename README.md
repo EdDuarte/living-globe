@@ -2,7 +2,6 @@
 
 ![Screenshot](screenshot.png)
 
-# Overview
 Living Globe is an application for tri-dimensional worldwide demographical data
 visualization. It allows the simultaneous representation of multiple
 indicators, like total population, density, population-growth, life expectancy,
@@ -19,7 +18,8 @@ data and improving its visibility.
 
 # Paper
 [Tridimensional interactive visualization of world demographic data](#)  
-Proceedings of the Portuguese Computer Graphics and Interaction Meeting; SciTecIn/EPCGI 2015; Coimbra; Portugal; 12 November 2015 through 13 November 2015  
+Proceedings of the Portuguese Computer Graphics and Interaction Meeting  
+SciTecIn/EPCGI 2015; Coimbra; Portugal; 12 November 2015 through 13 November 2015  
 (link coming soon)
 
 # Description
