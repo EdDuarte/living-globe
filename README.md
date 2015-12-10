@@ -16,11 +16,12 @@ data and improving its visibility.
 **Living-Globe is available at [http://edduarte.com/living-globe/](http://edduarte.com/living-globe/)**
 <br/>
 
-# Paper
-[Tridimensional interactive visualization of world demographic data](#)  
+# Publication
+
+** Tridimensional interactive visualization of world demographic data **  
 Proceedings of the Portuguese Computer Graphics and Interaction Meeting  
 SciTecIn/EPCGI 2015; Coimbra; Portugal; 12 November 2015 through 13 November 2015  
-(link coming soon)
+[Publication webpage](http://edduarte.com/talks/scitecin2015/)
 
 # Description
 
