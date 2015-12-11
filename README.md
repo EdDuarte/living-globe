@@ -13,12 +13,12 @@ represented data is normalized within an adjustable scale. This can be used to
 filter out extremely high or extremely low samples, uniforming the remaining
 data and improving its visibility.
 
-**Living-Globe is available at [http://edduarte.com/living-globe/](http://edduarte.com/living-globe/)**
+__Living-Globe is available at [http://edduarte.com/living-globe/](http://edduarte.com/living-globe/)__
 <br/>
 
 # Publication
 
-** Tridimensional interactive visualization of world demographic data **  
+__Tridimensional interactive visualization of world demographic data__  
 Proceedings of the Portuguese Computer Graphics and Interaction Meeting  
 SciTecIn/EPCGI 2015; Coimbra; Portugal; 12 November 2015 through 13 November 2015  
 [Publication webpage](http://edduarte.com/talks/scitecin2015/)
