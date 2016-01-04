@@ -38,7 +38,7 @@ selection, search and filtering.
 
 # Future Work
 
-- allowing the user configuration of the color scales;
+- allow user configuration of color scales;
 - remove dependencies on demographic data, making Living Globe a generic API that allows the input of any kind of data.
 
 
