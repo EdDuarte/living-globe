@@ -18,10 +18,7 @@ __Living-Globe is available at [http://edduarte.com/living-globe/](http://edduar
 
 # Publication
 
-__Tridimensional interactive visualization of world demographic data__  
-Proceedings of the Portuguese Computer Graphics and Interaction Meeting  
-SciTecIn/EPCGI 2015; Coimbra; Portugal; 12 November 2015 through 13 November 2015  
-[Publication webpage](http://edduarte.com/talks/scitecin2015/)
+Coming Soon
 
 # Description
 
