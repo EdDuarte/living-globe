@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  * Living Globe v1.0.0
- * Authors: Ed Duarte (ed@edduarte.com) and Pedro Bordonhos (bordonhos@ua.pt)
+ * Authors: Eduardo Duarte (ed@edduarte.com) and Pedro Bordonhos (bordonhos@ua.pt)
  */
 
 
@@ -24,11 +24,11 @@ var selectedIndicator1Id = "SP.POP.TOTL";
 var selectedIndicator2Id = "SP.POP.GROW";
 var selectedIndicator3Id = "SP.DYN.CBDRT.IN";
 var minimumDragDistance = 0.04;
-var barWidth = 0.4;
+var barWidth = 0.5;
 var barColorScaleStart = '#007aff';
 var barColorScaleEnd = '#ffd500';
 var barColorScale = chroma.scale([barColorScaleStart, barColorScaleEnd]);
-var barNoDataColor = '#ffffff';
+var barNoDataColor = '#747474';
 var barNoDataHeight = 40;
 var countryColorScaleStart = '#FF2A2A';
 var countryColorScaleEnd = '#23D723';
@@ -269,8 +269,8 @@ if (Detector.webgl) {
 renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 renderer.sortObjects = false;
 renderer.generateMipmaps = false;
-renderer.setClearColor(0x000000, 0);
-//renderer.setClearColor( 0xffffff, 0);
+//renderer.setClearColor(0x000000, 0);
+renderer.setClearColor( 0xeeeeee, 0);
 THREEx.WindowResize(renderer, camera);
 
 
@@ -338,11 +338,11 @@ mapTexture.needsUpdate = true;
 
 
 // satellite texture, used for aesthetic purposes only
-var blendImage = THREE.ImageUtils.loadTexture("img/earth-day-compressed.png");
+var blendImage = THREE.ImageUtils.loadTexture("img/outline7.png");
 
 
 // outline texture, used for aesthetic purposes only
-var outlineTexture = THREE.ImageUtils.loadTexture("img/outline-compressed.png");
+var outlineTexture = THREE.ImageUtils.loadTexture("img/outline5.png");
 outlineTexture.needsUpdate = true;
 
 
