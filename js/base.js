@@ -19,6 +19,8 @@
 
 
 // constant values
+var backgroundColor = 0xeeeeee;
+var tooltipOffset = 1;
 var defaultSelectedYear = 2012;
 var selectedIndicator1Id = "SP.POP.TOTL";
 var selectedIndicator2Id = "SP.POP.GROW";
@@ -28,7 +30,7 @@ var barWidth = 0.5;
 var barColorScaleStart = '#007aff';
 var barColorScaleEnd = '#ffd500';
 var barColorScale = chroma.scale([barColorScaleStart, barColorScaleEnd]);
-var barNoDataColor = '#747474';
+var barNoDataColor = '#a1a7ac';
 var barNoDataHeight = 40;
 var countryColorScaleStart = '#FF2A2A';
 var countryColorScaleEnd = '#23D723';
@@ -250,7 +252,7 @@ var ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT;
 var NEAR = 0.5;
 var FAR = 20000;
 var camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
-camera.position.set(0,250,250);
+camera.position.set(0,350,350);
 cameraPos0 = camera.position.clone();
 cameraUp0 = camera.up.clone();
 cameraZoom = camera.position.z;
@@ -269,8 +271,7 @@ if (Detector.webgl) {
 renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 renderer.sortObjects = false;
 renderer.generateMipmaps = false;
-//renderer.setClearColor(0x000000, 0);
-renderer.setClearColor( 0xeeeeee, 0);
+renderer.setClearColor(backgroundColor, 1);
 THREEx.WindowResize(renderer, camera);
 
 
@@ -282,6 +283,7 @@ rendererDom.addEventListener('mousemove', onMouseMove);
 rendererDom.addEventListener('mousedown', onMouseDown);
 rendererDom.addEventListener('mouseup', onMouseUp);
 var detailsContainer = document.getElementById('detailsContainer');
+var detailsContainerJQuery = $("#detailsContainer");
 detailsContainer.addEventListener('mousewheel', onMouseWheel);
 detailsContainer.addEventListener('DOMMouseScroll', onMouseWheel);
 detailsContainer.addEventListener('mousemove', onMouseMove);
@@ -436,10 +438,10 @@ effectFXAA.uniforms['resolution'].value.set(1 / width, 1 / height);
 //effectBlend.renderToScreen = true;
 var effectCopy = new THREE.ShaderPass(THREE.CopyShader);
 effectCopy.renderToScreen = true;
-composer.addPass(renderModel);
-composer.addPass(effectFXAA);
-//composer.addPass(effectBlend);
-composer.addPass(effectCopy);
+//composer.addPass(renderModel);
+//composer.addPass(effectFXAA);
+////composer.addPass(effectBlend);
+//composer.addPass(effectCopy);
 
 
 // search field setup
@@ -564,7 +566,7 @@ readJsonFile('data/gray_codes.json', function(gray_codes) {
                 updateIndicators(true, true, true, !keepBoundsOnYearChange);
                 rebuildAllComponents();
                 if(selectedCountryCode!=-1 && selectedCountryCode!=-1) {
-                    detailsContainer.innerHTML = getDetails(selectedCountryCode, selectedCountryLineIndex);
+                    //detailsContainer.innerHTML = getDetails(selectedCountryCode, selectedCountryLineIndex);
                 }
             });
             //slider.on('change', function(values, handle, unencoded) {
@@ -583,7 +585,7 @@ readJsonFile('data/gray_codes.json', function(gray_codes) {
             // once data is fully loaded, fade in hidden components
             timelineContainer.fadeIn('slow', function() {
             });
-            $('#parameters').fadeIn('slow', function() {
+            $('.parameter').fadeIn('slow', function() {
                 rebuildAllComponents();
                 worldSphereMesh.visible = true;
                 worldSphereMesh.needsUpdate = true;
@@ -1168,40 +1170,14 @@ function onKeepBoundsLabelClick() {
 }
 
 
-// mouse movement callback which detects the distance between the last
-// mouseDown event and determines if the country selection action should still
-// be triggered when the mouseUp event occurs, by observing if a minimum drag
-// distance was exceeded
-function onMouseMove(event) {
-    event.preventDefault();
-
-    mouse2D.x =   (event.clientX / window.innerWidth) * 2 - 1;
-    mouse2D.y = - (event.clientY / window.innerHeight) * 2 + 1;
-
-    // xdiff and ydiff represent the mouse distance between the current mouse
-    // position and the mouse position when the mouse button was last pressed
-    //var xdiff = lastMouseX - mouse2D.x;
-    //if(xdiff < 0) {
-    //    xdiff = -xdiff;
-    //}
-    //
-    //var ydiff = lastMouseY - mouse2D.y;
-    //if(ydiff < 0) {
-    //    ydiff = -ydiff;
-    //}
-    //
-    //// if the distance measured above exceeds a minimum value (defined as a
-    //// constant), then the country selection action is ignored, performing
-    //// only the globe drag
-    //isSelectingCountry = !(xdiff > minimumDragDistance || ydiff > minimumDragDistance);
-
+function attemptShowDetailsOfCountry(x, y) {
     if(cameraIsBeingDragged) {
         highlightContext.clearRect(0, 0, 256, 1);
         highlightTexture.needsUpdate = true;
         detailsContainer.innerHTML = "";
+        detailsContainerJQuery.hide();
         return;
     }
-
 
     var rayCaster = projector.pickingRay(mouse2D.clone(), camera);
     var countryIndexColor = -1;
@@ -1224,6 +1200,10 @@ function onMouseMove(event) {
                     if (countryIndexColor > 0) {
                         // the country was hovered and had details, so select it
                         detailsContainer.innerHTML = getDetails(c1.countryCode, c1.lineIndex);
+                        detailsContainerJQuery.offset({
+                            left: x + tooltipOffset,
+                            top: y + tooltipOffset
+                        }).show();
                         //var countryDetails = ISOCodeToDetailsMap[c1.countryCode];
                         //var lat = countryDetails.latitude;
                         //var lon = countryDetails.longitude;
@@ -1267,6 +1247,10 @@ function onMouseMove(event) {
                     if (ISOCodeToIndexColorMap[c2.countryCode] == countryIndexColor) {
                         // the country was hovered and had details, so select it
                         detailsContainer.innerHTML = getDetails(c2.countryCode, c2.lineIndex);
+                        detailsContainerJQuery.offset({
+                            left: x + tooltipOffset,
+                            top: y + tooltipOffset
+                        }).show();
                         //var countryDetails = ISOCodeToDetailsMap[c2.countryCode];
                         //var lat = countryDetails.latitude;
                         //var lon = countryDetails.longitude;
@@ -1293,7 +1277,39 @@ function onMouseMove(event) {
         highlightContext.clearRect(0, 0, 256, 1);
         highlightTexture.needsUpdate = true;
         detailsContainer.innerHTML = "";
+        detailsContainerJQuery.hide();
     }
+}
+
+
+// mouse movement callback which detects the distance between the last
+// mouseDown event and determines if the country selection action should still
+// be triggered when the mouseUp event occurs, by observing if a minimum drag
+// distance was exceeded
+function onMouseMove(event) {
+    event.preventDefault();
+
+    mouse2D.x =   (event.clientX / window.innerWidth) * 2 - 1;
+    mouse2D.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+    // xdiff and ydiff represent the mouse distance between the current mouse
+    // position and the mouse position when the mouse button was last pressed
+    //var xdiff = lastMouseX - mouse2D.x;
+    //if(xdiff < 0) {
+    //    xdiff = -xdiff;
+    //}
+    //
+    //var ydiff = lastMouseY - mouse2D.y;
+    //if(ydiff < 0) {
+    //    ydiff = -ydiff;
+    //}
+    //
+    //// if the distance measured above exceeds a minimum value (defined as a
+    //// constant), then the country selection action is ignored, performing
+    //// only the globe drag
+    //isSelectingCountry = !(xdiff > minimumDragDistance || ydiff > minimumDragDistance);
+
+    attemptShowDetailsOfCountry(event.pageX, event.pageY);
 }
 
 
@@ -1314,6 +1330,8 @@ function onMouseDown(event) {
 
     //isSelectingCountry = true;
     cameraIsMovingToTarget = false;
+
+    attemptShowDetailsOfCountry(event.pageX, event.pageY);
 }
 
 
@@ -1339,20 +1357,24 @@ function select(countryCodeToSelect) {
     cameraTargetZ = position.z;
     cameraIsMovingToTarget = true;
 
-    //var countryIndexColor = ISOCodeToIndexColorMap[countryCodeToSelect];
-    //highlightContext.clearRect(0,0,256,1);
-    //highlightContext.fillStyle = "#666666";
-    //highlightContext.fillRect(countryIndexColor, 0, 1, 1);
-    //highlightTexture.needsUpdate = true;
-    //
-    //for (var i = 0; i < shownCountries.length; i++) {
-    //    var c = shownCountries[i];
-    //    if (ISOCodeToIndexColorMap[c.countryCode] == countryIndexColor) {
-    //        // the country was hovered and had details, so select it
-    //        detailsContainer.innerHTML = getDetails(c.countryCode, c.lineIndex);
-    //        break;
-    //    }
-    //}
+    var countryIndexColor = ISOCodeToIndexColorMap[countryCodeToSelect];
+    highlightContext.clearRect(0,0,256,1);
+    highlightContext.fillStyle = "#ff0";
+    highlightContext.fillRect(countryIndexColor, 0, 1, 1);
+    highlightTexture.needsUpdate = true;
+
+    for (var i = 0; i < shownCountries.length; i++) {
+        var c = shownCountries[i];
+        if (ISOCodeToIndexColorMap[c.countryCode] == countryIndexColor) {
+            // the country was hovered and had details, so select it
+            detailsContainer.innerHTML = getDetails(c.countryCode, c.lineIndex);
+            detailsContainerJQuery.offset({
+                left: Math.floor(window.innerWidth/2) + tooltipOffset,
+                top: Math.floor(window.innerHeight/2) + tooltipOffset
+            }).show(1000);
+            break;
+        }
+    }
 }
 
 // function that returns text details for a given country
@@ -1368,7 +1390,7 @@ function getDetails(countryCode, countryLineIndex) {
         countryName = countryDetails.name;
     }
 
-    var s = "<h1>" + countryName + "</h1><h3>(" + countryCode + ")</h3>";
+    var s = "<h4>" + countryName + " <span>(" + countryCode + ")</span></h4>";
 
     for(var i = 0; i < indicatorIdArray.length; i++) {
         var id = indicatorIdArray[i];
@@ -1377,11 +1399,11 @@ function getDetails(countryCode, countryLineIndex) {
 
         // optional, style labels by indicator subset
         var labelStyle = "label-success";
-        //if(id == "SM.POP.NETM") {
-        //    labelStyle = "label-warning";
-        //} else if(id == "SP.DYN.CBRT.IN" || id == "SP.DYN.CDRT.IN" || id == "SP.DYN.CBDRT.IN" || id == "SP.DYN.LE00.IN") {
-        //    labelStyle = "label-info";
-        //}
+        if(id == "SM.POP.NETM") {
+            labelStyle = "label-warning";
+        } else if(id == "SP.DYN.CBRT.IN" || id == "SP.DYN.CDRT.IN" || id == "SP.DYN.CBDRT.IN" || id == "SP.DYN.LE00.IN") {
+            labelStyle = "label-info";
+        }
 
         var value;
         if(indicatorData.value.length == 0) {
