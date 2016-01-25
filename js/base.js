@@ -30,7 +30,7 @@ var barWidth = 0.5;
 var barColorScaleStart = '#007aff';
 var barColorScaleEnd = '#ffd500';
 var barColorScale = chroma.scale([barColorScaleStart, barColorScaleEnd]);
-var barNoDataColor = '#a1a7ac';
+var barNoDataColor = '#747474';
 var barNoDataHeight = 40;
 var countryColorScaleStart = '#FF2A2A';
 var countryColorScaleEnd = '#23D723';
@@ -289,6 +289,12 @@ detailsContainer.addEventListener('DOMMouseScroll', onMouseWheel);
 detailsContainer.addEventListener('mousemove', onMouseMove);
 detailsContainer.addEventListener('mousedown', onMouseDown);
 detailsContainer.addEventListener('mouseup', onMouseUp);
+var parameters = document.getElementById('parameters');
+parameters.addEventListener('mousewheel', onMouseWheel);
+parameters.addEventListener('DOMMouseScroll', onMouseWheel);
+parameters.addEventListener('mousemove', onMouseMove);
+parameters.addEventListener('mousedown', onMouseDown);
+parameters.addEventListener('mouseup', onMouseUp);
 var worldIntercept = document.getElementById('worldIntercept');
 var worldContainer = document.getElementById('worldContainer');
 worldContainer.appendChild(rendererDom);
@@ -340,11 +346,11 @@ mapTexture.needsUpdate = true;
 
 
 // satellite texture, used for aesthetic purposes only
-var blendImage = THREE.ImageUtils.loadTexture("img/outline7.png");
+var blendImage = THREE.ImageUtils.loadTexture("img/outline10.png");
 
 
 // outline texture, used for aesthetic purposes only
-var outlineTexture = THREE.ImageUtils.loadTexture("img/outline5.png");
+var outlineTexture = THREE.ImageUtils.loadTexture("img/earth-day4.png");
 outlineTexture.needsUpdate = true;
 
 
@@ -438,10 +444,10 @@ effectFXAA.uniforms['resolution'].value.set(1 / width, 1 / height);
 //effectBlend.renderToScreen = true;
 var effectCopy = new THREE.ShaderPass(THREE.CopyShader);
 effectCopy.renderToScreen = true;
-//composer.addPass(renderModel);
-//composer.addPass(effectFXAA);
-////composer.addPass(effectBlend);
-//composer.addPass(effectCopy);
+composer.addPass(renderModel);
+composer.addPass(effectFXAA);
+//composer.addPass(effectBlend);
+composer.addPass(effectCopy);
 
 
 // search field setup
@@ -1292,8 +1298,8 @@ function onMouseMove(event) {
     mouse2D.x =   (event.clientX / window.innerWidth) * 2 - 1;
     mouse2D.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
-    // xdiff and ydiff represent the mouse distance between the current mouse
-    // position and the mouse position when the mouse button was last pressed
+    //// xdiff and ydiff represent the mouse distance between the current mouse
+    //// position and the mouse position when the mouse button was last pressed
     //var xdiff = lastMouseX - mouse2D.x;
     //if(xdiff < 0) {
     //    xdiff = -xdiff;
@@ -1330,8 +1336,6 @@ function onMouseDown(event) {
 
     //isSelectingCountry = true;
     cameraIsMovingToTarget = false;
-
-    attemptShowDetailsOfCountry(event.pageX, event.pageY);
 }
 
 
@@ -1358,23 +1362,40 @@ function select(countryCodeToSelect) {
     cameraIsMovingToTarget = true;
 
     var countryIndexColor = ISOCodeToIndexColorMap[countryCodeToSelect];
-    highlightContext.clearRect(0,0,256,1);
-    highlightContext.fillStyle = "#ff0";
-    highlightContext.fillRect(countryIndexColor, 0, 1, 1);
-    highlightTexture.needsUpdate = true;
+    blinkCountry(countryIndexColor);
 
-    for (var i = 0; i < shownCountries.length; i++) {
-        var c = shownCountries[i];
-        if (ISOCodeToIndexColorMap[c.countryCode] == countryIndexColor) {
-            // the country was hovered and had details, so select it
-            detailsContainer.innerHTML = getDetails(c.countryCode, c.lineIndex);
-            detailsContainerJQuery.offset({
-                left: Math.floor(window.innerWidth/2) + tooltipOffset,
-                top: Math.floor(window.innerHeight/2) + tooltipOffset
-            }).show(1000);
-            break;
-        }
+    //for (var i = 0; i < shownCountries.length; i++) {
+    //    var c = shownCountries[i];
+    //    if (ISOCodeToIndexColorMap[c.countryCode] == countryIndexColor) {
+    //        // the country was hovered and had details, so select it
+    //        detailsContainer.innerHTML = getDetails(c.countryCode, c.lineIndex);
+    //        detailsContainerJQuery.offset({
+    //            left: Math.floor(window.innerWidth/2) + tooltipOffset,
+    //            top: Math.floor(window.innerHeight/2) + tooltipOffset
+    //        }).show(1000);
+    //        break;
+    //    }
+    //}
+}
+
+function blinkCountry(countryIndexColor) {
+    blinkCountryAux(countryIndexColor, 0, 4)
+}
+
+function blinkCountryAux(countryIndexColor, count, max) {
+    highlightContext.clearRect(0,0,256,1);
+    highlightTexture.needsUpdate = true;
+    if(count >= max) {
+        return;
     }
+    setTimeout(function () {
+        highlightContext.fillStyle = "#fff";
+        highlightContext.fillRect(countryIndexColor, 0, 1, 1);
+        highlightTexture.needsUpdate = true;
+        setTimeout(function (){
+            blinkCountryAux(countryIndexColor, count+1, max)
+        }, 200);
+    }, 200);
 }
 
 // function that returns text details for a given country

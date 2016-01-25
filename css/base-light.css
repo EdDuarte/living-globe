@@ -272,7 +272,7 @@ table.right {
 .parameter .noUi-handle-lower {
     top: -13px;
     left: -12px;
-    border-top: 12px solid #222;
+    border-top: 12px solid #999;
     border-left: 12px solid transparent;
     border-right: 12px solid transparent;
     border-bottom: 0;
@@ -284,7 +284,7 @@ table.right {
     border-top: 0;
     border-left: 12px solid transparent;
     border-right: 12px solid transparent;
-    border-bottom: 12px solid #222;
+    border-bottom: 12px solid #999;
 }
 
 .parameter .noUi-active {
@@ -332,11 +332,13 @@ table.right {
 }
 
 .parameter .noUi-handle-lower .noUi-tooltip {
-    left: -1px;
+    left: -15px;
+    top: -33px;
 }
 
 .parameter .noUi-handle-upper .noUi-tooltip {
-    left: -1px;
+    left: -15px;
+    top: 6px;
     text-align: right;
 }
 
