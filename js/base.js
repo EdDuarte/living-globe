@@ -23,7 +23,7 @@ var defaultSelectedYear = 2012;
 var selectedIndicator1Id = "SP.POP.TOTL";
 var selectedIndicator2Id = "SP.POP.GROW";
 var selectedIndicator3Id = "SP.DYN.CBDRT.IN";
-var minimumDragDistance = 0.04;
+//var minimumDragDistance = 0.04;
 var barWidth = 0.5;
 var barColorScaleStart = '#007aff';
 var barColorScaleEnd = '#ffd500';
@@ -50,7 +50,7 @@ var cameraTargetLZ = 0;
 // mouse interaction variables
 var lastMouseX = 0;
 var lastMouseY = 0;
-var isSelectingCountry = false;
+//var isSelectingCountry = false;
 var projector = new THREE.Projector();
 var mouse2D = new THREE.Vector3(0, 0, 0.5);
 
@@ -81,7 +81,7 @@ var autoCompleteLookup;
 // selection
 var inputData = {};
 var shownCountries = [];
-var shownBars = [];
+var shownBarsData = [];
 var selectedYear = defaultSelectedYear;
 var selectedYearJson = {};
 var selectedCountryCode = -1;
@@ -977,16 +977,16 @@ function rebuildComponents(rebuild1And2, rebuild3) {
 
     if(rebuild1And2) {
         // remove previous bars
-        for (var i = 0 ; i < shownBars.length; i++) {
-            var barToRemove = shownBars[i];
-            globeScene.remove(barToRemove);
-            barToRemove.geometry.dispose();
-            barToRemove.material.dispose();
-            //barToRemove.texture.dispose()
+        for (var i = 0 ; i < shownBarsData.length; i++) {
+            var barData = shownBarsData[i];
+            globeScene.remove(barData.bar);
+            barData.bar.geometry.dispose();
+            barData.bar.material.dispose();
+            //barData.bar.texture.dispose()
         }
 
         // empty arrays to contain the new bars
-        shownBars = [];
+        shownBarsData = [];
     }
 
     if(rebuild3) {
@@ -1126,7 +1126,10 @@ function rebuildComponents(rebuild1And2, rebuild3) {
 
                 // the bar is added to the scene and lookup-array
                 globeScene.add(mesh);
-                shownBars.push(mesh);
+                shownBarsData.push({
+                    bar: mesh,
+                    countryCode: countryCode
+                });
             }
 
             if(value3 != -1) {
@@ -1136,8 +1139,8 @@ function rebuildComponents(rebuild1And2, rebuild3) {
         }
     }
 
-    for(var m in shownBars) {
-        var barToShow = shownBars[m];
+    for(var m in shownBarsData) {
+        var barToShow = shownBarsData[m].bar;
         barToShow.visible = true;
     }
 }
@@ -1177,20 +1180,120 @@ function onMouseMove(event) {
 
     // xdiff and ydiff represent the mouse distance between the current mouse
     // position and the mouse position when the mouse button was last pressed
-    var xdiff = lastMouseX - mouse2D.x;
-    if(xdiff < 0) {
-        xdiff = -xdiff;
+    //var xdiff = lastMouseX - mouse2D.x;
+    //if(xdiff < 0) {
+    //    xdiff = -xdiff;
+    //}
+    //
+    //var ydiff = lastMouseY - mouse2D.y;
+    //if(ydiff < 0) {
+    //    ydiff = -ydiff;
+    //}
+    //
+    //// if the distance measured above exceeds a minimum value (defined as a
+    //// constant), then the country selection action is ignored, performing
+    //// only the globe drag
+    //isSelectingCountry = !(xdiff > minimumDragDistance || ydiff > minimumDragDistance);
+
+    if(cameraIsBeingDragged) {
+        highlightContext.clearRect(0, 0, 256, 1);
+        highlightTexture.needsUpdate = true;
+        detailsContainer.innerHTML = "";
+        return;
     }
 
-    var ydiff = lastMouseY - mouse2D.y;
-    if(ydiff < 0) {
-        ydiff = -ydiff;
+
+    var rayCaster = projector.pickingRay(mouse2D.clone(), camera);
+    var countryIndexColor = -1;
+    var hoveredABar = false;
+    var hoveredACountry = false;
+
+    for (var i = 0; i < shownBarsData.length; i++) {
+        var selectedBarData = shownBarsData[i];
+        var intersects = rayCaster.intersectObject(selectedBarData.bar);
+        if (intersects.length) {
+            // mouse hover intersected the bar i, so select it and the corresponding country
+            //cameraTargetX = selectedBarData.position.x;
+            //cameraTargetY = selectedBarData.position.y;
+            //cameraTargetZ = selectedBarData.position.z;
+            //cameraIsMovingToTarget = true;
+            for (var j = 0; j < shownCountries.length; j++) {
+                var c1 = shownCountries[j];
+                if(c1.countryCode == selectedBarData.countryCode) {
+                    countryIndexColor = ISOCodeToIndexColorMap[c1.countryCode];
+                    if (countryIndexColor > 0) {
+                        // the country was hovered and had details, so select it
+                        detailsContainer.innerHTML = getDetails(c1.countryCode, c1.lineIndex);
+                        //var countryDetails = ISOCodeToDetailsMap[c1.countryCode];
+                        //var lat = countryDetails.latitude;
+                        //var lon = countryDetails.longitude;
+                        //var position = latLongToVector3(lat, lon, 100, 1);
+                        //cameraTargetX = position.x;
+                        //cameraTargetY = position.y;
+                        //cameraTargetZ = position.z;
+                        //cameraIsMovingToTarget = true;
+
+                        highlightContext.clearRect(0, 0, 256, 1);
+                        highlightContext.fillStyle = "#666666";
+                        highlightContext.fillRect(countryIndexColor, 0, 1, 1);
+                        highlightTexture.needsUpdate = true;
+                        searchField.blur();
+                        hoveredABar = true;
+                    }
+                    break;
+                }
+            }
+            break;
+        }
     }
 
-    // if the distance measured above exceeds a minimum value (defined as a
-    // constant), then the country selection action is ignored, performing
-    // only the globe drag
-    isSelectingCountry = !(xdiff > minimumDragDistance || ydiff > minimumDragDistance);
+    if (!hoveredABar) {
+        // mouse did not intersect a bar, so check if it intersected a country
+        var intersectionList = rayCaster.intersectObject(worldSphereMesh);
+        if (intersectionList.length > 0) {
+            var data = intersectionList[0];
+            var d = data.point.clone().normalize();
+            var u = Math.round(4096 * (1 - (0.5 + Math.atan2(d.z, d.x) / (2 * Math.PI))));
+            var v = Math.round(2048 * (0.5 - Math.asin(d.y) / Math.PI));
+            var p = mapContext.getImageData(u, v, 1, 1).data;
+            countryIndexColor = p[0];
+            // countryIndexColor 0 is the sea and -1 is invalid, so ignore
+            // those instances
+            if (countryIndexColor > 0) {
+                // a country was hovered, but we need to ignore it if its
+                // details were filtered
+                for (var k = 0; k < shownCountries.length; k++) {
+                    var c2 = shownCountries[k];
+                    if (ISOCodeToIndexColorMap[c2.countryCode] == countryIndexColor) {
+                        // the country was hovered and had details, so select it
+                        detailsContainer.innerHTML = getDetails(c2.countryCode, c2.lineIndex);
+                        //var countryDetails = ISOCodeToDetailsMap[c2.countryCode];
+                        //var lat = countryDetails.latitude;
+                        //var lon = countryDetails.longitude;
+                        //var position = latLongToVector3(lat, lon, 100, 1);
+                        //cameraTargetX = position.x;
+                        //cameraTargetY = position.y;
+                        //cameraTargetZ = position.z;
+                        //cameraIsMovingToTarget = true;
+
+                        highlightContext.clearRect(0, 0, 256, 1);
+                        highlightContext.fillStyle = "#666666";
+                        highlightContext.fillRect(countryIndexColor, 0, 1, 1);
+                        highlightTexture.needsUpdate = true;
+                        searchField.blur();
+                        hoveredACountry = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    if(!hoveredABar && !hoveredACountry) {
+        highlightContext.clearRect(0, 0, 256, 1);
+        highlightTexture.needsUpdate = true;
+        detailsContainer.innerHTML = "";
+    }
 }
 
 
@@ -1209,7 +1312,7 @@ function onMouseDown(event) {
     lastMouseX =   (event.clientX / window.innerWidth) * 2 - 1;
     lastMouseY = - (event.clientY / window.innerHeight) * 2 + 1;
 
-    isSelectingCountry = true;
+    //isSelectingCountry = true;
     cameraIsMovingToTarget = false;
 }
 
@@ -1221,88 +1324,6 @@ function onMouseUp(event) {
     cameraIsBeingDragged = false;
     mouse2D.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse2D.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    if (!isSelectingCountry) {
-        return;
-    }
-
-    var rayCaster = projector.pickingRay(mouse2D.clone(), camera);
-    var countryIndexColor = -1;
-    //var selectedABar = false;
-    //for (var i = 0; i < shownBars.length; i++) {
-    //    var selectedObject = shownBars[i];
-    //    var intersects = rayCaster.intersectObject(selectedObject);
-    //    if (intersects.length) {
-    //        // mouse click intersected the bar i, so select it and the corresponding country
-    //        cameraTargetX = selectedObject.position.x;
-    //        cameraTargetY = selectedObject.position.y;
-    //        cameraTargetZ = selectedObject.position.z;
-    //        cameraIsMovingToTarget = true;
-    //        var c = shownCountries[i];
-    //        countryIndexColor = ISOCodeToIndexColorMap[c.countryCode];
-    //        if (countryIndexColor > 0) {
-    //
-    //            detailsContainer.innerHTML = getDetails(c.lineIndex);
-    //            var countryDetails = ISOCodeToDetailsMap[c.countryCode];
-    //            var lat = countryDetails.latitude;
-    //            var lon = countryDetails.longitude;
-    //            var position = latLongToVector3(lat, lon, 100, 1);
-    //            cameraTargetX = position.x;
-    //            cameraTargetY = position.y;
-    //            cameraTargetZ = position.z;
-    //            cameraIsMovingToTarget = true;
-    //
-    //            highlightContext.clearRect(0, 0, 256, 1);
-    //            highlightContext.fillStyle = "#666666";
-    //            highlightContext.fillRect(countryIndexColor, 0, 1, 1);
-    //            highlightTexture.needsUpdate = true;
-    //            searchField.blur();
-    //            selectedABar = true;
-    //        }
-    //        break;
-    //    }
-    //}
-    //
-    //if (!selectedABar) {
-    // mouse did not intersect a bar, so check if it intersected a country
-    var intersectionList = rayCaster.intersectObject(worldSphereMesh);
-    if (intersectionList.length > 0) {
-        var data = intersectionList[0];
-        var d = data.point.clone().normalize();
-        var u = Math.round(4096 * (1 - (0.5 + Math.atan2(d.z, d.x) / (2 * Math.PI))));
-        var v = Math.round(2048 * (0.5 - Math.asin(d.y) / Math.PI));
-        var p = mapContext.getImageData(u, v, 1, 1).data;
-        countryIndexColor = p[0];
-        // countryIndexColor 0 is the sea and -1 is invalid, so ignore
-        // those instances
-        if (countryIndexColor > 0) {
-            // a country was clicked, but we need to ignore it if its
-            // details were filtered
-            for (var i = 0; i < shownCountries.length; i++) {
-                var c = shownCountries[i];
-                if (ISOCodeToIndexColorMap[c.countryCode] == countryIndexColor) {
-                    // the country was clicked and had details, so select it
-                    detailsContainer.innerHTML = getDetails(c.countryCode, c.lineIndex);
-                    var countryDetails = ISOCodeToDetailsMap[c.countryCode];
-                    var lat = countryDetails.latitude;
-                    var lon = countryDetails.longitude;
-                    var position = latLongToVector3(lat, lon, 100, 1);
-                    cameraTargetX = position.x;
-                    cameraTargetY = position.y;
-                    cameraTargetZ = position.z;
-                    cameraIsMovingToTarget = true;
-
-                    highlightContext.clearRect(0, 0, 256, 1);
-                    highlightContext.fillStyle = "#666666";
-                    highlightContext.fillRect(countryIndexColor, 0, 1, 1);
-                    highlightTexture.needsUpdate = true;
-                    searchField.blur();
-                    break;
-                }
-            }
-        }
-    }
-    //}
 }
 
 
@@ -1318,20 +1339,20 @@ function select(countryCodeToSelect) {
     cameraTargetZ = position.z;
     cameraIsMovingToTarget = true;
 
-    var countryIndexColor = ISOCodeToIndexColorMap[countryCodeToSelect];
-    highlightContext.clearRect(0,0,256,1);
-    highlightContext.fillStyle = "#666666";
-    highlightContext.fillRect(countryIndexColor, 0, 1, 1);
-    highlightTexture.needsUpdate = true;
-
-    for (var i = 0; i < shownCountries.length; i++) {
-        var c = shownCountries[i];
-        if (ISOCodeToIndexColorMap[c.countryCode] == countryIndexColor) {
-            // the country was clicked and had details, so select it
-            detailsContainer.innerHTML = getDetails(c.countryCode, c.lineIndex);
-            break;
-        }
-    }
+    //var countryIndexColor = ISOCodeToIndexColorMap[countryCodeToSelect];
+    //highlightContext.clearRect(0,0,256,1);
+    //highlightContext.fillStyle = "#666666";
+    //highlightContext.fillRect(countryIndexColor, 0, 1, 1);
+    //highlightTexture.needsUpdate = true;
+    //
+    //for (var i = 0; i < shownCountries.length; i++) {
+    //    var c = shownCountries[i];
+    //    if (ISOCodeToIndexColorMap[c.countryCode] == countryIndexColor) {
+    //        // the country was hovered and had details, so select it
+    //        detailsContainer.innerHTML = getDetails(c.countryCode, c.lineIndex);
+    //        break;
+    //    }
+    //}
 }
 
 // function that returns text details for a given country
@@ -1356,11 +1377,11 @@ function getDetails(countryCode, countryLineIndex) {
 
         // optional, style labels by indicator subset
         var labelStyle = "label-success";
-        if(id == "SM.POP.NETM") {
-            labelStyle = "label-warning";
-        } else if(id == "SP.DYN.CBRT.IN" || id == "SP.DYN.CDRT.IN" || id == "SP.DYN.CBDRT.IN" || id == "SP.DYN.LE00.IN") {
-            labelStyle = "label-info";
-        }
+        //if(id == "SM.POP.NETM") {
+        //    labelStyle = "label-warning";
+        //} else if(id == "SP.DYN.CBRT.IN" || id == "SP.DYN.CDRT.IN" || id == "SP.DYN.CBDRT.IN" || id == "SP.DYN.LE00.IN") {
+        //    labelStyle = "label-info";
+        //}
 
         var value;
         if(indicatorData.value.length == 0) {
