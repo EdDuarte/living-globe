@@ -397,7 +397,7 @@ highlightTexture.needsUpdate = true;
 
 // lookup texture, where each country is colored with a different luminosity of
 // gray. the country can be identified using the ISOCodeToIndexColorMap JSON file
-var mapTexture = THREE.ImageUtils.loadTexture("../img/index.png");
+var mapTexture = THREE.ImageUtils.loadTexture("img/index.png");
 mapTexture.magFilter = THREE.NearestFilter;
 mapTexture.minFilter = THREE.NearestFilter;
 mapTexture.needsUpdate = true;
@@ -483,7 +483,7 @@ var imageObj = new Image();
 imageObj.onload = function() {
     mapContext.drawImage(imageObj, 0, 0);
 };
-imageObj.src = '../img/index.png';
+imageObj.src = 'img/index.png';
 
 
 // post-processing flags
