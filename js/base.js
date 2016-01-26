@@ -17,6 +17,7 @@
  * Authors: Eduardo Duarte (ed@edduarte.com) and Pedro Bordonhos (bordonhos@ua.pt)
  */
 
+$('#info-modal').modal('show').modal('hide');
 
 // constant values
 var backgroundColor = 0xeeeeee;
@@ -27,14 +28,8 @@ var selectedIndicator2Id = "SP.POP.GROW";
 var selectedIndicator3Id = "SP.DYN.CBDRT.IN";
 //var minimumDragDistance = 0.04;
 var barWidth = 0.5;
-var barColorScaleStart = '#007aff';
-var barColorScaleEnd = '#ffd500';
-var barColorScale = chroma.scale([barColorScaleStart, barColorScaleEnd]);
 var barNoDataColor = '#747474';
 var barNoDataHeight = 40;
-var countryColorScaleStart = '#FF2A2A';
-var countryColorScaleEnd = '#23D723';
-var countryColorScale = chroma.scale([countryColorScaleStart, countryColorScaleEnd]);
 
 
 // camera zoom & tween target variables used on "animate()" method to move
@@ -113,7 +108,65 @@ var selectedMinIndicator3 = 0;
 var realMaxIndicator3 = 0;
 var selectedMaxIndicator3 = 0;
 
-$('#info-modal').modal('show').modal('hide');
+
+// custom color variables
+var barColorScaleStart = '#007aff';
+var barColorScaleEnd = '#ffd500';
+var barColorScale = chroma.scale([barColorScaleStart, barColorScaleEnd]);
+var countryColorScaleStart = '#FF2A2A';
+var countryColorScaleEnd = '#23D723';
+var countryColorScale = chroma.scale([countryColorScaleStart, countryColorScaleEnd]);
+
+var sliderIndicator2MinColorPicker = $('#sliderIndicator2-min-color-picker');
+var sliderIndicator2MaxColorPicker = $('#sliderIndicator2-max-color-picker');
+var sliderIndicator3MinColorPicker = $('#sliderIndicator3-min-color-picker');
+var sliderIndicator3MaxColorPicker = $('#sliderIndicator3-max-color-picker');
+
+sliderIndicator2MinColorPicker.colorpicker({
+    format: 'hsl',
+    color: barColorScaleStart
+}).on('changeColor.colorpicker', function(event){
+    barColorScaleStart = event.color.toHex();
+    barColorScale = chroma.scale([barColorScaleStart, barColorScaleEnd]);
+    $('#sliderIndicator2 .noUi-connect')
+        .css('background', '-webkit-linear-gradient(left, #007aff , #ffd500);') /* For Safari 5.1 to 6.0 */
+        .css('background', '-o-linear-gradient(right, #007aff, #ffd500);') /* For Opera 11.1 to 12.0 */
+        .css('background', '-moz-linear-gradient(right, #007aff, #ffd500);') /* For Firefox 3.6 to 15 */
+        .css('background', 'linear-gradient(to right, #007aff , #ffd500);'); /* Standard syntax (must be last) */
+    $(this).css("background-color", barColorScaleStart);
+    //updateIndicator2Slider();
+    rebuildComponents1And2();
+}).css("background-color", barColorScaleStart);
+
+sliderIndicator2MaxColorPicker.colorpicker({
+    format: 'hsl',
+    color: barColorScaleEnd
+}).on('changeColor.colorpicker', function(event){
+    barColorScaleEnd = event.color.toHex();
+    barColorScale = chroma.scale([barColorScaleStart, barColorScaleEnd]);
+    $(this).css("background-color", barColorScaleEnd);
+    rebuildComponents1And2();
+}).css("background-color", barColorScaleEnd);
+
+sliderIndicator3MinColorPicker.colorpicker({
+    format: 'hsl',
+    color: countryColorScaleStart
+}).on('changeColor.colorpicker', function(event){
+    countryColorScaleStart = event.color.toHex();
+    countryColorScale = chroma.scale([countryColorScaleStart, countryColorScaleEnd]);
+    $(this).css("background-color", countryColorScaleStart);
+    rebuildComponents3();
+}).css("background-color", countryColorScaleStart);
+
+sliderIndicator3MaxColorPicker.colorpicker({
+    format: 'hsl',
+    color: countryColorScaleEnd
+}).on('changeColor.colorpicker', function(event){
+    countryColorScaleEnd = event.color.toHex();
+    countryColorScale = chroma.scale([countryColorScaleStart, countryColorScaleEnd]);
+    $(this).css("background-color", countryColorScaleEnd);
+    rebuildComponents3();
+}).css("background-color", countryColorScaleEnd);
 
 // sliders setup, used to filter data
 var timelineContainer = $('#timelineContainer');
@@ -346,11 +399,11 @@ mapTexture.needsUpdate = true;
 
 
 // satellite texture, used for aesthetic purposes only
-var blendImage = THREE.ImageUtils.loadTexture("img/outline10.png");
+var blendImage = THREE.ImageUtils.loadTexture("img/earth-day4.png");
 
 
 // outline texture, used for aesthetic purposes only
-var outlineTexture = THREE.ImageUtils.loadTexture("img/earth-day4.png");
+var outlineTexture = THREE.ImageUtils.loadTexture("img/outline10.png");
 outlineTexture.needsUpdate = true;
 
 
@@ -1223,7 +1276,7 @@ function attemptShowDetailsOfCountry(x, y) {
                         highlightContext.fillStyle = "#666666";
                         highlightContext.fillRect(countryIndexColor, 0, 1, 1);
                         highlightTexture.needsUpdate = true;
-                        searchField.blur();
+                        //searchField.blur();
                         hoveredABar = true;
                     }
                     break;
@@ -1270,7 +1323,7 @@ function attemptShowDetailsOfCountry(x, y) {
                         highlightContext.fillStyle = "#666666";
                         highlightContext.fillRect(countryIndexColor, 0, 1, 1);
                         highlightTexture.needsUpdate = true;
-                        searchField.blur();
+                        //searchField.blur();
                         hoveredACountry = true;
                         break;
                     }
