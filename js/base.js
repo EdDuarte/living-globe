@@ -399,7 +399,7 @@ mapTexture.needsUpdate = true;
 
 
 // satellite texture, used for aesthetic purposes only
-var blendImage = THREE.ImageUtils.loadTexture("img/earth-day4.png");
+var blendImage = THREE.ImageUtils.loadTexture("img/outline5.png");
 
 
 // outline texture, used for aesthetic purposes only
@@ -497,10 +497,10 @@ effectFXAA.uniforms['resolution'].value.set(1 / width, 1 / height);
 //effectBlend.renderToScreen = true;
 var effectCopy = new THREE.ShaderPass(THREE.CopyShader);
 effectCopy.renderToScreen = true;
-composer.addPass(renderModel);
-composer.addPass(effectFXAA);
-//composer.addPass(effectBlend);
-composer.addPass(effectCopy);
+//composer.addPass(renderModel);
+//composer.addPass(effectFXAA);
+////composer.addPass(effectBlend);
+//composer.addPass(effectCopy);
 
 
 // search field setup
