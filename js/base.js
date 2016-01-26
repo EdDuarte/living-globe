@@ -83,6 +83,11 @@ var selectedYear = defaultSelectedYear;
 var selectedYearJson = {};
 var selectedCountryCode = -1;
 var selectedCountryLineIndex = -1;
+
+var anchorCountryDetailsToMouse = true;
+var anchorCountryDetailsToMouseCheckbox = document.getElementById("anchorCountryDetailsToMouseCheckbox");
+anchorCountryDetailsToMouseCheckbox.checked = anchorCountryDetailsToMouse;
+
 var keepBoundsOnYearChange = false;
 var keepBoundsCheckbox = document.getElementById("keepBoundsCheckbox");
 keepBoundsCheckbox.checked = keepBoundsOnYearChange;
@@ -305,7 +310,7 @@ var ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT;
 var NEAR = 0.5;
 var FAR = 20000;
 var camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
-camera.position.set(0,350,350);
+camera.position.set(0,300,300);
 cameraPos0 = camera.position.clone();
 cameraUp0 = camera.up.clone();
 cameraZoom = camera.position.z;
@@ -392,18 +397,18 @@ highlightTexture.needsUpdate = true;
 
 // lookup texture, where each country is colored with a different luminosity of
 // gray. the country can be identified using the ISOCodeToIndexColorMap JSON file
-var mapTexture = THREE.ImageUtils.loadTexture("img/index.png");
+var mapTexture = THREE.ImageUtils.loadTexture("../img/index.png");
 mapTexture.magFilter = THREE.NearestFilter;
 mapTexture.minFilter = THREE.NearestFilter;
 mapTexture.needsUpdate = true;
 
 
 // satellite texture, used for aesthetic purposes only
-var blendImage = THREE.ImageUtils.loadTexture("img/outline5.png");
+var blendImage = THREE.ImageUtils.loadTexture("img/outline5-comp2.png");
 
 
 // outline texture, used for aesthetic purposes only
-var outlineTexture = THREE.ImageUtils.loadTexture("img/outline10.png");
+var outlineTexture = THREE.ImageUtils.loadTexture("img/outline10-comp2.png");
 outlineTexture.needsUpdate = true;
 
 
@@ -478,7 +483,7 @@ var imageObj = new Image();
 imageObj.onload = function() {
     mapContext.drawImage(imageObj, 0, 0);
 };
-imageObj.src = 'img/index.png';
+imageObj.src = '../img/index.png';
 
 
 // post-processing flags
@@ -495,8 +500,8 @@ effectFXAA.uniforms['resolution'].value.set(1 / width, 1 / height);
 //var effectBlend = new THREE.ShaderPass(THREE.AdditiveBlendShader, "tDiffuse1");
 //effectBlend.uniforms[ 'tDiffuse2' ].value = atmosphereComposer.renderTarget2;
 //effectBlend.renderToScreen = true;
-var effectCopy = new THREE.ShaderPass(THREE.CopyShader);
-effectCopy.renderToScreen = true;
+//var effectCopy = new THREE.ShaderPass(THREE.CopyShader);
+//effectCopy.renderToScreen = true;
 //composer.addPass(renderModel);
 //composer.addPass(effectFXAA);
 ////composer.addPass(effectBlend);
@@ -1217,6 +1222,19 @@ function colorCountry(countryCode, color) {
 
 
 
+function onAnchorCountryDetailsToMouseCheckboxChange() {
+    anchorCountryDetailsToMouse = anchorCountryDetailsToMouseCheckbox.checked;
+}
+
+
+
+function onAnchorCountryDetailsToMouseLabelClick() {
+    anchorCountryDetailsToMouseCheckbox.checked = !anchorCountryDetailsToMouseCheckbox.checked;
+    anchorCountryDetailsToMouse = anchorCountryDetailsToMouseCheckbox.checked;
+}
+
+
+
 function onKeepBoundsCheckboxChange() {
     keepBoundsOnYearChange = keepBoundsCheckbox.checked;
 }
@@ -1259,10 +1277,18 @@ function attemptShowDetailsOfCountry(x, y) {
                     if (countryIndexColor > 0) {
                         // the country was hovered and had details, so select it
                         detailsContainer.innerHTML = getDetails(c1.countryCode, c1.lineIndex);
-                        detailsContainerJQuery.offset({
-                            left: x + tooltipOffset,
-                            top: y + tooltipOffset
-                        }).show();
+                        if(anchorCountryDetailsToMouse) {
+                            detailsContainerJQuery.offset({
+                                left: x + tooltipOffset,
+                                top: y + tooltipOffset
+                            });
+                        } else {
+                            detailsContainerJQuery.offset({
+                                left: 10,
+                                top: 470
+                            });
+                        }
+                        detailsContainerJQuery.show();
                         //var countryDetails = ISOCodeToDetailsMap[c1.countryCode];
                         //var lat = countryDetails.latitude;
                         //var lon = countryDetails.longitude;
@@ -1306,10 +1332,18 @@ function attemptShowDetailsOfCountry(x, y) {
                     if (ISOCodeToIndexColorMap[c2.countryCode] == countryIndexColor) {
                         // the country was hovered and had details, so select it
                         detailsContainer.innerHTML = getDetails(c2.countryCode, c2.lineIndex);
-                        detailsContainerJQuery.offset({
-                            left: x + tooltipOffset,
-                            top: y + tooltipOffset
-                        }).show();
+                        if(anchorCountryDetailsToMouse) {
+                            detailsContainerJQuery.offset({
+                                left: x + tooltipOffset,
+                                top: y + tooltipOffset
+                            });
+                        } else {
+                            detailsContainerJQuery.offset({
+                                left: 10,
+                                top: 470
+                            });
+                        }
+                        detailsContainerJQuery.show();
                         //var countryDetails = ISOCodeToDetailsMap[c2.countryCode];
                         //var lat = countryDetails.latitude;
                         //var lon = countryDetails.longitude;

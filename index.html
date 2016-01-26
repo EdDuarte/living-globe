@@ -40,87 +40,87 @@
 
 <body>
 
-<div id="detailsContainer" hidden></div>
+    <div id="detailsContainer" hidden></div>
 
-<div id="search" hidden>
-    <form onSubmit="return false;" class="navbar-search pull-left">
-        <input id="searchField" type="text" class="search-query" autofocus="true" placeholder="Search">
-    </form>
-</div>
+    <div id="search" hidden>
+        <form onSubmit="return false;" class="navbar-search pull-left">
+            <input id="searchField" type="text" class="search-query" autofocus="true" placeholder="Search">
+        </form>
+    </div>
 
-<div id="worldIntercept">
-    <div id="parameters" class="parameter" hidden>
-        <div class="container" style="width: auto;">
-            <div class="row-fluid">
-                <div class="span5">
-                    <div style="font-family: 'Raleway', sans-serif; font-weight: 500; height: 30px">Bar Height</div>
-                    <div id="dropdownIndicator1Container" class="dropdown transparentbar" style="width:100%; z-index: 6;">
-                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            <span class="dropdownIndicatorText">None</span>
-                            <span class="caret"></span></button>
-                        <ul id="dropdownIndicator1" class="dropdown-menu"></ul>
+    <div id="worldIntercept">
+        <div id="parameters" class="parameter" hidden>
+            <div class="container" style="width: auto;">
+                <div class="row-fluid">
+                    <div class="span5">
+                        <div style="font-family: 'Raleway', sans-serif; font-weight: 500; height: 30px">Bar Height</div>
+                        <div id="dropdownIndicator1Container" class="dropdown transparentbar" style="width:100%; z-index: 6;">
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <span class="dropdownIndicatorText">None</span>
+                                <span class="caret"></span></button>
+                                <ul id="dropdownIndicator1" class="dropdown-menu"></ul>
+                            </div>
+                        </div>
+                        <div class="span1" style="width: 50px; height: 30px; margin-top: 30px; margin-left: 0; margin-right: -25px; text-align: center; position: relative;">
+                        </div>
+                        <div class="span5" style="height: 30px; margin-top: 30px; margin-left: 26px; text-align: center; position: relative;">
+                            <div id="sliderIndicator1" class="sliderIndicator" style="width:150px; height: 30px; margin: 0; position: relative;"></div>
+                        </div>
+                        <div class="span1" style="width: 50px; height: 30px; margin-top: 30px; margin-left: 1px; text-align: center; position: relative;">
+                        </div>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span5">
+                            <div style="font-family: 'Raleway', sans-serif; font-weight: 500; height: 30px">Bar Color</div>
+                            <div id="dropdownIndicator2Container" class="dropdown transparentbar" style="width:100%; z-index: 5;">
+                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    <span class="dropdownIndicatorText">None</span>
+                                    <span class="caret"></span></button>
+                                    <ul id="dropdownIndicator2" class="dropdown-menu"></ul>
+                                </div>
+                            </div>
+                            <div class="span1" style="width: 50px; height: 30px; margin-top: 30px; margin-left: 0; margin-right: -25px; text-align: center; position: relative;">
+                                <a id="sliderIndicator2-min-color-picker"
+                                class="btn color-picker"
+                                style="width: 6px; height: auto; z-index: -5">
+                                &nbsp;
+                            </a>
+                        </div>
+                        <div class="span5" style="height: 30px; margin-top: 30px; margin-left: 26px; text-align: center; position: relative;">
+                            <div id="sliderIndicator2" class="sliderIndicator" style="width:150px; height: 30px; margin: 0; position: relative;"></div>
+                        </div>
+                        <div class="span1" style="width: 50px; height: 30px; margin-top: 30px; margin-left: 1px; text-align: center; position: relative;">
+                            <a id="sliderIndicator2-max-color-picker"
+                            class="btn color-picker"
+                            style="width: 6px; height: auto; z-index: -5">
+                            &nbsp;
+                        </a>
                     </div>
                 </div>
-                <div class="span1" style="width: 50px; height: 30px; margin-top: 30px; margin-left: 0; margin-right: -25px; text-align: center; position: relative;">
-                </div>
-                <div class="span5" style="height: 30px; margin-top: 30px; margin-left: 26px; text-align: center; position: relative;">
-                    <div id="sliderIndicator1" class="sliderIndicator" style="width:150px; height: 30px; margin: 0; position: relative;"></div>
-                </div>
-                <div class="span1" style="width: 50px; height: 30px; margin-top: 30px; margin-left: 1px; text-align: center; position: relative;">
-                </div>
-            </div>
-            <div class="row-fluid">
-                <div class="span5">
-                    <div style="font-family: 'Raleway', sans-serif; font-weight: 500; height: 30px">Bar Color</div>
-                    <div id="dropdownIndicator2Container" class="dropdown transparentbar" style="width:100%; z-index: 5;">
-                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            <span class="dropdownIndicatorText">None</span>
-                            <span class="caret"></span></button>
-                        <ul id="dropdownIndicator2" class="dropdown-menu"></ul>
+                <div class="row-fluid">
+                    <div class="span5">
+                        <div style="font-family: 'Raleway', sans-serif; font-weight: 500; height: 30px">Country Color</div>
+                        <div id="dropdownIndicator3Container" class="dropdown transparentbar" style="width:100%; z-index: 4;">
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <span class="dropdownIndicatorText">None</span>
+                                <span class="caret"></span></button>
+                                <ul id="dropdownIndicator3" class="dropdown-menu"></ul>
+                            </div>
+                        </div>
+                        <div class="span1" style="width: 50px; height: 30px; margin-top: 30px; margin-left: 0; margin-right: -25px; text-align: center; position: relative;">
+                            <a id="sliderIndicator3-min-color-picker"
+                            class="btn color-picker"
+                            style="width: 6px; height: auto; z-index: -5">
+                            &nbsp;
+                        </a>
                     </div>
-                </div>
-                <div class="span1" style="width: 50px; height: 30px; margin-top: 30px; margin-left: 0; margin-right: -25px; text-align: center; position: relative;">
-                    <a id="sliderIndicator2-min-color-picker"
-                       class="btn color-picker"
-                       style="width: 6px; height: auto; z-index: -5">
-                        &nbsp;
-                    </a>
-                </div>
-                <div class="span5" style="height: 30px; margin-top: 30px; margin-left: 26px; text-align: center; position: relative;">
-                    <div id="sliderIndicator2" class="sliderIndicator" style="width:150px; height: 30px; margin: 0; position: relative;"></div>
-                </div>
-                <div class="span1" style="width: 50px; height: 30px; margin-top: 30px; margin-left: 1px; text-align: center; position: relative;">
-                    <a id="sliderIndicator2-max-color-picker"
-                       class="btn color-picker"
-                       style="width: 6px; height: auto; z-index: -5">
-                        &nbsp;
-                    </a>
-                </div>
-            </div>
-            <div class="row-fluid">
-                <div class="span5">
-                    <div style="font-family: 'Raleway', sans-serif; font-weight: 500; height: 30px">Country Color</div>
-                    <div id="dropdownIndicator3Container" class="dropdown transparentbar" style="width:100%; z-index: 4;">
-                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            <span class="dropdownIndicatorText">None</span>
-                            <span class="caret"></span></button>
-                        <ul id="dropdownIndicator3" class="dropdown-menu"></ul>
+                    <div class="span5" style="height: 30px; margin-top: 30px; margin-left: 26px; text-align: center; position: relative;">
+                        <div id="sliderIndicator3" class="sliderIndicator" style="width:150px; height: 30px; margin: 0; position: relative;"></div>
                     </div>
-                </div>
-                <div class="span1" style="width: 50px; height: 30px; margin-top: 30px; margin-left: 0; margin-right: -25px; text-align: center; position: relative;">
-                    <a id="sliderIndicator3-min-color-picker"
-                       class="btn color-picker"
-                       style="width: 6px; height: auto; z-index: -5">
-                        &nbsp;
-                    </a>
-                </div>
-                <div class="span5" style="height: 30px; margin-top: 30px; margin-left: 26px; text-align: center; position: relative;">
-                    <div id="sliderIndicator3" class="sliderIndicator" style="width:150px; height: 30px; margin: 0; position: relative;"></div>
-                </div>
-                <div class="span1" style="width: 50px; height: 30px; margin-top: 30px; margin-left: 1px; text-align: center; position: relative;">
-                    <a id="sliderIndicator3-max-color-picker"
-                       class="btn color-picker"
-                       style="width: 6px; height: auto; z-index: -5">
+                    <div class="span1" style="width: 50px; height: 30px; margin-top: 30px; margin-left: 1px; text-align: center; position: relative;">
+                        <a id="sliderIndicator3-max-color-picker"
+                        class="btn color-picker"
+                        style="width: 6px; height: auto; z-index: -5">
                         &nbsp;
                     </a>
                 </div>
@@ -128,6 +128,20 @@
             <div class="row-fluid" style="margin-top: -30px">
                 <div class="span9">
                     <table>
+                        <tr>
+                            <td>
+                                <div class="customCheckbox">
+                                    <input type="checkbox" value="" id="anchorCountryDetailsToMouseCheckbox" onchange="onAnchorCountryDetailsToMouseCheckboxChange()" name="check" />
+                                    <label for="anchorCountryDetailsToMouseCheckbox"></label>
+                                </div>
+                            </td>
+                            <td width="7px"></td>
+                            <td>
+                                <div id="anchorCountryDetailsToMouseLabel" class="customCheckboxLabel" onclick="onAnchorCountryDetailsToMouseLabelClick()">
+                                    Anchor country details to mouse
+                                </div>
+                            </td>
+                        </tr>
                         <tr>
                             <td>
                                 <div class="customCheckbox">
@@ -179,12 +193,12 @@
                     Drag the slider handles on the left panel to limit the presented data according to new minimum and maximum values.
                 </p>
                 <p>
-                <div id="grad2"></div>
-                Data mapped to the <b>bar color</b> uses colors from the gradient above, where blue represents lower values and yellow represents higher ones.
+                    <div id="grad2"></div>
+                    Data mapped to the <b>bar color</b> uses colors from the gradient above, where blue represents lower values and yellow represents higher ones.
                 </p>
                 <p>
-                <div id="grad1"></div>
-                Data mapped to the <b>country color</b> uses colors from the gradient above, where red represents lower values and green represents higher ones.
+                    <div id="grad1"></div>
+                    Data mapped to the <b>country color</b> uses colors from the gradient above, where red represents lower values and green represents higher ones.
                 </p>
                 <br/>
                 <p style="font-weight: 500;">
@@ -264,43 +278,43 @@
 <script type="text/javascript" src="js/lib/shaders/CopyShader.js"></script>
 
 <script id="globeVertexShader" type="x-shader/x-vertex">
-		varying vec3 vNormal;
-		varying vec2 vUv;
-		void main()
-		{
-			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0);
-			vNormal = normalize( normalMatrix * normal );
-			vUv = uv;
-		}
-	</script>
+  varying vec3 vNormal;
+  varying vec2 vUv;
+  void main()
+  {
+   gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0);
+   vNormal = normalize( normalMatrix * normal );
+   vUv = uv;
+}
+</script>
 
 <script id="globeFragmentShader" type="x-shader/x-fragment">
-		uniform sampler2D mapIndex;
-		uniform sampler2D ratio;
-		uniform sampler2D select;
-		uniform sampler2D outline;
-		uniform sampler2D blendImage;
-		varying vec3 vNormal;
-		varying vec2 vUv;
-		void main() {
-			vec4 mapColor = texture2D( mapIndex, vUv );
-			float indexedColor = mapColor.y;
+  uniform sampler2D mapIndex;
+  uniform sampler2D ratio;
+  uniform sampler2D select;
+  uniform sampler2D outline;
+  uniform sampler2D blendImage;
+  varying vec3 vNormal;
+  varying vec2 vUv;
+  void main() {
+   vec4 mapColor = texture2D( mapIndex, vUv );
+   float indexedColor = mapColor.y;
 
-			vec2 ratioUV = vec2( indexedColor, 0.0 );
-			vec4 ratioColor = texture2D( ratio, ratioUV );
+   vec2 ratioUV = vec2( indexedColor, 0.0 );
+   vec4 ratioColor = texture2D( ratio, ratioUV );
 
-			vec2 selectUV = vec2( indexedColor, 0.0 );
-			vec4 selectColor = texture2D( select, selectUV );
+   vec2 selectUV = vec2( indexedColor, 0.0 );
+   vec4 selectColor = texture2D( select, selectUV );
 
-			vec4 outlineColor = texture2D( outline, vUv );
-			vec4 blendColor = texture2D( blendImage, vUv );
+   vec4 outlineColor = texture2D( outline, vUv );
+   vec4 blendColor = texture2D( blendImage, vUv );
 			// if (outlineColor.x > 0.1) outlineColor = vec4(1.0,1.0,1.0,1.0);
 
 			gl_FragColor = 0.5 * outlineColor + 1.0 * ratioColor + 1.0 * selectColor + 0.5 * blendColor;
 		}
 	</script>
 
-<script type="text/javascript" src="js/base.js"></script>
+    <script type="text/javascript" src="js/base.js"></script>
 
 </body>
 
