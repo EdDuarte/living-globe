@@ -2908,6 +2908,7 @@ table th[class*="span"],
   min-width: 160px;
   padding: 5px 0;
   margin: 2px 0 0;
+  font-size: 12px;
   list-style: none;
   background-color: #ddd;
   *border-right-width: 2px;
@@ -2937,7 +2938,7 @@ table th[class*="span"],
 
 .dropdown-menu > li > a {
   display: block;
-  padding: 3px 20px;
+  padding: 2px 20px;
   clear: both;
   font-weight: normal;
   line-height: 20px;
@@ -3010,7 +3011,7 @@ table th[class*="span"],
 .dropup .caret,
 .navbar-fixed-bottom .dropdown .caret {
   border-top: 0;
-  border-bottom: 4px solid #000000;
+  border-bottom: 4px solid #333;
   content: "";
 }
 

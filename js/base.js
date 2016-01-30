@@ -18,18 +18,19 @@
  */
 
 $('#info-modal').modal('show').modal('hide');
+$('#config-modal').modal('show').modal('hide');
 
 // constant values
-var backgroundColor = 0xeeeeee;
 var tooltipOffset = 1;
-var defaultSelectedYear = 2012;
-var selectedIndicator1Id = "SP.POP.TOTL";
-var selectedIndicator2Id = "SP.POP.GROW";
+var defaultSelectedYear = 2013;
+var selectedIndicator1Id = "SP.POP.GROW";
+var selectedIndicator2Id = "SP.DYN.LE00.IN";
 var selectedIndicator3Id = "SP.DYN.CBDRT.IN";
 //var minimumDragDistance = 0.04;
 var barWidth = 0.5;
 var barNoDataColor = '#747474';
 var barNoDataHeight = 40;
+var maxBarHeight = 40;
 
 
 // camera zoom & tween target variables used on "animate()" method to move
@@ -84,7 +85,7 @@ var selectedYearJson = {};
 var selectedCountryCode = -1;
 var selectedCountryLineIndex = -1;
 
-var anchorCountryDetailsToMouse = true;
+var anchorCountryDetailsToMouse = false;
 var anchorCountryDetailsToMouseCheckbox = document.getElementById("anchorCountryDetailsToMouseCheckbox");
 anchorCountryDetailsToMouseCheckbox.checked = anchorCountryDetailsToMouse;
 
@@ -114,19 +115,22 @@ var realMaxIndicator3 = 0;
 var selectedMaxIndicator3 = 0;
 
 
-// custom color variables
+// loading
+var loading = $('#loading').addClass('loading-ring-css');
+var loadingContainer = $('#loadingContainer').show();
+
+
+// custom color pickers
 var barColorScaleStart = '#007aff';
 var barColorScaleEnd = '#ffd500';
 var barColorScale = chroma.scale([barColorScaleStart, barColorScaleEnd]);
 var countryColorScaleStart = '#FF2A2A';
 var countryColorScaleEnd = '#23D723';
 var countryColorScale = chroma.scale([countryColorScaleStart, countryColorScaleEnd]);
-
 var sliderIndicator2MinColorPicker = $('#sliderIndicator2-min-color-picker');
 var sliderIndicator2MaxColorPicker = $('#sliderIndicator2-max-color-picker');
 var sliderIndicator3MinColorPicker = $('#sliderIndicator3-min-color-picker');
 var sliderIndicator3MaxColorPicker = $('#sliderIndicator3-max-color-picker');
-
 sliderIndicator2MinColorPicker.colorpicker({
     format: 'hsl',
     color: barColorScaleStart
@@ -142,7 +146,6 @@ sliderIndicator2MinColorPicker.colorpicker({
     //updateIndicator2Slider();
     rebuildComponents1And2();
 }).css("background-color", barColorScaleStart);
-
 sliderIndicator2MaxColorPicker.colorpicker({
     format: 'hsl',
     color: barColorScaleEnd
@@ -152,7 +155,6 @@ sliderIndicator2MaxColorPicker.colorpicker({
     $(this).css("background-color", barColorScaleEnd);
     rebuildComponents1And2();
 }).css("background-color", barColorScaleEnd);
-
 sliderIndicator3MinColorPicker.colorpicker({
     format: 'hsl',
     color: countryColorScaleStart
@@ -162,7 +164,6 @@ sliderIndicator3MinColorPicker.colorpicker({
     $(this).css("background-color", countryColorScaleStart);
     rebuildComponents3();
 }).css("background-color", countryColorScaleStart);
-
 sliderIndicator3MaxColorPicker.colorpicker({
     format: 'hsl',
     color: countryColorScaleEnd
@@ -172,6 +173,7 @@ sliderIndicator3MaxColorPicker.colorpicker({
     $(this).css("background-color", countryColorScaleEnd);
     rebuildComponents3();
 }).css("background-color", countryColorScaleEnd);
+
 
 // sliders setup, used to filter data
 var timelineContainer = $('#timelineContainer');
@@ -303,10 +305,9 @@ var globeScene = new THREE.Scene();
 
 
 // camera
-var SCREEN_WIDTH = window.innerWidth;
-var SCREEN_HEIGHT = window.innerHeight;
+var worldContainer = document.getElementById('worldContainer');
 var VIEW_ANGLE = 47;
-var ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT;
+var ASPECT = worldContainer.offsetWidth / worldContainer.offsetHeight;
 var NEAR = 0.5;
 var FAR = 20000;
 var camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
@@ -326,20 +327,22 @@ if (Detector.webgl) {
 } else {
     renderer = new THREE.CanvasRenderer();
 }
-renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+renderer.setSize(worldContainer.offsetWidth, worldContainer.offsetHeight);
 renderer.sortObjects = false;
 renderer.generateMipmaps = false;
-renderer.setClearColor(backgroundColor, 1);
-THREEx.WindowResize(renderer, camera);
+renderer.setClearColor(0x000000, 0);
+THREEx.WindowResize(renderer, camera, worldContainer);
 
 
 // mouse events
 var rendererDom = renderer.domElement;
-rendererDom.addEventListener('mousewheel', onMouseWheel);
-rendererDom.addEventListener('DOMMouseScroll', onMouseWheel);
-rendererDom.addEventListener('mousemove', onMouseMove);
-rendererDom.addEventListener('mousedown', onMouseDown);
-rendererDom.addEventListener('mouseup', onMouseUp);
+rendererDom.addEventListener('mousewheel', onMouseWheel, false);
+rendererDom.addEventListener('DOMMouseScroll', onMouseWheel, false);
+rendererDom.addEventListener('mousemove', onMouseMove, false);
+rendererDom.addEventListener('mousedown', onMouseDown, false);
+rendererDom.addEventListener('mouseup', onMouseUp, false);
+rendererDom.addEventListener('touchstart', onTouchStart, false);
+rendererDom.addEventListener('touchmove', onTouchMove, false);
 var detailsContainer = document.getElementById('detailsContainer');
 var detailsContainerJQuery = $("#detailsContainer");
 detailsContainer.addEventListener('mousewheel', onMouseWheel);
@@ -353,16 +356,15 @@ parameters.addEventListener('DOMMouseScroll', onMouseWheel);
 parameters.addEventListener('mousemove', onMouseMove);
 parameters.addEventListener('mousedown', onMouseDown);
 parameters.addEventListener('mouseup', onMouseUp);
-var worldIntercept = document.getElementById('worldIntercept');
-var worldContainer = document.getElementById('worldContainer');
 worldContainer.appendChild(rendererDom);
 
 
 // controls (OrbitControls with damping)
-var controls = new THREE.OrbitControls(camera, worldIntercept);
-controls.dynamicDampingFactor = 0.5;
+var controls = new THREE.OrbitTrackballControls(camera, worldContainer);
+controls.dynamicDampingFactor = 0.7;
+controls.rotateSpeed = 0.3;
 controls.userPan = false;
-controls.userRotateSpeed = 0.8;
+controls.userRotateSpeed = 0.3;
 
 // lights
 var light1 = new THREE.PointLight(0xffffff);
@@ -415,8 +417,8 @@ outlineTexture.needsUpdate = true;
 // the final material for the world object merges multiple layered textures
 var worldSphereMaterial = new THREE.ShaderMaterial({
     uniforms: {
-        width:        { type: "f", value: window.innerWidth },
-        height:       { type: "f", value: window.innerHeight },
+        width:        { type: "f", value: worldContainer.offsetWidth },
+        height:       { type: "f", value: worldContainer.offsetHeight },
         mapIndex:     { type: "t", value: mapTexture },
         outline:      { type: "t", value: outlineTexture },
         outlineLevel: { type: 'f', value: 1 },
@@ -467,7 +469,7 @@ var renderTargetParameters = {
     format: THREE.RGBFormat,
     stencilBuffer: false
 };
-var renderTarget = new THREE.WebGLRenderTarget(SCREEN_WIDTH, SCREEN_HEIGHT, renderTargetParameters);
+var renderTarget = new THREE.WebGLRenderTarget(worldContainer.offsetWidth, worldContainer.offsetHeight, renderTargetParameters);
 //var atmosphereComposer = new THREE.EffectComposer(renderer, renderTarget );
 //
 //// prepare the secondary render's passes
@@ -486,23 +488,20 @@ imageObj.onload = function() {
 imageObj.src = 'img/index.png';
 
 
-// post-processing flags
-renderer.autoClear = false;
-
-
 // anti-aliasing setup
+renderer.autoClear = false;
 var composer = new THREE.EffectComposer(renderer, renderTarget);
 var renderModel = new THREE.RenderPass(globeScene, camera);
-var effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
-var width = window.innerWidth || 2;
-var height = window.innerHeight || 2;
-effectFXAA.uniforms['resolution'].value.set(1 / width, 1 / height);
+//var effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
+var width = worldContainer.offsetWidth || 2;
+var height = worldContainer.offsetHeight || 2;
+//effectFXAA.uniforms['resolution'].value.set(1 / width, 1 / height);
 //var effectBlend = new THREE.ShaderPass(THREE.AdditiveBlendShader, "tDiffuse1");
 //effectBlend.uniforms[ 'tDiffuse2' ].value = atmosphereComposer.renderTarget2;
 //effectBlend.renderToScreen = true;
 //var effectCopy = new THREE.ShaderPass(THREE.CopyShader);
 //effectCopy.renderToScreen = true;
-//composer.addPass(renderModel);
+composer.addPass(renderModel);
 //composer.addPass(effectFXAA);
 ////composer.addPass(effectBlend);
 //composer.addPass(effectCopy);
@@ -544,7 +543,7 @@ readJsonFile('data/countries.json', function(countries) {
         onSelect: function (suggestion) {
             select(suggestion.data);
             searchField.val('');
-            // searchField.blur();
+            searchField.blur();
         }
     });
     $('#search').show();
@@ -653,6 +652,8 @@ readJsonFile('data/gray_codes.json', function(gray_codes) {
                 rebuildAllComponents();
                 worldSphereMesh.visible = true;
                 worldSphereMesh.needsUpdate = true;
+                loadingContainer.hide();
+                loading.removeClass('loading-ring-css');
             });
         });
     });
@@ -700,6 +701,7 @@ function updateIndicator3Slider() {
 }
 
 function updateIndicators(update1, update2, update3, resetSelected) {
+    searchField.blur();
     if(update1) {
         realMinIndicator1 = 0;
         realMaxIndicator1 = 0;
@@ -1041,19 +1043,19 @@ function rebuildComponents3() {
 
 function rebuildComponents(rebuild1And2, rebuild3) {
 
-    if(rebuild1And2) {
-        // remove previous bars
-        for (var i = 0 ; i < shownBarsData.length; i++) {
-            var barData = shownBarsData[i];
-            globeScene.remove(barData.bar);
-            barData.bar.geometry.dispose();
-            barData.bar.material.dispose();
-            //barData.bar.texture.dispose()
-        }
-
-        // empty arrays to contain the new bars
-        shownBarsData = [];
-    }
+    //if(rebuild1And2) {
+    //    // remove previous bars
+    //    for (var i = 0 ; i < shownBarsData.length; i++) {
+    //        var barData = shownBarsData[i];
+    //        globeScene.remove(barData.bar);
+    //        barData.bar.geometry.dispose();
+    //        barData.bar.material.dispose();
+    //        //barData.bar.texture.dispose()
+    //    }
+    //
+    //    // empty arrays to add the new bars
+    //    shownBarsData = [];
+    //}
 
     if(rebuild3) {
         // clears all colored countries
@@ -1094,7 +1096,6 @@ function rebuildComponents(rebuild1And2, rebuild3) {
     }
 
     // empty countries array to update with new data
-    // TODO should be done only once?
     shownCountries = [];
 
     for (var j = 0; j < length; j++) {
@@ -1110,7 +1111,7 @@ function rebuildComponents(rebuild1And2, rebuild3) {
         }
         if(has3) {
             i3 = indicator3Array[j];
-            i3NumberValue = Number(i3.value);
+            i3NumberValue = parseFloat(i3.value);
         }
 
         // get the data, and set the offset, we need to do this since the x,y
@@ -1132,8 +1133,9 @@ function rebuildComponents(rebuild1And2, rebuild3) {
         if(countryDetails != null) {
             var value1, value2, value3;
 
+            i1NumberValue = parseFloat(parseFloat(i1NumberValue).toFixed(4));
             if(has1 && i1.value.length != 0 && i1NumberValue <= selectedMaxIndicator1 && i1NumberValue >= selectedMinIndicator1) {
-                value1 = normalize(selectedMinIndicator1, selectedMaxIndicator1, 0, 100, i1NumberValue);
+                value1 = normalize(selectedMinIndicator1, selectedMaxIndicator1, 0, maxBarHeight, i1NumberValue);
             } else {
                 value1 = 0;
             }
@@ -1143,6 +1145,7 @@ function rebuildComponents(rebuild1And2, rebuild3) {
                     // second indicator can still be observed
                     value1 = barNoDataHeight;
                 }
+                i2NumberValue = parseFloat(parseFloat(i2NumberValue).toFixed(4));
                 if(i2.value.length != 0 && i2NumberValue <= selectedMaxIndicator2 && i2NumberValue >= selectedMinIndicator2) {
                     value2 = normalize(selectedMinIndicator2, selectedMaxIndicator2, 0, 1, i2NumberValue);
                 } else {
@@ -1152,13 +1155,14 @@ function rebuildComponents(rebuild1And2, rebuild3) {
                 value2 = -1;
             }
 
+            i3NumberValue = parseFloat(parseFloat(i3NumberValue).toFixed(4));
             if(has3 && i3.value.length != 0 && i3NumberValue <= selectedMaxIndicator3 && i3NumberValue >= selectedMinIndicator3) {
                 value3 = normalize(selectedMinIndicator3, selectedMaxIndicator3, 0, 1, i3NumberValue);
             } else {
                 value3 = -1;
             }
 
-            if(value1 != 0) {
+            if(rebuild1And2) {
                 // find the color of the bar for the country, which is a color picked
                 // from a gradient of blue to yello associated with a scale between 0
                 // and 1. This value within that scale is obtained by scaling down the
@@ -1170,32 +1174,72 @@ function rebuildComponents(rebuild1And2, rebuild3) {
                     barColor = barColorScale(value2).hex();
                 }
 
-                // the is not mesh for the bar, so setup the bar material
-                // with the obtained color above
-                var barMat = new THREE.MeshBasicMaterial({ color: barColor, wireframe: false});
+                var hasBar = false;
+                // TODO: WE ARE NO LONGER REBUILDING BARS, SO OPTIMIZE THIS TO
+                // CREATE ONE ON STARTUP AND ADD THEM TO A MAP BY COUNTRYCODE
+                for (var i = 0 ; i < shownBarsData.length; i++) {
+                    var barData = shownBarsData[i];
+                    if(barData.countryCode == countryCode) {
+                        hasBar = true;
 
-                // a CubeGeometry is used for the bar geometry instead of a BoxGeometry
-                // because we are using a old version of three.js (version 62)
-                var barGeom = new THREE.CubeGeometry(barWidth, barWidth, value1);
-                var mesh = new THREE.Mesh(barGeom, barMat);
+                        // change the material color
+                        var mesh1 = barData.bar;
+                        mesh1.material.color.setStyle(barColor);
 
-                // converts the country country lat-lng position into a vector in the
-                // three-dimensional space
-                var lat = countryDetails.latitude;
-                var lon = countryDetails.longitude;
-                var position = latLongToVector3(lat, lon, 100, 1);
-                mesh.position.x = position.x;
-                mesh.position.y = position.y;
-                mesh.position.z = position.z;
-                mesh.lookAt(new THREE.Vector3(0,0,0));
-                mesh.visible = false;
+                        var lat1 = countryDetails.latitude;
+                        var lon1 = countryDetails.longitude;
+                        var position1 = latLongToVector3(lat1, lon1, 100 + value1 / 2 - 2, 1);
+                        mesh1.scale.x = barWidth;
+                        mesh1.scale.y = barWidth;
+                        if (value1 == 0) {
+                            mesh1.scale.z = -1;
+                        } else {
+                            mesh1.scale.z = value1;
+                        }
+                        mesh1.position.x = position1.x;
+                        mesh1.position.y = position1.y;
+                        mesh1.position.z = position1.z;
 
-                // the bar is added to the scene and lookup-array
-                globeScene.add(mesh);
-                shownBarsData.push({
-                    bar: mesh,
-                    countryCode: countryCode
-                });
+                        break;
+                    }
+                }
+
+                if(!hasBar) {
+
+                    // setup the bar material with the obtained color above
+                    var barMat = new THREE.MeshBasicMaterial({ color: barColor, wireframe: false});
+
+                    // a CubeGeometry is used for the bar geometry instead of a BoxGeometry
+                    // because we are using a old version of three.js (version 62)
+                    var barGeom = new THREE.CubeGeometry(1, 1, 1);
+                    var mesh2 = new THREE.Mesh(barGeom, barMat);
+
+                    // converts the country country lat-lng position into a vector in the
+                    // three-dimensional space
+                    var lat2 = countryDetails.latitude;
+                    var lon2 = countryDetails.longitude;
+                    var position2 = latLongToVector3(lat2, lon2, 100 + value1/2 - 2, 1);
+                    mesh2.scale.x = barWidth;
+                    mesh2.scale.y = barWidth;
+                    if (value1 == 0) {
+                        mesh2.scale.z = -1;
+                    } else {
+                        mesh2.scale.z = value1;
+                    }
+                    mesh2.position.x = position2.x;
+                    mesh2.position.y = position2.y;
+                    mesh2.position.z = position2.z;
+                    mesh2.lookAt(new THREE.Vector3(0,0,0));
+                    mesh2.visible = false;
+
+                    // the bar is added to the scene and lookup-array
+                    globeScene.add(mesh2);
+                    shownBarsData.push({
+                        bar: mesh2,
+                        countryCode: countryCode
+                    });
+
+                }
             }
 
             if(value3 != -1) {
@@ -1224,6 +1268,13 @@ function colorCountry(countryCode, color) {
 
 function onAnchorCountryDetailsToMouseCheckboxChange() {
     anchorCountryDetailsToMouse = anchorCountryDetailsToMouseCheckbox.checked;
+    if(anchorCountryDetailsToMouse) {
+        detailsContainerJQuery.addClass('details-dark');
+        detailsContainerJQuery.removeClass('details-light');
+    } else {
+        detailsContainerJQuery.removeClass('details-dark');
+        detailsContainerJQuery.addClass('details-light');
+    }
 }
 
 
@@ -1231,6 +1282,13 @@ function onAnchorCountryDetailsToMouseCheckboxChange() {
 function onAnchorCountryDetailsToMouseLabelClick() {
     anchorCountryDetailsToMouseCheckbox.checked = !anchorCountryDetailsToMouseCheckbox.checked;
     anchorCountryDetailsToMouse = anchorCountryDetailsToMouseCheckbox.checked;
+    if(anchorCountryDetailsToMouse) {
+        detailsContainerJQuery.addClass('details-dark');
+        detailsContainerJQuery.removeClass('details-light');
+    } else {
+        detailsContainerJQuery.removeClass('details-dark');
+        detailsContainerJQuery.addClass('details-light');
+    }
 }
 
 
@@ -1284,9 +1342,11 @@ function attemptShowDetailsOfCountry(x, y) {
                             });
                         } else {
                             detailsContainerJQuery.offset({
-                                left: 10,
-                                top: 470
+                                left: 5,
+                                top: 50
                             });
+                            detailsContainerJQuery.removeClass('details-dark');
+                            detailsContainerJQuery.addClass('details-light');
                         }
                         detailsContainerJQuery.show();
                         //var countryDetails = ISOCodeToDetailsMap[c1.countryCode];
@@ -1302,7 +1362,7 @@ function attemptShowDetailsOfCountry(x, y) {
                         highlightContext.fillStyle = "#666666";
                         highlightContext.fillRect(countryIndexColor, 0, 1, 1);
                         highlightTexture.needsUpdate = true;
-                        //searchField.blur();
+                        searchField.blur();
                         hoveredABar = true;
                     }
                     break;
@@ -1339,8 +1399,8 @@ function attemptShowDetailsOfCountry(x, y) {
                             });
                         } else {
                             detailsContainerJQuery.offset({
-                                left: 10,
-                                top: 470
+                                left: 5,
+                                top: 50
                             });
                         }
                         detailsContainerJQuery.show();
@@ -1357,7 +1417,7 @@ function attemptShowDetailsOfCountry(x, y) {
                         highlightContext.fillStyle = "#666666";
                         highlightContext.fillRect(countryIndexColor, 0, 1, 1);
                         highlightTexture.needsUpdate = true;
-                        //searchField.blur();
+                        searchField.blur();
                         hoveredACountry = true;
                         break;
                     }
@@ -1382,8 +1442,8 @@ function attemptShowDetailsOfCountry(x, y) {
 function onMouseMove(event) {
     event.preventDefault();
 
-    mouse2D.x =   (event.clientX / window.innerWidth) * 2 - 1;
-    mouse2D.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    mouse2D.x =   (event.clientX / worldContainer.offsetWidth) * 2 - 1;
+    mouse2D.y = - (event.clientY / worldContainer.offsetHeight) * 2 + 1;
 
     //// xdiff and ydiff represent the mouse distance between the current mouse
     //// position and the mouse position when the mouse button was last pressed
@@ -1409,6 +1469,10 @@ function onMouseMove(event) {
 // mouse movement callback which interrupts camera selection movement
 function onMouseWheel(event) {
     cameraIsMovingToTarget = false;
+    highlightContext.clearRect(0, 0, 256, 1);
+    highlightTexture.needsUpdate = true;
+    detailsContainer.innerHTML = "";
+    detailsContainerJQuery.hide();
 }
 
 
@@ -1418,10 +1482,9 @@ function onMouseDown(event) {
     event.preventDefault();
     cameraIsBeingDragged = true;
 
-    lastMouseX =   (event.clientX / window.innerWidth) * 2 - 1;
-    lastMouseY = - (event.clientY / window.innerHeight) * 2 + 1;
+    lastMouseX =   (event.clientX / worldContainer.offsetWidth) * 2 - 1;
+    lastMouseY = - (event.clientY / worldContainer.offsetHeight) * 2 + 1;
 
-    //isSelectingCountry = true;
     cameraIsMovingToTarget = false;
 }
 
@@ -1431,8 +1494,21 @@ function onMouseDown(event) {
 function onMouseUp(event) {
     event.preventDefault();
     cameraIsBeingDragged = false;
-    mouse2D.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse2D.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    mouse2D.x = (event.clientX / worldContainer.offsetWidth) * 2 - 1;
+    mouse2D.y = -(event.clientY / worldContainer.offsetHeight) * 2 + 1;
+}
+
+
+// TODO
+function onTouchStart(event) {
+    event.preventDefault();
+    cameraIsMovingToTarget = false;
+}
+
+
+// TODO
+function onTouchMove(event) {
+    event.preventDefault();
 }
 
 
@@ -1457,8 +1533,8 @@ function select(countryCodeToSelect) {
     //        // the country was hovered and had details, so select it
     //        detailsContainer.innerHTML = getDetails(c.countryCode, c.lineIndex);
     //        detailsContainerJQuery.offset({
-    //            left: Math.floor(window.innerWidth/2) + tooltipOffset,
-    //            top: Math.floor(window.innerHeight/2) + tooltipOffset
+    //            left: Math.floor(worldContainer.offsetWidth/2) + tooltipOffset,
+    //            top: Math.floor(worldContainer.offsetHeight/2) + tooltipOffset
     //        }).show(1000);
     //        break;
     //    }

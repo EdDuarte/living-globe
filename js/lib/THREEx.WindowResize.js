@@ -23,12 +23,12 @@ var THREEx	= THREEx 		|| {};
  * @param {Object} renderer the renderer to update
  * @param {Object} Camera the camera to update
 */
-THREEx.WindowResize	= function(renderer, camera){
+THREEx.WindowResize	= function(renderer, camera, containerDiv){
 	var callback	= function(){
 		// notify the renderer of the size change
-		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.setSize( containerDiv.offsetWidth, containerDiv.offsetHeight );
 		// update the camera
-		camera.aspect	= window.innerWidth / window.innerHeight;
+		camera.aspect	= containerDiv.offsetWidth / containerDiv.offsetHeight;
 		camera.updateProjectionMatrix();
 	}
 	// bind the resize event
