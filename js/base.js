@@ -1420,6 +1420,37 @@ function rebuildComponents(rebuild1And2, rebuild3) {
 }
 
 
+function getRangeBetween(a, b, n) {
+    if(a == b) {
+        return [a];
+    }
+
+    var min, max;
+    if(a > b) {
+        var aux = a;
+        min = b;
+        max = aux;
+    } else {
+        min = a;
+        max = b;
+    }
+
+    var remainder = max - min;
+    var step = remainder / n;
+    var current = min;
+    var range = [];
+    while (current < max) {
+        range.push(current);
+        current = current + step;
+    }
+
+    if(range[range.length] != max) {
+        range.push(max);
+    }
+
+    return range;
+}
+
 function getChartData(originalData, filteredData, realMin, realMax, selectedMin, selectedMax) {
 
     var originalDataStats = stats(originalData);
