@@ -115,10 +115,8 @@
     text-rendering: optimizeLegibility;
 }
 
-
-
 body {
-    background: #fff;
+    background: #eee;
     margin: 0;
     overflow: hidden;
     font-family: 'Overpass-ExtraLight', sans-serif;
@@ -139,6 +137,52 @@ li {
     color: #8a8a8a;
 }
 
+svg {
+    display: block;
+}
+
+#chart1, svg {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    color: #AAA;
+}
+
+.nvd3 .nv-axis path {
+    fill: none;
+    stroke: #aaa;
+    stroke-width: 2px;
+    stroke-opacity: 1;
+    shape-rendering: crispEdges;
+}
+
+.nvd3 .nv-axis text {
+    color: #aaa;
+}
+
+.nvtooltip {
+    position: absolute;
+    background-color: rgba(255,255,255,1.0);
+    padding: 1px;
+    border: 1px solid rgba(0,0,0,.2);
+    z-index: 10000;
+
+    font-family: 'Overpass-ExtraLight', sans-serif;
+    font-size: 13px;
+    text-align: left;
+    pointer-events: none;
+
+    white-space: nowrap;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 table.right {
     width: auto;
     margin-left: auto;
@@ -152,7 +196,9 @@ table.right {
     display:         flex;
 }
 
-.row-fluid [class*="span"] { margin:0 }
+.row-fluid [class*="span"] {
+    margin:0
+}
 
 #timelineContainer {
     /*font-size: 12px;*/
@@ -160,7 +206,7 @@ table.right {
     /*background: #7F7F7F;*/
     left: 0;
     right: 0;
-    top: 0;
+    bottom: 0;
     width: 380px;
     height: 80px;
     padding-left: 30px;
@@ -188,13 +234,16 @@ table.right {
     margin-left: 30px;
     margin-right: 30px;
     padding: 10px;
-    pointer-events: all;
+    pointer-events:none;
     z-index: 100;
+    text-align: left;
     /*text-align: right;*/
     /*line-height: 1.7em*/
 }
 
 .details-light {
+    text-align: right;
+    width: 400px;
     background-color: transparent;
     color: rgba(142, 142, 142, 1);
     position: fixed;
@@ -208,7 +257,7 @@ table.right {
     margin-left: 30px;
     margin-right: 30px;
     padding: 10px;
-    pointer-events: all;
+    pointer-events:none;
     z-index: 100;
     /*text-align: right;*/
     line-height: 1.7em
@@ -232,7 +281,7 @@ table.right {
 
 #infoButtonContainer {
     position: fixed;
-    margin: 5px;
+    margin: 10px;
     top: 0;
     right: 0;
 }
@@ -247,7 +296,7 @@ table.right {
 }
 
 #searchField {
-    width: 240px;
+    width: 370px;
     color: #333;
     height: 30px;
     border-radius: 5px;
@@ -353,7 +402,7 @@ table.right {
 #worldContainer {
     position: absolute;
     margin: auto;
-    top: 0;
+    bottom: 0;
     right: 0;
     left: 0;
     /*bottom: 0;*/
@@ -379,8 +428,8 @@ table.right {
     padding: 5px;
     position: absolute;
     margin: auto;
-    right: 40px;
-    bottom: 30px;
+    left: 5px;
+    top: 70px;
     width: 400px;
     z-index: 2;
 }
@@ -408,7 +457,6 @@ table.right {
         top: 0;
         right: 0;
         left: 0;
-        background: green;
         width: 280px;
     }
 
@@ -427,7 +475,7 @@ table.right {
         /*background: #7F7F7F;*/
         left: 0;
         right: 0;
-        top: 0;
+        bottom: 0;
         width: 280px;
         height: 80px;
         padding-left: 30px;
@@ -442,7 +490,7 @@ table.right {
     #worldContainer {
         position: absolute;
         margin: auto;
-        top: 0;
+        bottom: 0;
         right: 0;
         left: 0;
         width: 100%;
@@ -468,7 +516,7 @@ table.right {
         position: absolute;
         margin: auto;
         right: 0;
-        bottom: 0;
+        top: 60px;
         left: 0;
         max-width: 300px;
         z-index: 2;
@@ -486,6 +534,27 @@ table.right {
         padding-left:0;
         padding-right:0;
         padding-bottom: 30px;
+    }
+
+    .modal {
+        position: fixed;
+        top: 3%;
+        right: 3%;
+        left: 3%;
+        max-width: 600px;
+        width: auto;
+        margin: 0;
+    }
+
+    .modal-body {
+        height: 60%;
+    }
+
+    .modal-body {
+        max-height: 350px;
+        padding: 15px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
 }
@@ -626,27 +695,6 @@ table.right {
     left: auto;
 }
 
-.modal {
-    position: fixed;
-    top: 3%;
-    right: 3%;
-    left: 3%;
-    max-width: 600px;
-    width: auto;
-    margin: 0;
-}
-
-.modal-body {
-    height: 60%;
-}
-
-.modal-body {
-    max-height: 350px;
-    padding: 15px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
 #timelineContainer .noUi-tooltip {
     border: 1px solid #999;
     border-radius: 3px;
@@ -658,6 +706,10 @@ table.right {
     font-size: 13px;
     font-family: 'Overpass-Light', sans-serif;
     width: auto;
+}
+
+#timeline {
+    z-index: 3;
 }
 
 

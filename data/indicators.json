@@ -4,15 +4,15 @@
         "unit": "people"
     },
     "SP.DYN.CBRT.IN": {
-        "name": "Birth rate (per 1,000 people)",
+        "name": "Birth rate (per 1000 people)",
         "unit": "people"
     },
     "SP.DYN.CDRT.IN": {
-        "name": "Death rate (per 1,000 people)",
+        "name": "Death rate (per 1000 people)",
         "unit": "people"
     },
     "SP.DYN.CBDRT.IN": {
-        "name": "Birth/Death ratio (per 1,000 people)",
+        "name": "Birth/Death ratio (per 1000 people)",
         "unit": ""
     },
     "SP.DYN.LE00.IN": {

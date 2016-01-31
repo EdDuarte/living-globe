@@ -13,12 +13,67 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Living Globe v1.0.0
+ * Living Globe v3.0.0
  * Authors: Eduardo Duarte (ed@edduarte.com) and Pedro Bordonhos (bordonhos@ua.pt)
  */
 
 $('#info-modal').modal('show').modal('hide');
 $('#config-modal').modal('show').modal('hide');
+
+var chart1 = nv.models.boxPlotChart()
+    .x(function(d) { return d.label })
+    .y(function(d) { return d.values.Q3 })
+    .width(120)
+    .height(150)
+    .margin({"left":10,"right":0,"top":5,"bottom":5})
+    .noData("No data")
+    .duration(0)
+    .showXAxis(false)
+    .showYAxis(false)
+    .maxBoxWidth(75);
+d3.select('#chart1 svg')
+    .call(chart1);
+nv.utils.windowResize(chart1.update);
+
+var chart2 = nv.models.boxPlotChart()
+    .x(function(d) { return d.label })
+    .y(function(d) { return d.values.Q3 })
+    .width(120)
+    .height(150)
+    .margin({"left":10,"right":0,"top":5,"bottom":5})
+    .noData("No data")
+    .duration(0)
+    .showXAxis(false)
+    .showYAxis(false)
+    .maxBoxWidth(75);
+d3.select('#chart2 svg')
+    .call(chart2);
+nv.utils.windowResize(chart2.update);
+
+var chart3 = nv.models.boxPlotChart()
+    .x(function(d) { return d.label })
+    .y(function(d) { return d.values.Q3 })
+    .width(120)
+    .height(150)
+    .margin({"left":10,"right":0,"top":5,"bottom":5})
+    .noData("No data")
+    .duration(0)
+    .showXAxis(false)
+    .showYAxis(false)
+    .maxBoxWidth(75);
+d3.select('#chart3 svg')
+    .call(chart3);
+nv.utils.windowResize(chart3.update);
+
+nv.addGraph(function() {
+    return chart1;
+});
+nv.addGraph(function() {
+    return chart2;
+});
+nv.addGraph(function() {
+    return chart3;
+});
 
 // constant values
 var tooltipOffset = 1;
@@ -226,6 +281,7 @@ indicator3Slider.setAttribute('disabled', true);
 
 
 // dropdown setup, used to map indicators to components
+var indicator1Name = $('#indicator1Name');
 var dropdownIndicator1 = $('#dropdownIndicator1');
 var dropdownIndicator1Container = $('#dropdownIndicator1Container');
 var dropdownIndicator1Toggle = dropdownIndicator1Container.find('.dropdown-toggle');
@@ -246,10 +302,12 @@ dropdownIndicator1Container.on('click', '.dropdown-menu li a', function() {
 
     selectedIndicator1Id = id;
     dropdownIndicator1Text.html(name);
+    indicator1Name.html(name);
     dropdownIndicator1Toggle.blur();
     updateIndicator1Slider();
     rebuildComponents1And2();
 });
+var indicator2Name = $('#indicator2Name');
 var dropdownIndicator2 = $('#dropdownIndicator2');
 var dropdownIndicator2Container = $('#dropdownIndicator2Container');
 var dropdownIndicator2Toggle = dropdownIndicator2Container.find('.dropdown-toggle');
@@ -270,10 +328,12 @@ dropdownIndicator2Container.on('click', '.dropdown-menu li a', function() {
 
     selectedIndicator2Id = id;
     dropdownIndicator2Text.html(name);
+    indicator2Name.html(name);
     dropdownIndicator2Toggle.blur();
     updateIndicator2Slider();
     rebuildComponents1And2();
 });
+var indicator3Name = $('#indicator3Name');
 var dropdownIndicator3 = $('#dropdownIndicator3');
 var dropdownIndicator3Container = $('#dropdownIndicator3Container');
 var dropdownIndicator3Toggle = dropdownIndicator3Container.find('.dropdown-toggle');
@@ -294,6 +354,7 @@ dropdownIndicator3Container.on('click', '.dropdown-menu li a', function() {
 
     selectedIndicator3Id = id;
     dropdownIndicator3Text.html(name);
+    indicator3Name.html(name);
     dropdownIndicator3Toggle.blur();
     updateIndicator3Slider();
     rebuildComponents3();
@@ -343,13 +404,13 @@ rendererDom.addEventListener('mousedown', onMouseDown, false);
 rendererDom.addEventListener('mouseup', onMouseUp, false);
 rendererDom.addEventListener('touchstart', onTouchStart, false);
 rendererDom.addEventListener('touchmove', onTouchMove, false);
-var detailsContainer = document.getElementById('detailsContainer');
+//var detailsContainer = document.getElementById('detailsContainer');
 var detailsContainerJQuery = $("#detailsContainer");
-detailsContainer.addEventListener('mousewheel', onMouseWheel);
-detailsContainer.addEventListener('DOMMouseScroll', onMouseWheel);
-detailsContainer.addEventListener('mousemove', onMouseMove);
-detailsContainer.addEventListener('mousedown', onMouseDown);
-detailsContainer.addEventListener('mouseup', onMouseUp);
+//detailsContainer.addEventListener('mousewheel', onMouseWheel);
+//detailsContainer.addEventListener('DOMMouseScroll', onMouseWheel);
+//detailsContainer.addEventListener('mousemove', onMouseMove);
+//detailsContainer.addEventListener('mousedown', onMouseDown);
+//detailsContainer.addEventListener('mouseup', onMouseUp);
 var parameters = document.getElementById('parameters');
 parameters.addEventListener('mousewheel', onMouseWheel);
 parameters.addEventListener('DOMMouseScroll', onMouseWheel);
@@ -493,8 +554,8 @@ renderer.autoClear = false;
 var composer = new THREE.EffectComposer(renderer, renderTarget);
 var renderModel = new THREE.RenderPass(globeScene, camera);
 //var effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
-var width = worldContainer.offsetWidth || 2;
-var height = worldContainer.offsetHeight || 2;
+//var width = worldContainer.offsetWidth || 2;
+//var height = worldContainer.offsetHeight || 2;
 //effectFXAA.uniforms['resolution'].value.set(1 / width, 1 / height);
 //var effectBlend = new THREE.ShaderPass(THREE.AdditiveBlendShader, "tDiffuse1");
 //effectBlend.uniforms[ 'tDiffuse2' ].value = atmosphereComposer.renderTarget2;
@@ -635,13 +696,17 @@ readJsonFile('data/gray_codes.json', function(gray_codes) {
             //slider.on('change', function(values, handle, unencoded) {
             //});
 
+            var name1 = indicatorIdToDetailsMap[selectedIndicator1Id].name;
+            dropdownIndicator1Container.find('.dropdownIndicatorText').html(name1);
+            indicator1Name.html(name1);
 
-            dropdownIndicator1Container.find('.dropdownIndicatorText')
-                .html(indicatorIdToDetailsMap[selectedIndicator1Id].name);
-            dropdownIndicator2Container.find('.dropdownIndicatorText')
-                .html(indicatorIdToDetailsMap[selectedIndicator2Id].name);
-            dropdownIndicator3Container.find('.dropdownIndicatorText')
-                .html(indicatorIdToDetailsMap[selectedIndicator3Id].name);
+            var name2 = indicatorIdToDetailsMap[selectedIndicator2Id].name;
+            dropdownIndicator2Container.find('.dropdownIndicatorText').html(name2);
+            indicator2Name.html(name2);
+
+            var name3 = indicatorIdToDetailsMap[selectedIndicator3Id].name;
+            dropdownIndicator3Container.find('.dropdownIndicatorText').html(name3);
+            indicator3Name.html(name3);
 
             updateIndicators(true, true, true, true);
 
@@ -703,16 +768,16 @@ function updateIndicator3Slider() {
 function updateIndicators(update1, update2, update3, resetSelected) {
     searchField.blur();
     if(update1) {
-        realMinIndicator1 = 0;
-        realMaxIndicator1 = 0;
+        realMinIndicator1 = -1;
+        realMaxIndicator1 = -1;
     }
     if(update2) {
-        realMinIndicator2 = 0;
-        realMaxIndicator2 = 0;
+        realMinIndicator2 = -1;
+        realMaxIndicator2 = -1;
     }
     if(update3) {
-        realMinIndicator3 = 0;
-        realMaxIndicator3 = 0;
+        realMinIndicator3 = -1;
+        realMaxIndicator3 = -1;
     }
 
     var indicator1Array = selectedYearJson[selectedIndicator1Id];
@@ -880,16 +945,23 @@ function updateIndicators(update1, update2, update3, resetSelected) {
             };
             indicator1Slider.setAttribute('disabled', true);
         } else {
+            var decimals = 3;
+            var step = 0.001;
+            if(indicator1Data.unit === "people" && indicator1Data.unit === "people/km²") {
+                decimals = 0;
+                step = 1;
+            }
             settings = {
                 start: [selectedMinIndicator1, selectedMaxIndicator1],
                 tooltips: true,
                 connect: true,
+                step: step,
                 range: {
                     'min': realMinIndicator1,
                     'max': realMaxIndicator1
                 },
                 format: wNumb({
-                    decimals: 3,
+                    decimals: decimals,
                     thousand: '&nbsp;',
                     postfix: '&nbsp;'+indicator1Data.unit
                 })
@@ -934,6 +1006,10 @@ function updateIndicators(update1, update2, update3, resetSelected) {
             };
             indicator2Slider.setAttribute('disabled', true);
         } else {
+            var decimals = 3;
+            if(indicator2Data.unit === "people" && indicator2Data.unit === "people/km²") {
+                decimals = 0;
+            }
             settings = {
                 start: [selectedMinIndicator2, selectedMaxIndicator2],
                 tooltips: true,
@@ -943,7 +1019,7 @@ function updateIndicators(update1, update2, update3, resetSelected) {
                     'max': realMaxIndicator2
                 },
                 format: wNumb({
-                    decimals: 3,
+                    decimals: decimals,
                     thousand: '&nbsp;',
                     postfix: '&nbsp;' + indicator2Data.unit
                 })
@@ -988,6 +1064,10 @@ function updateIndicators(update1, update2, update3, resetSelected) {
             };
             indicator3Slider.setAttribute('disabled', true);
         } else {
+            var decimals = 3;
+            if(indicator3Data.unit === "people" && indicator3Data.unit === "people/km²") {
+                decimals = 0;
+            }
             settings = {
                 start: [selectedMinIndicator3, selectedMaxIndicator3],
                 tooltips: true,
@@ -997,7 +1077,7 @@ function updateIndicators(update1, update2, update3, resetSelected) {
                     'max': realMaxIndicator3
                 },
                 format: wNumb({
-                    decimals: 3,
+                    decimals: decimals,
                     thousand: '&nbsp;',
                     postfix: '&nbsp;'+indicator3Data.unit
                 })
@@ -1098,20 +1178,47 @@ function rebuildComponents(rebuild1And2, rebuild3) {
     // empty countries array to update with new data
     shownCountries = [];
 
+    var originalIndicator1Values = [];
+    var originalIndicator2Values = [];
+    var originalIndicator3Values = [];
+    var filteredIndicator1Values = [];
+    var filteredIndicator2Values = [];
+    var filteredIndicator3Values = [];
     for (var j = 0; j < length; j++) {
         var i1, i1NumberValue, i2, i2NumberValue, i3, i3NumberValue, countryCode;
 
         if(has1) {
             i1 = indicator1Array[j];
             i1NumberValue = Number(i1.value);
+            var v = parseFloat(parseFloat(i1NumberValue).toFixed(4));
+            if(v <= realMaxIndicator1 && v >= realMinIndicator1) {
+                originalIndicator1Values.push(v);
+            }
+            if(v <= selectedMaxIndicator1 && v >= selectedMinIndicator1) {
+                filteredIndicator1Values.push(v);
+            }
         }
         if(has2) {
             i2 = indicator2Array[j];
             i2NumberValue = Number(i2.value);
+            var v = parseFloat(parseFloat(i2NumberValue).toFixed(4));
+            if(v <= realMaxIndicator2 && v >= realMinIndicator2) {
+                originalIndicator2Values.push(v);
+            }
+            if(v <= selectedMaxIndicator2 && v >= selectedMinIndicator2) {
+                filteredIndicator2Values.push(v);
+            }
         }
         if(has3) {
             i3 = indicator3Array[j];
             i3NumberValue = parseFloat(i3.value);
+            var v = parseFloat(parseFloat(i3NumberValue).toFixed(4));
+            if(v <= realMaxIndicator3 && v >= realMinIndicator3) {
+                originalIndicator3Values.push(v);
+            }
+            if(v <= selectedMaxIndicator3 && v >= selectedMinIndicator3) {
+                filteredIndicator3Values.push(v);
+            }
         }
 
         // get the data, and set the offset, we need to do this since the x,y
@@ -1249,10 +1356,106 @@ function rebuildComponents(rebuild1And2, rebuild3) {
         }
     }
 
+    if(rebuild1And2) {
+        if(!has1 || originalIndicator1Values.length == 0) {
+            var svg = d3.select('#chart1 svg');
+            svg.selectAll("*").remove();
+            svg.datum([]).call(chart1);
+
+        } else {
+            d3.select('#chart1 svg')
+                .datum(getChartData(
+                    originalIndicator1Values,
+                    filteredIndicator1Values,
+                    realMinIndicator1,
+                    realMaxIndicator1,
+                    selectedMinIndicator1,
+                    selectedMaxIndicator1))
+                .call(chart1);
+        }
+    }
+
+    if(rebuild1And2) {
+        if (!has2 || originalIndicator2Values.length == 0) {
+            var svg = d3.select('#chart2 svg');
+            svg.selectAll("*").remove();
+            svg.datum([]).call(chart2);
+
+        } else {
+            d3.select('#chart2 svg')
+                .datum(getChartData(
+                    originalIndicator2Values,
+                    filteredIndicator2Values,
+                    realMinIndicator2,
+                    realMaxIndicator2,
+                    selectedMinIndicator2,
+                    selectedMaxIndicator2))
+                .call(chart2);
+        }
+    }
+
+    if(rebuild3) {
+        if (!has3 || originalIndicator3Values.length == 0) {
+            var svg = d3.select('#chart3 svg');
+            svg.selectAll("*").remove();
+            svg.datum([]).call(chart3);
+
+        } else {
+            d3.select('#chart3 svg')
+                .datum(getChartData(
+                    originalIndicator3Values,
+                    filteredIndicator3Values,
+                    realMinIndicator3,
+                    realMaxIndicator3,
+                    selectedMinIndicator3,
+                    selectedMaxIndicator3))
+                .call(chart3);
+        }
+    }
+
     for(var m in shownBarsData) {
         var barToShow = shownBarsData[m].bar;
         barToShow.visible = true;
     }
+}
+
+
+function getChartData(originalData, filteredData, realMin, realMax, selectedMin, selectedMax) {
+
+    var originalDataStats = stats(originalData);
+    var originalQ1 = originalDataStats.q1();
+    var originalQ2 = originalDataStats.median();
+    var originalQ3 = originalDataStats.q3();
+
+    var filteredDataStats = stats(filteredData);
+    var filteredQ1 = filteredDataStats.q1();
+    var filteredQ2 = filteredDataStats.median();
+    var filteredQ3 = filteredDataStats.q3();
+
+    return  [
+        {
+            label: "Original",
+            color: '#aaa',
+            values: {
+                Q1: originalQ1,
+                Q2: originalQ2,
+                Q3: originalQ3,
+                whisker_low: realMin,
+                whisker_high: realMax
+            }
+        },
+        {
+            label: "Filtered",
+            color: '#aaa',
+            values: {
+                Q1: filteredQ1,
+                Q2: filteredQ2,
+                Q3: filteredQ3,
+                whisker_low: selectedMin,
+                whisker_high: selectedMax
+            }
+        }
+    ];
 }
 
 
@@ -1342,7 +1545,7 @@ function attemptShowDetailsOfCountry(x, y) {
                             });
                         } else {
                             detailsContainerJQuery.offset({
-                                left: 5,
+                                left: window.innerWidth - detailsContainer.offsetWidth,
                                 top: 50
                             });
                             detailsContainerJQuery.removeClass('details-dark');
@@ -1399,7 +1602,7 @@ function attemptShowDetailsOfCountry(x, y) {
                             });
                         } else {
                             detailsContainerJQuery.offset({
-                                left: 5,
+                                left: window.innerWidth - 425,
                                 top: 50
                             });
                         }
