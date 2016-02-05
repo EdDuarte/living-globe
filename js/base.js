@@ -20,6 +20,7 @@
 $('#info-modal').modal('show').modal('hide');
 $('#config-modal').modal('show').modal('hide');
 
+var boxPlotContainer = $('#boxPlotContainer');
 var chart1 = nv.models.boxPlotChart()
     .x(function(d) { return d.label })
     .y(function(d) { return d.values.Q3 })
@@ -139,6 +140,10 @@ var selectedYear = defaultSelectedYear;
 var selectedYearJson = {};
 var selectedCountryCode = -1;
 var selectedCountryLineIndex = -1;
+
+var showBoxPlots = true;
+var showBoxPlotsCheckbox = document.getElementById("showBoxPlotsCheckbox");
+showBoxPlotsCheckbox.checked = showBoxPlots;
 
 var anchorCountryDetailsToMouse = false;
 var anchorCountryDetailsToMouseCheckbox = document.getElementById("anchorCountryDetailsToMouseCheckbox");
@@ -471,7 +476,7 @@ var blendImage = THREE.ImageUtils.loadTexture("img/outline5-comp2.png");
 
 
 // outline texture, used for aesthetic purposes only
-var outlineTexture = THREE.ImageUtils.loadTexture("img/outline10-comp2.png");
+var outlineTexture = THREE.ImageUtils.loadTexture("img/outline10-comp2-dark2.png");
 outlineTexture.needsUpdate = true;
 
 
@@ -945,23 +950,17 @@ function updateIndicators(update1, update2, update3, resetSelected) {
             };
             indicator1Slider.setAttribute('disabled', true);
         } else {
-            var decimals = 3;
-            var step = 0.001;
-            if(indicator1Data.unit === "people" && indicator1Data.unit === "people/km²") {
-                decimals = 0;
-                step = 1;
-            }
             settings = {
                 start: [selectedMinIndicator1, selectedMaxIndicator1],
                 tooltips: true,
                 connect: true,
-                step: step,
+                step: 1,
                 range: {
                     'min': realMinIndicator1,
                     'max': realMaxIndicator1
                 },
                 format: wNumb({
-                    decimals: decimals,
+                    decimals: 0,
                     thousand: '&nbsp;',
                     postfix: '&nbsp;'+indicator1Data.unit
                 })
@@ -1006,20 +1005,21 @@ function updateIndicators(update1, update2, update3, resetSelected) {
             };
             indicator2Slider.setAttribute('disabled', true);
         } else {
-            var decimals = 3;
-            if(indicator2Data.unit === "people" && indicator2Data.unit === "people/km²") {
+            //var decimals = 3;
+            //if(indicator2Data.unit === "people" && indicator2Data.unit === "people/km²") {
                 decimals = 0;
-            }
+            //}
             settings = {
                 start: [selectedMinIndicator2, selectedMaxIndicator2],
                 tooltips: true,
                 connect: true,
+                step: 1,
                 range: {
                     'min': realMinIndicator2,
                     'max': realMaxIndicator2
                 },
                 format: wNumb({
-                    decimals: decimals,
+                    decimals: 0,
                     thousand: '&nbsp;',
                     postfix: '&nbsp;' + indicator2Data.unit
                 })
@@ -1064,20 +1064,17 @@ function updateIndicators(update1, update2, update3, resetSelected) {
             };
             indicator3Slider.setAttribute('disabled', true);
         } else {
-            var decimals = 3;
-            if(indicator3Data.unit === "people" && indicator3Data.unit === "people/km²") {
-                decimals = 0;
-            }
             settings = {
                 start: [selectedMinIndicator3, selectedMaxIndicator3],
                 tooltips: true,
                 connect: true,
+                step: 1,
                 range: {
                     'min': realMinIndicator3,
                     'max': realMaxIndicator3
                 },
                 format: wNumb({
-                    decimals: decimals,
+                    decimals: 0,
                     thousand: '&nbsp;',
                     postfix: '&nbsp;'+indicator3Data.unit
                 })
@@ -1496,6 +1493,30 @@ function colorCountry(countryCode, color) {
     ratioContext.fillStyle = color;
     ratioContext.fillRect(countryCode, 0, 1, 1);
     ratioTexture.needsUpdate = true;
+}
+
+
+
+function onShowBoxPlotsCheckboxChange() {
+    showBoxPlots = showBoxPlotsCheckbox.checked;
+    updateBoxPlots();
+}
+
+
+
+function onShowBoxPlotsLabelClick() {
+    showBoxPlotsCheckbox.checked = !showBoxPlotsCheckbox.checked;
+    showBoxPlots = showBoxPlotsCheckbox.checked;
+    updateBoxPlots();
+}
+
+
+function updateBoxPlots() {
+    if(showBoxPlots) {
+        boxPlotContainer.show();
+    } else {
+        boxPlotContainer.hide();
+    }
 }
 
 

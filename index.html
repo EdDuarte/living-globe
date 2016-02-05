@@ -47,7 +47,7 @@
 
     <!-- Custom stylesheets -->
     <link rel="stylesheet" href="css/loading-ring.css" type="text/css">
-    <link rel="stylesheet" href="css/base-light.css" type="text/css">
+    <link rel="stylesheet" href="css/base-dark.css" type="text/css">
 
 
 </head>
@@ -154,19 +154,19 @@
                 <table>
                     <tr>
                         <td style="width: 33%">
-                            <div id="chart1">
+                            <div id="chart1" class="chart">
                                 <svg></svg>
                                 <div id="indicator1Name" style="font-size: 12px; height: 30px; color: #aaa; text-align: center">aa</div>
                             </div>
                         </td>
                         <td style="width: 33%">
-                            <div id="chart2">
+                            <div id="chart2" class="chart">
                                 <svg></svg>
                                 <div id="indicator2Name" style="font-size: 12px; height: 30px; color: #aaa; text-align: center"></div>
                             </div>
                         </td>
                         <td style="width: 33%">
-                            <div id="chart3">
+                            <div id="chart3" class="chart">
                                 <svg></svg>
                                 <div id="indicator3Name" style="font-size: 12px; height: 30px; color: #aaa; text-align: center"></div>
                             </div>
@@ -204,6 +204,20 @@
                 <div class="row-fluid" style="margin-top: -30px">
                     <div class="span9">
                         <table>
+                            <tr>
+                                <td>
+                                    <div class="customCheckbox">
+                                        <input type="checkbox" value="" id="showBoxPlotsCheckbox" onchange="onShowBoxPlotsCheckboxChange()" name="check" />
+                                        <label for="showBoxPlotsCheckbox"></label>
+                                    </div>
+                                </td>
+                                <td width="7px"></td>
+                                <td>
+                                    <div id="showBoxPlotsLabel" class="customCheckboxLabel" onclick="onShowBoxPlotsLabelClick()">
+                                        Display box plots
+                                    </div>
+                                </td>
+                            </tr>
                             <tr>
                                 <td>
                                     <div class="customCheckbox">
