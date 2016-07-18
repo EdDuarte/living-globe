@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Living Globe v3.0.0
+ * Living Globe v3.0.2
  * Authors: Eduardo Duarte (ed@edduarte.com) and Pedro Bordonhos (bordonhos@ua.pt)
  */
 
@@ -141,12 +141,13 @@ var selectedYearJson = {};
 var selectedCountryCode = -1;
 var selectedCountryLineIndex = -1;
 
-var showBoxPlots = true;
+var showBoxPlots = false;
 var showBoxPlotsCheckbox = document.getElementById("showBoxPlotsCheckbox");
 showBoxPlotsCheckbox.checked = showBoxPlots;
 
 var anchorCountryDetailsToMouse = false;
-var anchorCountryDetailsToMouseCheckbox = document.getElementById("anchorCountryDetailsToMouseCheckbox");
+var anchorCountryDetailsToMouseCheckbox =
+    document.getElementById("anchorCountryDetailsToMouseCheckbox");
 anchorCountryDetailsToMouseCheckbox.checked = anchorCountryDetailsToMouse;
 
 var keepBoundsOnYearChange = false;
@@ -1145,7 +1146,7 @@ function rebuildComponents(rebuild1And2, rebuild3) {
     var indicator3Array = selectedYearJson[selectedIndicator3Id];
     var has1 = rebuild1And2;
     var has2 = rebuild1And2;
-    var has3 = rebuild3;
+    var has3 = true;
     var length = 0;
 
     if (has1 && (typeof indicator1Array === 'undefined' || indicator1Array.length == 0)) {
@@ -1162,7 +1163,7 @@ function rebuildComponents(rebuild1And2, rebuild3) {
         length = indicator1Array.length;
     } else if (has2) {
         length = indicator2Array.length;
-    } else if(has3) {
+    } else {
         length = indicator3Array.length;
     }
 
@@ -1279,8 +1280,9 @@ function rebuildComponents(rebuild1And2, rebuild3) {
                 }
 
                 var hasBar = false;
-                // TODO: WE ARE NO LONGER REBUILDING BARS, SO OPTIMIZE THIS TO
-                // CREATE ONE ON STARTUP AND ADD THEM TO A MAP BY COUNTRYCODE
+                // TODO: WE ARE NO LONGER REBUILDING BARS! THIS SHOULD BE
+                // OPTIMIZED THIS TO CREATE ONE ON STARTUP AND ADD THEM TO A
+                // MAP WITH COUNTRY CODES AS KEYS
                 for (var i = 0 ; i < shownBarsData.length; i++) {
                     var barData = shownBarsData[i];
                     if(barData.countryCode == countryCode) {
@@ -1292,9 +1294,9 @@ function rebuildComponents(rebuild1And2, rebuild3) {
 
                         var lat1 = countryDetails.latitude;
                         var lon1 = countryDetails.longitude;
-                        var position1 = latLongToVector3(lat1, lon1, 100 + value1 / 2 - 2, 1);
                         mesh1.scale.x = barWidth;
                         mesh1.scale.y = barWidth;
+                        var position1 = latLongToVector3(lat1, lon1, 100 + value1 / 2 - 2, 1);
                         if (value1 == 0) {
                             mesh1.scale.z = -1;
                         } else {
