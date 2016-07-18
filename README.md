@@ -18,7 +18,12 @@ __Living-Globe is available at [http://edduarte.com/living-globe/](http://edduar
 
 # Publication
 
-Coming Soon
+#### Living Globe: Tridimensional Interactive Visualization of World Demographic Data  
+##### Eduardo Duarte, Pedro Bordonhos, Paulo Dias, Beatriz Sousa Santos  
+Human Interface and the Management of Information:Information, Design and Interaction  
+Volume 9734 of the series Lecture Notes in Computer Science pp 14-24  
+Date: 21 June 2016  
+https://link.springer.com/chapter/10.1007%2F978-3-319-40349-6_2
 
 # Description
 
