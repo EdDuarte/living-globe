@@ -18,8 +18,8 @@ __Living-Globe is available at [http://edduarte.com/living-globe/](http://edduar
 
 # Publication
 
-#### Living Globe: Tridimensional Interactive Visualization of World Demographic Data  
-##### Eduardo Duarte, Pedro Bordonhos, Paulo Dias, Beatriz Sousa Santos  
+### Living Globe: Tridimensional Interactive Visualization of World Demographic Data
+__Eduardo Duarte, Pedro Bordonhos, Paulo Dias, Beatriz Sousa Santos__  
 Human Interface and the Management of Information:Information, Design and Interaction  
 Volume 9734 of the series Lecture Notes in Computer Science pp 14-24  
 Date: 21 June 2016  
@@ -31,7 +31,7 @@ Living Globe allows the visual exploration of the following demographics data: p
 
 In order to support this feature, three visual variables may be selected to map a data type: i) height of vertical bars (directly proportional to the data value) ii) color of vertical bars (in a color scale ranging from blue to yellow) and iii) color of the countries on the globe (in a scale ranging from red to green). An adequate selection of the data variables and their mapping to the visual variables may help the identification and study of potential relations among data variables. The time interval may be selected using a slider.
 
-Living Globe also offers the following functionality: i) configuration of minimum and maximum data values that should be visualized; ii) textual search, with dynamic suggestion of the countries names; and iii) country selection. The former functionality is important, for instance, to improve the visualization of data in countries with small samples (eg. Portugal) by filtering out countries with large samples (e.g. China).
+Living Globe also offers the following functionality: i) textual search, with dynamic suggestion of the countries names; ii) country selection; and iii) configuration of minimum and maximum data values; This last feature, which filters out countries that do not match the minimum and maximum values and normalizes the remaining data set, can potentially lead to improvements in the interpretation of data in countries with small samples (eg. Portugal) by filtering out countries with large samples (e.g. China).
 
 # Evaluation
 
@@ -43,13 +43,12 @@ selection, search and filtering.
 
 # Future Work
 
-- allow user configuration of color scales;
 - remove dependencies on demographic data, making Living Globe a generic API that allows the input of any kind of data.
 
 
 # License
 
-    Copyright 2015 University of Aveiro
+    Copyright 2016 University of Aveiro
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
