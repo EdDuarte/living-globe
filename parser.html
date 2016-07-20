@@ -1,0 +1,30 @@
+<div id="result"></div>
+<script type="text/javascript" src="js/lib/d3.v3.min.js"></script>
+<script type="text/javascript">
+    var res = {};
+    var indicators = ["NY.GDP.MKTP.KD.ZG","NY.GDP.MKTP.CD","NY.GDP.PCAP.CD","NE.EXP.GNFS.ZS","FP.CPI.TOTL.ZG","NE.IMP.GNFS.ZS","SE.ADT.LITR.ZS","SL.UEM.TOTL.ZS","EN.ATM.CO2E.PC"];
+    for(var i = 1960; i < 2014; i++) {
+        res[i] = {};
+        for(var j in indicators) {
+            res[i][indicators[j]] = [];
+        }
+    }
+    d3.csv("data/original/theworldbank/alt_data.csv", function(data) {
+        for(var i in data) {
+            var row = data[i];
+            var indicatorID = row["Series Code"];
+            var countryCode = row["Country Code"];
+            for(var j = 1960; j < 2014; j++) {
+                var value = row[j+" [YR"+j+"]"];
+                if(value===".."){
+                    value = "";
+                }
+                res[j][indicatorID].push({
+                    "countryCode": countryCode,
+                    "value": String(value)
+                });
+            }
+        }
+        document.getElementById("result").innerHTML = JSON.stringify(res);
+    });
+</script>
