@@ -78,10 +78,9 @@ nv.addGraph(function() {
 
 // constant values
 var tooltipOffset = 1;
-var defaultSelectedYear = 2013;
-var selectedIndicator1Id = "SP.POP.GROW";
-var selectedIndicator2Id = "SP.DYN.LE00.IN";
-var selectedIndicator3Id = "SP.DYN.CBDRT.IN";
+var selectedIndicator1Id;
+var selectedIndicator2Id;
+var selectedIndicator3Id;
 //var minimumDragDistance = 0.04;
 var barWidth = 0.5;
 var barNoDataColor = '#747474';
@@ -136,7 +135,7 @@ var autoCompleteLookup;
 var inputData = {};
 var shownCountries = [];
 var shownBarsData = [];
-var selectedYear = defaultSelectedYear;
+var selectedYear = 2013;
 var selectedYearJson = {};
 var selectedCountryCode = -1;
 var selectedCountryLineIndex = -1;
@@ -576,45 +575,6 @@ composer.addPass(renderModel);
 
 // search field setup
 var searchField = $('#searchField');
-readJsonFile('data/countries.json', function(countries) {
-    ISOCodeToDetailsMap = countries;
-    // data is listed in a second array with the format
-    // [{value: country name, data: ISO-3166 country code}, ...],
-    // which is then used as the input of dev-bridge auto-complete plugin
-    autoCompleteLookup = [];
-    for (var c in countries) {
-        // add country names and capitals to be used on auto complete search field
-        autoCompleteLookup.push({
-            value: countries[c].name,
-            data: c
-        });
-    }
-    searchField.on('focus', function() {
-        var $this = $(this)
-            .one('mouseup.mouseupSelect', function() {
-                $this.select();
-                return false;
-            })
-            .one('mousedown', function() {
-                // compensate for untriggered 'mouseup' caused by focus via tab
-                $this.off('mouseup.mouseupSelect');
-            })
-            .select();
-    }).val("").devbridgeAutocomplete({
-        minChars: 1,
-        width: 430,
-        autoSelectFirst: true,
-        triggerSelectOnValidInput: false,
-        preventBadQueries: false,
-        lookup: autoCompleteLookup,
-        onSelect: function (suggestion) {
-            select(suggestion.data);
-            searchField.val('');
-            searchField.blur();
-        }
-    });
-    $('#search').show();
-});
 
 
 // read map of ISO-3166 alpha 3 country codes to gray index levels of lookup
@@ -622,28 +582,68 @@ readJsonFile('data/countries.json', function(countries) {
 readJsonFile('data/gray_codes.json', function(gray_codes) {
     ISOCodeToIndexColorMap = gray_codes;
 
-    // read map of indicator keys (from TheWorldBank DataBank) to indicator
-    // names and measuring units
-    readJsonFile('data/indicators.json', function(indicators) {
-        indicatorIdToDetailsMap = indicators;
-        indicatorIdArray = [];
-        var addItem = function(txt) {
-            dropdownIndicator1.append("<li><a href='#'>" + txt + "</a></li>");
-            dropdownIndicator2.append("<li><a href='#'>" + txt + "</a></li>");
-            dropdownIndicator3.append("<li><a href='#'>" + txt + "</a></li>");
-        };
-
-        // adds to dropdown the available indicators for the user to pick /
-        // map to components
-        addItem("None");
-        for(var k in indicators) {
-            indicatorIdArray.push(k);
-            addItem(indicatorIdToDetailsMap[k].name);
+    readJsonFile('data/countries.json', function(countries) {
+        ISOCodeToDetailsMap = countries;
+        // data is listed in a second array with the format
+        // [{value: country name, data: ISO-3166 country code}, ...],
+        // which is then used as the input of dev-bridge auto-complete plugin
+        autoCompleteLookup = [];
+        for (var c in countries) {
+            // add country names and capitals to be used on auto complete search field
+            autoCompleteLookup.push({
+                value: countries[c].name,
+                data: c
+            });
         }
+        searchField.on('focus', function() {
+            var $this = $(this)
+                .one('mouseup.mouseupSelect', function() {
+                    $this.select();
+                    return false;
+                })
+                .one('mousedown', function() {
+                    // compensate for untriggered 'mouseup' caused by focus via tab
+                    $this.off('mouseup.mouseupSelect');
+                })
+                .select();
+        }).val("").devbridgeAutocomplete({
+            minChars: 1,
+            width: 430,
+            autoSelectFirst: true,
+            triggerSelectOnValidInput: false,
+            preventBadQueries: false,
+            lookup: autoCompleteLookup,
+            onSelect: function (suggestion) {
+                select(suggestion.data);
+                searchField.val('');
+                searchField.blur();
+            }
+        });
+        $('#search').show();
 
-        // read data arrays separated by year and by indicator key
-        readJsonFile('data/data.json', function(data) {
-            inputData = data;
+
+        readJsonFile('input.json', function(input) {
+
+            // read map of indicator keys (from TheWorldBank DataBank) to indicator
+            // names and measuring units
+            indicatorIdToDetailsMap = input.indicators;
+            indicatorIdArray = [];
+            var addItem = function(txt) {
+                dropdownIndicator1.append("<li><a href='#'>" + txt + "</a></li>");
+                dropdownIndicator2.append("<li><a href='#'>" + txt + "</a></li>");
+                dropdownIndicator3.append("<li><a href='#'>" + txt + "</a></li>");
+            };
+
+            // adds to dropdown the available indicators for the user to pick /
+            // map to components
+            addItem("None");
+            for(var k in indicatorIdToDetailsMap) {
+                indicatorIdArray.push(k);
+                addItem(indicatorIdToDetailsMap[k].name);
+            }
+
+            // read data arrays separated by year and by indicator key
+            inputData = input.data;
 
             var yearArray = [];
             var maxYear = 0;
@@ -661,15 +661,18 @@ readJsonFile('data/gray_codes.json', function(gray_codes) {
                     minYear = year;
                 }
             }
-            selectedYear = defaultSelectedYear;
-            selectedYearJson = inputData[defaultSelectedYear];
+            selectedIndicator1Id = input.defaultIndicator1;
+            selectedIndicator2Id = input.defaultIndicator2;
+            selectedIndicator3Id = input.defaultIndicator3;
+            selectedYear = input.defaultYear;
+            selectedYearJson = inputData[selectedYear];
 
             // setup the range for the year slider, based on the obtained max
             // and min values
             timeline.noUiSlider.destroy();
             var timelineSlider = noUiSlider.create(timeline, {
                 animate: true,
-                start: defaultSelectedYear,
+                start: selectedYear,
                 tooltips: true,
                 step: 1,
                 range: {
@@ -1008,7 +1011,7 @@ function updateIndicators(update1, update2, update3, resetSelected) {
         } else {
             //var decimals = 3;
             //if(indicator2Data.unit === "people" && indicator2Data.unit === "people/km²") {
-                decimals = 0;
+            decimals = 0;
             //}
             settings = {
                 start: [selectedMinIndicator2, selectedMaxIndicator2],
