@@ -2,30 +2,34 @@
 
 ![Screenshot](screenshot.png)
 
-Living Globe is an application for tri-dimensional worldwide demographical data
-visualization. It allows the simultaneous representation of multiple
-indicators, like total population, density, population-growth, life expectancy,
-net migration, crude birth rate, crude death rate and the ratio between the
-last two. The mapping of data to the provided visual structures is configurable
-by the user, introducing an aspect of customization which encourages a more
-immediate, visual-only interpretation of the data. Additionally, the
-represented data is normalized within an adjustable scale. This can be used to
-filter out extremely high or extremely low samples, uniforming the remaining
-data and improving its visibility.
+Data visualization application that allows the simultaneous representation of multiple spatial indicators on a 3D globe. The mapping of data to the provided visual structures is configurable by the user, introducing an aspect of customization which encourages a more immediate, visual-only interpretation of the data. The user can also filter out extremely high or extremely low samples, normalizing the remaining data and improving its visibility.
 
-__Living-Globe is available at [http://edduarte.com/living-globe/](http://edduarte.com/living-globe/)__
+__Demo: [http://edduarte.com/living-globe/](http://edduarte.com/living-globe/)__
 <br/>
 
-# Publication
+## References
 
 ### Living Globe: Tridimensional Interactive Visualization of World Demographic Data
-__Eduardo Duarte, Pedro Bordonhos, Paulo Dias, Beatriz Sousa Santos__  
-Human Interface and the Management of Information:Information, Design and Interaction  
-Volume 9734 of the series Lecture Notes in Computer Science pp 14-24  
-Date: 21 June 2016  
-https://link.springer.com/chapter/10.1007%2F978-3-319-40349-6_2
 
-# Description
+E. Duarte, P. Bordonhos, P. Dias, B. S. Santos, [*Living Globe: Tridimensional Interactive Visualization of World Demographic Data*](https://link.springer.com/chapter/10.1007%2F978-3-319-40349-6_2)
+
+```
+@Inbook{Duarte2016,
+    author="Duarte, Eduardo and Bordonhos, Pedro and Dias, Paulo and Santos, Beatriz Sousa",
+    editor="Yamamoto, Sakae",
+    title="Living Globe: Tridimensional Interactive Visualization of World Demographic Data",
+    bookTitle="Human Interface and the Management of Information:Information, Design and Interaction: 18th International Conference, HCI International 2016 Toronto, Canada, July 17-22, 2016, Proceedings, Part I",
+    year="2016",
+    publisher="Springer International Publishing",
+    address="Cham",
+    pages="14--24",
+    isbn="978-3-319-40349-6",
+    doi="10.1007/978-3-319-40349-6_2",
+    url="http://dx.doi.org/10.1007/978-3-319-40349-6_2"
+}
+```
+
+## Description
 
 Living Globe allows the visual exploration of the following demographics data: population, population density and growth, birth and death rates, life expectancy, migration flow, crude mortality and crude birth rates. It is targeted to users having at least a minimum of computer and statistics literacy. While offering unexperienced users a default mapping of these data variables into visual variables, Living Globe allows more advanced users to select the mapping they intent to use. This means that these users have the possibility of control over an earlier stage of the visualization reference model (Riccardo Mazza. Introduction to information visualization. Springer-Verlag London, 1, 2009) making Living Globe a more flexible tool.
 
@@ -33,7 +37,7 @@ In order to support this feature, three visual variables may be selected to map 
 
 Living Globe also offers the following functionality: i) textual search, with dynamic suggestion of the countries names; ii) country selection; and iii) configuration of minimum and maximum data values; This last feature, which filters out countries that do not match the minimum and maximum values and normalizes the remaining data set, can potentially lead to improvements in the interpretation of data in countries with small samples (eg. Portugal) by filtering out countries with large samples (e.g. China).
 
-# Evaluation
+## Evaluation
 
 The usability of this tool was tested by agnostic individuals, and the results
 indicate that the data filtering and customizable mapping features encourage a
@@ -41,12 +45,12 @@ faster interpretation of relational information. Moreover, this tool improves
 on previous state-of-the-art work by implementing interaction capabilities like
 selection, search and filtering.
 
-# Future Work
+## Future Work
 
 - remove dependencies on demographic data, making Living Globe a generic API that allows the input of any kind of data.
 
 
-# License
+## License
 
     Copyright 2016 University of Aveiro
 
