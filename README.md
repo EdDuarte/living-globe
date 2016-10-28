@@ -31,7 +31,9 @@ E. Duarte, P. Bordonhos, P. Dias, B. S. Santos, [*Living Globe: Tridimensional I
 
 ## Description
 
-Living Globe allows the visual exploration of the following demographics data: population, population density and growth, birth and death rates, life expectancy, migration flow, crude mortality and crude birth rates. It is targeted to users having at least a minimum of computer and statistics literacy. While offering unexperienced users a default mapping of these data variables into visual variables, Living Globe allows more advanced users to select the mapping they intent to use. This means that these users have the possibility of control over an earlier stage of the visualization reference model (Riccardo Mazza. Introduction to information visualization. Springer-Verlag London, 1, 2009) making Living Globe a more flexible tool.
+Living Globe allows the visual exploration of the any kind of numerical data structured by year and by country, in the shape of a JSON input file. We provide two example input files, "input.json" (containing demographic data between the years 1960 and 2014) and "input_alt.json" (containing miscelaneous data regarding finance, demography and employment between the years 1960 and 2014). 
+
+While offering unexperienced users a default mapping of these data variables into visual variables, Living Globe allows more advanced users to select the mapping they intent to use. This means that these users have the possibility of control over an earlier stage of the visualization reference model (Riccardo Mazza. Introduction to information visualization. Springer-Verlag London, 1, 2009) making Living Globe a more flexible tool.
 
 In order to support this feature, three visual variables may be selected to map a data type: i) height of vertical bars (directly proportional to the data value) ii) color of vertical bars (in a color scale ranging from blue to yellow) and iii) color of the countries on the globe (in a scale ranging from red to green). An adequate selection of the data variables and their mapping to the visual variables may help the identification and study of potential relations among data variables. The time interval may be selected using a slider.
 
@@ -44,10 +46,6 @@ indicate that the data filtering and customizable mapping features encourage a
 faster interpretation of relational information. Moreover, this tool improves
 on previous state-of-the-art work by implementing interaction capabilities like
 selection, search and filtering.
-
-## Future Work
-
-- remove dependencies on demographic data, making Living Globe a generic API that allows the input of any kind of data.
 
 
 ## License
