@@ -4,7 +4,7 @@
 
 Data visualization application that allows the simultaneous representation of multiple spatial indicators on a 3D globe. The mapping of data to the provided visual structures is configurable by the user, introducing an aspect of customization which encourages a more immediate, visual-only interpretation of the data. The user can also filter out extremely high or extremely low samples, normalizing the remaining data and improving its visibility.
 
-__Demo: [http://edduarte.com/living-globe/](http://edduarte.com/living-globe/)__
+__Demo: [https://edduarte.github.io/living-globe/](https://edduarte.github.io/living-globe/)__
 <br/>
 
 ## References
