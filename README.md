@@ -2,7 +2,7 @@
 
 **Demo: [https://edduarte.github.io/living-globe/](https://edduarte.github.io/living-globe/)**
 
-![Screenshot](screenshot.png)
+[https://edduarte.github.io/living-globe/]( ![Screenshot](screenshot.png) )
 
 Data visualization application that allows the simultaneous representation of
 multiple spatial indicators on a 3D globe. The mapping of data to the provided
