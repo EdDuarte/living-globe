@@ -1,5 +1,7 @@
 # Living Globe
 
+**Demo: [https://edduarte.github.io/living-globe/](https://edduarte.github.io/living-globe/)**
+
 ![Screenshot](screenshot.png)
 
 Data visualization application that allows the simultaneous representation of
@@ -8,9 +10,6 @@ visual structures is configurable by the user, introducing an aspect of
 customization which encourages a more immediate, visual-only interpretation of
 the data. The user can also filter out extremely high or extremely low samples,
 normalizing the remaining data and improving its visibility.
-
-**Demo: [https://edduarte.github.io/living-globe/](https://edduarte.github.io
-/living-globe/)**
 
 This application has been developed as part of a research paper (E. Duarte, P.
 Bordonhos, P. Dias, B. S. Santos, *Living Globe: Tridimensional Interactive
