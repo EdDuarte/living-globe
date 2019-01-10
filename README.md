@@ -14,9 +14,8 @@ normalizing the remaining data and improving its visibility.
 This application has been developed as part of a research paper (E. Duarte, P.
 Bordonhos, P. Dias, B. S. Santos, *Living Globe: Tridimensional Interactive
 Visualization of World Demographic Data*) and presented at HCI International
-2016, The Westin Harbour Castle Hotel, Toronto, Canada. [**Links to the
-publication and the talk slides are available on my
-blog**](https://edduarte.com/living-globe).
+2016, The Westin Harbour Castle Hotel, Toronto, Canada. **Links to the
+publication and the talk slides are available here: [https://www.edduarte.com/living-globe-tridimensional-interactive-visualization-of-world-demographic-data/](https://www.edduarte.com/living-globe-tridimensional-interactive-visualization-of-world-demographic-data/)**.
 
 ## License
 
